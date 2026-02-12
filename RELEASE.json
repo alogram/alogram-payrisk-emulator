@@ -1,0 +1,7 @@
+{
+  "artifact": "alogram-payrisk-emulator",
+  "version": "0.1.6-rc.12",
+  "monorepo_commit": "HEAD",
+  "license": "Apache-2.0",
+  "ai_ready": true
+}

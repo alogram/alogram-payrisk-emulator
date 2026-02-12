@@ -1,0 +1,2802 @@
+---
+openapi: 3.0.4
+info:
+  contact:
+    email: support@alogram.ai
+    name: Alogram Support
+    url: https://alogram.ai/#contact
+  description: |
+    API for detecting and scoring fraud for purchases, with lifecycle labeling and behavioral signals. v1 focuses on purchases only
+    (`/risk/check`), with future account/session and KYC checks stubbed below.
+  license:
+    name: LicenseRef-Alogram
+    url: https://alogram.ai/#tos
+  termsOfService: https://alogram.ai/#tos
+  title: Payments Risk API
+  version: 0.1.6-rc.3
+servers:
+  - description: Per-environment API gateway.
+    url: "https://api-{environment}.alogram.ai/{version}"
+    variables:
+      environment:
+        default: dev
+        enum:
+          - dev
+          - nonprod
+          - sandbox
+      version:
+        default: v1
+        enum:
+          - v1
+    x-google-endpoint: {}
+  - description: Production API gateway v1.
+    url: https://api.alogram.ai/v1
+security:
+  - ApiKey: []
+  - oAuth2:
+      - payrisk.write
+paths:
+  /v1/risk/check:
+    post:
+      operationId: riskCheck
+      parameters:
+        - description: Echoed or generated trace ID for tracking requests.
+          explode: false
+          in: header
+          name: x-trace-id
+          required: false
+          schema:
+            $ref: "#/components/schemas/TraceId"
+          style: simple
+        - description: Unique Idempotency-Key sent in the POST request etc.
+          in: header
+          name: x-idempotency-key
+          required: true
+          schema:
+            $ref: "#/components/schemas/IdempotencyKey"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CheckRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DecisionResponse"
+          description: Synchronous risk decision.
+          headers:
+            x-trace-id:
+              $ref: "#/components/headers/TraceIdHeader"
+            x-idempotency-key:
+              $ref: "#/components/headers/XIdempotencyKeyHeader"
+        "400":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: An error response.
+          headers:
+            x-trace-id:
+              $ref: "#/components/headers/TraceIdHeader"
+            x-idempotency-key:
+              $ref: "#/components/headers/XIdempotencyKeyHeader"
+        "401":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: An error response.
+          headers:
+            x-trace-id:
+              $ref: "#/components/headers/TraceIdHeader"
+            x-idempotency-key:
+              $ref: "#/components/headers/XIdempotencyKeyHeader"
+        "403":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: An error response.
+          headers:
+            x-trace-id:
+              $ref: "#/components/headers/TraceIdHeader"
+            x-idempotency-key:
+              $ref: "#/components/headers/XIdempotencyKeyHeader"
+        "422":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: An error response.
+          headers:
+            x-trace-id:
+              $ref: "#/components/headers/TraceIdHeader"
+            x-idempotency-key:
+              $ref: "#/components/headers/XIdempotencyKeyHeader"
+        "429":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: An error response.
+          headers:
+            x-trace-id:
+              $ref: "#/components/headers/TraceIdHeader"
+            x-idempotency-key:
+              $ref: "#/components/headers/XIdempotencyKeyHeader"
+        "500":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: An error response.
+          headers:
+            x-trace-id:
+              $ref: "#/components/headers/TraceIdHeader"
+            x-idempotency-key:
+              $ref: "#/components/headers/XIdempotencyKeyHeader"
+      security:
+        - ApiKey: []
+        - oAuth2:
+            - payrisk.write
+      summary: Synchronous fraud decision for a purchase
+      tags:
+        - payrisk
+  /v1/events:
+    post:
+      operationId: ingestPaymentEvent
+      parameters:
+        - description: Echoed or generated trace ID for tracking requests.
+          explode: false
+          in: header
+          name: x-trace-id
+          required: false
+          schema:
+            $ref: "#/components/schemas/TraceId"
+          style: simple
+        - description: Unique Idempotency-Key sent in the POST request etc.
+          in: header
+          name: x-idempotency-key
+          required: true
+          schema:
+            $ref: "#/components/schemas/IdempotencyKey"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PaymentEvent"
+        required: true
+      responses:
+        "202":
+          description: Accepted
+          headers:
+            x-trace-id:
+              $ref: "#/components/headers/TraceIdHeader"
+            x-idempotency-key:
+              $ref: "#/components/headers/XIdempotencyKeyHeader"
+        "400":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: An error response.
+          headers:
+            x-trace-id:
+              $ref: "#/components/headers/TraceIdHeader"
+            x-idempotency-key:
+              $ref: "#/components/headers/XIdempotencyKeyHeader"
+        "401":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: An error response.
+          headers:
+            x-trace-id:
+              $ref: "#/components/headers/TraceIdHeader"
+            x-idempotency-key:
+              $ref: "#/components/headers/XIdempotencyKeyHeader"
+        "403":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: An error response.
+          headers:
+            x-trace-id:
+              $ref: "#/components/headers/TraceIdHeader"
+            x-idempotency-key:
+              $ref: "#/components/headers/XIdempotencyKeyHeader"
+        "404":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: An error response.
+          headers:
+            x-trace-id:
+              $ref: "#/components/headers/TraceIdHeader"
+            x-idempotency-key:
+              $ref: "#/components/headers/XIdempotencyKeyHeader"
+        "409":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: An error response.
+          headers:
+            x-trace-id:
+              $ref: "#/components/headers/TraceIdHeader"
+            x-idempotency-key:
+              $ref: "#/components/headers/XIdempotencyKeyHeader"
+        "413":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: An error response.
+          headers:
+            x-trace-id:
+              $ref: "#/components/headers/TraceIdHeader"
+            x-idempotency-key:
+              $ref: "#/components/headers/XIdempotencyKeyHeader"
+        "422":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: An error response.
+          headers:
+            x-trace-id:
+              $ref: "#/components/headers/TraceIdHeader"
+            x-idempotency-key:
+              $ref: "#/components/headers/XIdempotencyKeyHeader"
+        "429":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: An error response.
+          headers:
+            x-trace-id:
+              $ref: "#/components/headers/TraceIdHeader"
+            x-idempotency-key:
+              $ref: "#/components/headers/XIdempotencyKeyHeader"
+        "500":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: An error response.
+          headers:
+            x-trace-id:
+              $ref: "#/components/headers/TraceIdHeader"
+            x-idempotency-key:
+              $ref: "#/components/headers/XIdempotencyKeyHeader"
+      security:
+        - ApiKey: []
+        - oAuth2:
+            - payrisk.write
+      summary: |
+        Ingest payment lifecycle events (authorization, capture, settlement, refund, dispute, chargeback, chargeback_outcome).
+      tags:
+        - payrisk
+  /v1/signals:
+    post:
+      operationId: ingestSignals
+      parameters:
+        - description: Echoed or generated trace ID for tracking requests.
+          explode: false
+          in: header
+          name: x-trace-id
+          required: false
+          schema:
+            $ref: "#/components/schemas/TraceId"
+          style: simple
+        - description: Unique Idempotency-Key sent in the POST request etc.
+          in: header
+          name: x-idempotency-key
+          required: true
+          schema:
+            $ref: "#/components/schemas/IdempotencyKey"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SignalsRequest"
+        required: true
+      responses:
+        "202":
+          description: Accepted
+          headers:
+            x-trace-id:
+              $ref: "#/components/headers/TraceIdHeader"
+            x-idempotency-key:
+              $ref: "#/components/headers/XIdempotencyKeyHeader"
+        "400":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: An error response.
+          headers:
+            x-trace-id:
+              $ref: "#/components/headers/TraceIdHeader"
+            x-idempotency-key:
+              $ref: "#/components/headers/XIdempotencyKeyHeader"
+        "413":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: An error response.
+          headers:
+            x-trace-id:
+              $ref: "#/components/headers/TraceIdHeader"
+            x-idempotency-key:
+              $ref: "#/components/headers/XIdempotencyKeyHeader"
+        "422":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: An error response.
+          headers:
+            x-trace-id:
+              $ref: "#/components/headers/TraceIdHeader"
+            x-idempotency-key:
+              $ref: "#/components/headers/XIdempotencyKeyHeader"
+        "429":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: An error response.
+          headers:
+            x-trace-id:
+              $ref: "#/components/headers/TraceIdHeader"
+            x-idempotency-key:
+              $ref: "#/components/headers/XIdempotencyKeyHeader"
+        "500":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: An error response.
+          headers:
+            x-trace-id:
+              $ref: "#/components/headers/TraceIdHeader"
+            x-idempotency-key:
+              $ref: "#/components/headers/XIdempotencyKeyHeader"
+      security:
+        - ApiKey: []
+        - oAuth2:
+            - payrisk.write
+      summary: Ingest non-payment signals (account or interaction) for modeling
+      tags:
+        - payrisk
+  /v1/scores/{tenantId}:
+    get:
+      operationId: getFraudScores
+      parameters:
+        - description: Echoed or generated trace ID for tracking requests.
+          explode: false
+          in: header
+          name: x-trace-id
+          required: false
+          schema:
+            $ref: "#/components/schemas/TraceId"
+          style: simple
+        - description: Unique Idempotency-Key sent in the GET request etc.
+          in: header
+          name: x-idempotency-key
+          required: false
+          schema:
+            $ref: "#/components/schemas/IdempotencyKey"
+        - explode: false
+          in: path
+          name: tenantId
+          required: true
+          schema:
+            $ref: "#/components/schemas/TenantId"
+          style: simple
+        - explode: true
+          in: query
+          name: startTime
+          required: false
+          schema:
+            $ref: "#/components/schemas/Timestamp"
+          style: form
+        - explode: true
+          in: query
+          name: endTime
+          required: false
+          schema:
+            $ref: "#/components/schemas/Timestamp"
+          style: form
+        - explode: true
+          in: query
+          name: pageSize
+          required: false
+          schema:
+            default: 50
+            maximum: 500
+            minimum: 1
+            type: integer
+          style: form
+        - explode: true
+          in: query
+          name: pageToken
+          required: false
+          schema:
+            type: string
+          style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScoresSuccessResponse"
+          description: List of fraud scores for a customer.
+          headers:
+            x-trace-id:
+              $ref: "#/components/headers/TraceIdHeader"
+            x-idempotency-key:
+              $ref: "#/components/headers/XIdempotencyKeyHeader"
+        "400":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: An error response.
+          headers:
+            x-trace-id:
+              $ref: "#/components/headers/TraceIdHeader"
+            x-idempotency-key:
+              $ref: "#/components/headers/XIdempotencyKeyHeader"
+        "500":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: An error response.
+          headers:
+            x-trace-id:
+              $ref: "#/components/headers/TraceIdHeader"
+            x-idempotency-key:
+              $ref: "#/components/headers/XIdempotencyKeyHeader"
+      security:
+        - ApiKey: []
+        - oAuth2:
+            - payrisk.read
+      summary: Retrieve fraud scores for a customer
+      tags:
+        - payrisk
+  /v1/health:
+    get:
+      operationId: healthCheck
+      responses:
+        "200":
+          description: Service is healthy
+        "503":
+          description: Service is unavailable
+      security: []
+      summary: Health check for the service
+      tags:
+        - payrisk
+  /v1/risk/account/check:
+    post:
+      operationId: accountRiskCheck
+      parameters:
+        - description: Echoed or generated trace ID for tracking requests.
+          explode: false
+          in: header
+          name: x-trace-id
+          required: false
+          schema:
+            $ref: "#/components/schemas/TraceId"
+          style: simple
+        - description: Unique Idempotency-Key sent in the POST request etc.
+          in: header
+          name: x-idempotency-key
+          required: true
+          schema:
+            $ref: "#/components/schemas/IdempotencyKey"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AccountCheckRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DecisionResponse"
+          description: Synchronous risk decision.
+          headers:
+            x-trace-id:
+              $ref: "#/components/headers/TraceIdHeader"
+            x-idempotency-key:
+              $ref: "#/components/headers/XIdempotencyKeyHeader"
+        "400":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: An error response.
+          headers:
+            x-trace-id:
+              $ref: "#/components/headers/TraceIdHeader"
+            x-idempotency-key:
+              $ref: "#/components/headers/XIdempotencyKeyHeader"
+        "422":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: An error response.
+          headers:
+            x-trace-id:
+              $ref: "#/components/headers/TraceIdHeader"
+            x-idempotency-key:
+              $ref: "#/components/headers/XIdempotencyKeyHeader"
+        "429":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: An error response.
+          headers:
+            x-trace-id:
+              $ref: "#/components/headers/TraceIdHeader"
+            x-idempotency-key:
+              $ref: "#/components/headers/XIdempotencyKeyHeader"
+        "500":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: An error response.
+          headers:
+            x-trace-id:
+              $ref: "#/components/headers/TraceIdHeader"
+            x-idempotency-key:
+              $ref: "#/components/headers/XIdempotencyKeyHeader"
+      summary: "Synchronous fraud decision for account/session events (signup, login,\
+        \ settings)"
+      tags:
+        - payrisk
+      x-enabled: false
+  /v1/risk/kyc/check:
+    post:
+      operationId: kycRiskCheck
+      parameters:
+        - description: Echoed or generated trace ID for tracking requests.
+          explode: false
+          in: header
+          name: x-trace-id
+          required: false
+          schema:
+            $ref: "#/components/schemas/TraceId"
+          style: simple
+        - description: Unique Idempotency-Key sent in the POST request etc.
+          in: header
+          name: x-idempotency-key
+          required: true
+          schema:
+            $ref: "#/components/schemas/IdempotencyKey"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/KycCheckRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DecisionResponse"
+          description: Synchronous risk decision.
+          headers:
+            x-trace-id:
+              $ref: "#/components/headers/TraceIdHeader"
+            x-idempotency-key:
+              $ref: "#/components/headers/XIdempotencyKeyHeader"
+        "400":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: An error response.
+          headers:
+            x-trace-id:
+              $ref: "#/components/headers/TraceIdHeader"
+            x-idempotency-key:
+              $ref: "#/components/headers/XIdempotencyKeyHeader"
+        "422":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: An error response.
+          headers:
+            x-trace-id:
+              $ref: "#/components/headers/TraceIdHeader"
+            x-idempotency-key:
+              $ref: "#/components/headers/XIdempotencyKeyHeader"
+        "429":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: An error response.
+          headers:
+            x-trace-id:
+              $ref: "#/components/headers/TraceIdHeader"
+            x-idempotency-key:
+              $ref: "#/components/headers/XIdempotencyKeyHeader"
+        "500":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: An error response.
+          headers:
+            x-trace-id:
+              $ref: "#/components/headers/TraceIdHeader"
+            x-idempotency-key:
+              $ref: "#/components/headers/XIdempotencyKeyHeader"
+      summary: Synchronous decision for KYC/identity verification
+      tags:
+        - payrisk
+      x-enabled: false
+components:
+  headers:
+    TraceIdHeader:
+      description: "Echoed or generated trace ID for tracking requests, returned in\
+        \ the response headers."
+      schema:
+        $ref: "#/components/schemas/TraceId"
+    XIdempotencyKeyHeader:
+      description: Echo of the request's x-idempotency-key header.
+      schema:
+        $ref: "#/components/schemas/IdempotencyKey"
+  parameters:
+    TraceIdHeader:
+      description: Echoed or generated trace ID for tracking requests.
+      explode: false
+      in: header
+      name: x-trace-id
+      required: false
+      schema:
+        $ref: "#/components/schemas/TraceId"
+      style: simple
+    IdempotencyKeyHeaderRequired:
+      description: Unique Idempotency-Key sent in the POST request etc.
+      in: header
+      name: x-idempotency-key
+      required: true
+      schema:
+        $ref: "#/components/schemas/IdempotencyKey"
+    IdempotencyKeyHeaderOptional:
+      description: Unique Idempotency-Key sent in the GET request etc.
+      in: header
+      name: x-idempotency-key
+      required: false
+      schema:
+        $ref: "#/components/schemas/IdempotencyKey"
+  responses:
+    DecisionResponse:
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/DecisionResponse"
+      description: Synchronous risk decision.
+      headers:
+        x-trace-id:
+          $ref: "#/components/headers/TraceIdHeader"
+        x-idempotency-key:
+          $ref: "#/components/headers/XIdempotencyKeyHeader"
+    ScoresSuccessResponse:
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ScoresSuccessResponse"
+      description: List of fraud scores for a customer.
+      headers:
+        x-trace-id:
+          $ref: "#/components/headers/TraceIdHeader"
+        x-idempotency-key:
+          $ref: "#/components/headers/XIdempotencyKeyHeader"
+    SharedErrorResponse:
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Problem"
+      description: An error response.
+      headers:
+        x-trace-id:
+          $ref: "#/components/headers/TraceIdHeader"
+        x-idempotency-key:
+          $ref: "#/components/headers/XIdempotencyKeyHeader"
+  schemas:
+    CheckRequest:
+      description: Request for synchronous purchase risk check.
+      example:
+        paymentIntentId: pi_0123456789abcdef0123456789abcdef
+        entities:
+          tenantId: tid_acme_01
+          clientId: cid_merchant_42
+          endCustomerId: ecid_shopper_9f
+          paymentInstrumentId: tok_abcdef1234567890
+          deviceId: did_a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6
+          sessionId: sid_a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6
+          emailHash: sha256_...
+          phoneHash: sha256_...
+        identity:
+          email: shopper@example.com
+          phone: +1 (415) 555-2671
+          shippingAddress:
+            line1: 123 Market Street
+            city: San Francisco
+            region: CA
+            postalCode: "94103"
+            country: US
+          billingAddress:
+            line1: 123 Market Street
+            city: San Francisco
+            region: CA
+            postalCode: "94103"
+            country: US
+        purchase:
+          eventType: purchase
+      properties:
+        eventType:
+          default: purchase
+          description: "(optional) event being checked, this may expand later beyond\
+            \ 'purchase'."
+          enum:
+            - purchase
+          type: string
+        paymentIntentId:
+          description: Server-minted unique payment identifier.
+          example: pi_0123456789abcdef0123456789abcdef
+          maxLength: 35
+          minLength: 35
+          pattern: "^pi_[a-f0-9]{32}$"
+          title: PaymentIntentId
+          type: string
+        entities:
+          $ref: "#/components/schemas/EntityIds"
+        purchase:
+          $ref: "#/components/schemas/Purchase"
+        identity:
+          $ref: "#/components/schemas/Identity"
+      required:
+        - entities
+        - purchase
+      title: CheckRequest
+      type: object
+    DecisionResponse:
+      description: The synchronous risk decision for a purchase.
+      example:
+        assessmentId: pi_0123456789abcdef0123456789abcdef
+        decision: approve
+        decisionAt: 2023-12-14T15:45:30.123Z
+        riskScore: 0.98
+      properties:
+        assessmentId:
+          description: "Universal decision identifier. For purchases, equals paymentIntentId."
+          maxLength: 64
+          minLength: 8
+          pattern: "^[a-zA-Z0-9_-]+$"
+          type: string
+        decision:
+          enum:
+            - approve
+            - review
+            - decline
+            - step_up
+          type: string
+        decisionAt:
+          description: RFC 3339 timestamp with timezone.
+          example: 2023-12-14T15:45:30.123456Z
+          format: timestamp with timezone
+          pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,9})?(Z|[+-]\\\
+            d{2}:\\d{2})$"
+          type: string
+        riskScore:
+          format: float
+          maximum: 1.0
+          minimum: 0.0
+          type: number
+        fraudScore:
+          $ref: "#/components/schemas/FraudScore"
+        breakdown:
+          $ref: "#/components/schemas/RiskBreakdown"
+        reasonCodes:
+          description: Technical reason codes for the decision.
+          example:
+            - HIGH_VALUE
+            - UNUSUAL_LOCATION
+          items:
+            type: string
+          type: array
+        reasons:
+          description: Structured reason details for the decision.
+          items:
+            $ref: "#/components/schemas/ReasonDetail"
+          type: array
+        actions:
+          example:
+            - queue_review
+          items:
+            description: |
+              Action to be taken based on the decision. 'step_up' for Strong Customer Authentication, 'throttle' for rate limiting,
+              'lock_account' for account suspension, 'decline' for transaction rejection, 'queue_review' for manual review.
+            enum:
+              - step_up
+              - throttle
+              - lock_account
+              - decline
+              - queue_review
+            type: string
+          type: array
+        paymentIntentId:
+          description: Server-minted unique payment identifier.
+          example: pi_0123456789abcdef0123456789abcdef
+          maxLength: 35
+          minLength: 35
+          pattern: "^pi_[a-f0-9]{32}$"
+          title: PaymentIntentId
+          type: string
+        policyVersion:
+          description: The version of the policy that generated the decision.
+          example: v1.0.0
+          type: string
+        modelVersion:
+          description: The version of the model that generated the decision.
+          example: v1.0.0
+          type: string
+        ttlSeconds:
+          description: Time to live for the decision in seconds.
+          example: 3600
+          minimum: 0
+          type: integer
+      required:
+        - assessmentId
+        - decision
+        - decisionAt
+        - riskScore
+      title: DecisionResponse
+      type: object
+    SignalsAccountVariant:
+      description: Account-level signal variant (single account state snapshot).
+      properties:
+        signalType:
+          description: Value for account signals.
+          enum:
+            - account
+          title: signalType
+          type: string
+        entities:
+          $ref: "#/components/schemas/EntityIds"
+        account:
+          $ref: "#/components/schemas/Account"
+      required:
+        - account
+        - entities
+        - signalType
+      title: SignalsAccountVariant
+      type: object
+    SignalsInteractionVariant:
+      description: Interaction batch signal variant (one or more user interactions).
+      properties:
+        signalType:
+          description: Value for interaction signals.
+          enum:
+            - interaction
+          title: signalType
+          type: string
+        entities:
+          $ref: "#/components/schemas/EntityIds"
+        interactions:
+          description: One or more interactions associated with the signal.
+          items:
+            $ref: "#/components/schemas/Interaction"
+          maxItems: 1000
+          minItems: 1
+          title: interactions
+          type: array
+      required:
+        - entities
+        - interactions
+        - signalType
+      title: SignalsInteractionVariant
+      type: object
+    SignalsRequest:
+      description: |
+        Request for processing application workflow signals. Determined by `signalType`.
+      discriminator:
+        mapping:
+          account: "#/components/schemas/SignalsAccountVariant"
+          interaction: "#/components/schemas/SignalsInteractionVariant"
+        propertyName: signalType
+      example:
+        signalType: account
+        entities:
+          tenantId: tid_alogram_01
+          endCustomerId: ecid_shopper_9f
+        account:
+          email: someemail@example-emails.com
+          timestamp: 2023-12-14T15:45:30.123Z
+          deviceInfo:
+            fingerprint: fp_5f4dcc3b5aa765d61d8327deb882cf99
+            userAgent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)
+            ip:
+              ipAddress: 192.168.1.100
+              country: US
+      oneOf:
+        - $ref: "#/components/schemas/SignalsAccountVariant"
+        - $ref: "#/components/schemas/SignalsInteractionVariant"
+      title: SignalsRequest
+    ScoresSuccessResponse:
+      description: List of fraud scores for a customer.
+      example:
+        scores:
+          - assessmentId: pi_0123456789abcdef0123456789abcdef
+            decisionAt: 2023-12-14T15:45:30.123Z
+            decision: approve
+            riskScore: 0.98
+            entity:
+              tenantId: tid_alogram_01
+              endCustomerId: ecid_shopper_9f
+            amount: 100.0
+            currency: USD
+        nextPageToken: eyJhbGciOi...
+      properties:
+        scores:
+          description: Score records within the requested window.
+          items:
+            $ref: "#/components/schemas/ScoreRecord"
+          type: array
+        nextPageToken:
+          description: A token for retrieving the next page of results.
+          example: eyJhbGciOi...
+          maxLength: 4096
+          type: string
+      required:
+        - items
+      title: ScoresSuccessResponse
+      type: object
+    ScoreRecord:
+      description: Fraud score for a specific transaction or entity.
+      example:
+        assessmentId: pi_0123456789abcdef0123456789abcdef
+        decisionAt: 2023-12-14T15:45:30.123Z
+        decision: approve
+        riskScore: 0.98
+        entities:
+          tenantId: tid_alogram_01
+          endCustomerId: ecid_shopper_9f
+        amount: 100.0
+        currency: USD
+      properties:
+        assessmentId:
+          description: "Universal decision identifier (for purchases, equals paymentIntentId)."
+          example: pi_234567890abcdef
+          type: string
+        paymentIntentId:
+          description: Server-minted unique payment identifier.
+          example: pi_0123456789abcdef0123456789abcdef
+          maxLength: 35
+          minLength: 35
+          pattern: "^pi_[a-f0-9]{32}$"
+          title: PaymentIntentId
+          type: string
+        decisionAt:
+          description: RFC 3339 timestamp with timezone.
+          example: 2023-12-14T15:45:30.123456Z
+          format: timestamp with timezone
+          pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,9})?(Z|[+-]\\\
+            d{2}:\\d{2})$"
+          type: string
+        decision:
+          description: The synchronous risk decision for a purchase.
+          enum:
+            - approve
+            - review
+            - decline
+            - step_up
+          example: approve
+          type: string
+        riskScore:
+          description: Fraud risk score (0.00 - 1.00).
+          example: 0.98
+          format: float
+          maximum: 1.0
+          minimum: 0.0
+          type: number
+        fraudScore:
+          $ref: "#/components/schemas/FraudScore"
+        breakdown:
+          $ref: "#/components/schemas/RiskBreakdown"
+        reasons:
+          description: Structured reason details for the score.
+          items:
+            $ref: "#/components/schemas/ReasonDetail"
+          type: array
+        entities:
+          $ref: "#/components/schemas/EntityIds"
+        amount:
+          description: |
+            Value of the purchase in the specified currency. Must be a positive number with up to two decimal places.
+          example: 23.0
+          format: float
+          maximum: 10000000
+          minimum: 0.01
+          type: number
+        currency:
+          description: "ISO 4217 currency code (e.g., 'USD')."
+          example: USD
+          maxLength: 3
+          minLength: 3
+          pattern: "^[A-Z]{3}$"
+          type: string
+      required:
+        - assessmentId
+        - decision
+        - decisionAt
+        - riskScore
+      title: ScoreRecord
+      type: object
+    AccountCheckRequest:
+      example:
+        eventSubtype: signup
+        entities:
+          clientId: cid_merchant_42
+          emailHash: sha256_abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890
+          shippingAddressHash: sha256_abcdef1234567890abcdef1234567890abcdef1234567890
+          tenantId: tid_acme_01
+          phoneHash: sha256_abcdef1234567890abcdef1234567890abcdef1234567890
+          paymentInstrumentId: tok_abcdef1234567890
+          endCustomerId: ecid_shopper_9f
+          sessionId: sid_a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6
+          emailDomainHash: sha256_abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890
+          deviceId: did_a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6
+          billingAddressHash: sha256_abcdef1234567890abcdef1234567890abcdef1234567890
+          memberId: mid_ops_27
+        interaction:
+          locationId: loc_1234
+          interactionType: login
+          timestamp: 2023-12-14T15:45:30.123Z
+          deviceInfo:
+            fingerprint: fp_5f4dcc3b5aa765d61d8327deb882cf99
+            userAgent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)
+            ip:
+              ipAddress: 192.168.1.100
+              country: US
+        account:
+          email: someemail@example-emails.com
+          phone: +1 (415) 555-2671
+          timestamp: 2023-12-14T15:45:30.123Z
+          deviceInfo:
+            fingerprint: fp_5f4dcc3b5aa765d61d8327deb882cf99
+            userAgent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)
+            ip:
+              ipAddress: 192.168.1.100
+              country: US
+          metadata:
+            loyaltyTier: gold
+      properties:
+        eventSubtype:
+          description: "The specific subtype of the account event (e.g., 'signup',\
+            \ 'login')."
+          enum:
+            - signup
+            - login
+            - password_reset
+            - mfa_reset
+            - setting_change
+          title: eventSubtype
+          type: string
+        entities:
+          $ref: "#/components/schemas/EntityIds"
+        account:
+          $ref: "#/components/schemas/Account"
+        interaction:
+          $ref: "#/components/schemas/Interaction"
+      required:
+        - eventSubtype
+      title: AccountCheckRequest
+      type: object
+    KycPayload:
+      description: KYC provider result payload.
+      example:
+        result: passed
+        country: US
+        reasonCodes:
+          - HIGH_VALUE
+          - HIGH_VALUE
+        metadata: '{"key1=value1":null,"key2=value2":null}'
+        provider: onfido
+        documentType: national_id
+      properties:
+        provider:
+          example: onfido
+          title: provider
+          type: string
+        documentType:
+          description: The document type used for verification.
+          enum:
+            - passport
+            - national_id
+            - driver_license
+            - other
+          example: national_id
+          title: documentType
+          type: string
+        country:
+          example: US
+          maxLength: 2
+          minLength: 2
+          title: country
+          type: string
+        result:
+          description: The result of the KYC check.
+          enum:
+            - passed
+            - failed
+            - review
+            - timeout
+            - error
+          example: passed
+          title: result
+          type: string
+        reasonCodes:
+          description: Array of reason codes for the KYC check.
+          items:
+            example: HIGH_VALUE
+            type: string
+          title: reasonCodes
+          type: array
+        metadata:
+          description: |
+            Optional key-value pairs providing additional context for the request.  Each key should be descriptive, and values should not
+            exceed 2048 characters.  Each key should be descriptive.
+          example: '{"key1=value1":null,"key2=value2":null}'
+          maxLength: 2048
+          minLength: 1
+          title: MetaData
+          type: string
+      title: KycPayload
+      type: object
+    KycCheckRequest:
+      example:
+        eventSubtype: pre_kyc_check
+        kyc:
+          result: passed
+          country: US
+          reasonCodes:
+            - HIGH_VALUE
+            - HIGH_VALUE
+          metadata: '{"key1=value1":null,"key2=value2":null}'
+          provider: onfido
+          documentType: national_id
+        entities:
+          clientId: cid_merchant_42
+          emailHash: sha256_abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890
+          shippingAddressHash: sha256_abcdef1234567890abcdef1234567890abcdef1234567890
+          tenantId: tid_acme_01
+          phoneHash: sha256_abcdef1234567890abcdef1234567890abcdef1234567890
+          paymentInstrumentId: tok_abcdef1234567890
+          endCustomerId: ecid_shopper_9f
+          sessionId: sid_a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6
+          emailDomainHash: sha256_abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890
+          deviceId: did_a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6
+          billingAddressHash: sha256_abcdef1234567890abcdef1234567890abcdef1234567890
+          memberId: mid_ops_27
+        account:
+          email: someemail@example-emails.com
+          phone: +1 (415) 555-2671
+          timestamp: 2023-12-14T15:45:30.123Z
+          deviceInfo:
+            fingerprint: fp_5f4dcc3b5aa765d61d8327deb882cf99
+            userAgent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)
+            ip:
+              ipAddress: 192.168.1.100
+              country: US
+          metadata:
+            loyaltyTier: gold
+      properties:
+        eventSubtype:
+          description: The specific subtype of the KYC event.
+          enum:
+            - pre_kyc_check
+            - doc_scan
+            - liveness
+            - address_check
+            - sanctions_pep
+          title: eventSubtype
+          type: string
+        entities:
+          $ref: "#/components/schemas/EntityIds"
+        account:
+          $ref: "#/components/schemas/Account"
+        kyc:
+          $ref: "#/components/schemas/KycPayload"
+      required:
+        - account
+        - eventSubtype
+      title: KycCheckRequest
+      type: object
+    EntityIds:
+      description: |
+        Canonical entity identifiers (tenant/client/user/device/session). Do not send raw PII. Hash emails/phones/addresses as sha256 and
+        prefix with 'sha256_'.
+        Tiered support:
+          - tenantId is the top-level SaaS customer (required for all flows).
+          - clientId is the tenant’s downstream business customer (e.g. merchant/partner) and MAY be omitted for
+            processor / bank / PSP-style integrations.
+          - endCustomerId is the tenant/client’s consumer or business account (cardholder, shopper, etc.) and
+            MAY be omitted for purely device- or instrument-level checks.
+      example:
+        clientId: cid_merchant_42
+        emailHash: sha256_abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890
+        shippingAddressHash: sha256_abcdef1234567890abcdef1234567890abcdef1234567890
+        tenantId: tid_acme_01
+        phoneHash: sha256_abcdef1234567890abcdef1234567890abcdef1234567890
+        paymentInstrumentId: tok_abcdef1234567890
+        endCustomerId: ecid_shopper_9f
+        sessionId: sid_a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6
+        emailDomainHash: sha256_abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890
+        deviceId: did_a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6
+        billingAddressHash: sha256_abcdef1234567890abcdef1234567890abcdef1234567890
+        memberId: mid_ops_27
+      properties:
+        tenantId:
+          description: |
+            Canonical ID for the paying organization (Tenant). Opaque, immutable, lowercase.  Must start with "tid_". Do not use domains or
+            emails here. For a tenant's domain,  use a separate field (e.g., tenantDomain).
+          example: tid_acme_01
+          maxLength: 64
+          minLength: 5
+          pattern: "^tid_[a-z0-9_-]{2,60}$"
+          title: TenantId
+          type: string
+        clientId:
+          description: |
+            Canonical ID for the Tenant’s business customer (e.g., merchant/partner).  Opaque, immutable, lowercase. Must start with 'cid_'.
+          example: cid_merchant_42
+          maxLength: 100
+          minLength: 5
+          pattern: "^cid_[a-z0-9_-]{2,96}$"
+          title: ClientId
+          type: string
+        endCustomerId:
+          description: |
+            Canonical ID for the client’s end user / consumer (account holder).  Opaque, immutable, lowercase. Must start with "ecid_".  Do
+            not put PII (like emails or phone numbers) in this field.
+          example: ecid_shopper_9f
+          maxLength: 100
+          minLength: 6
+          pattern: "^ecid_[a-z0-9_-]{2,96}$"
+          title: EndCustomerId
+          type: string
+        memberId:
+          description: |
+            Canonical ID for a Tenant member/operator (employee/contractor) using the platform.  Opaque, immutable, lowercase. Must start
+            with 'mid_'.
+          example: mid_ops_27
+          maxLength: 100
+          minLength: 5
+          pattern: "^mid_[a-z0-9_-]{2,96}$"
+          title: MemberId
+          type: string
+        paymentInstrumentId:
+          description: Tokenized instrument ID (non-PCI).
+          example: tok_abcdef1234567890
+          maxLength: 100
+          pattern: "^[a-zA-Z0-9_:-]{2,96}$"
+          title: paymentInstrumentId
+          type: string
+        deviceId:
+          description: |
+            Server-issued stable device token (device-level identifier).
+            Should persist across sessions and logins on the same browser/device.
+          example: did_a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6
+          maxLength: 100
+          pattern: "^did_[a-zA-Z0-9_:-]{2,96}$"
+          title: deviceId
+          type: string
+        sessionId:
+          description: |
+            Application/user session identifier (login or checkout session).
+            Typically rotates more frequently than deviceId and may be tied to authentication.
+          example: sid_a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6
+          maxLength: 100
+          pattern: "^sid_[a-zA-Z0-9_:-]{2,96}$"
+          title: sessionId
+          type: string
+        emailHash:
+          description: "Normalized+lowercased email hash (e.g., sha256)."
+          example: sha256_abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890
+          maxLength: 71
+          pattern: "^sha256_[0-9a-f]{64}$"
+          title: emailHash
+          type: string
+        emailDomainHash:
+          description: "Normalized+lowercased email *domain* hash (e.g., sha256)."
+          example: sha256_abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890
+          maxLength: 71
+          pattern: "^sha256_[0-9a-f]{64}$"
+          title: emailDomainHash
+          type: string
+        phoneHash:
+          description: "Normalized+lowercased phone hash (e.g., sha256)."
+          example: sha256_abcdef1234567890abcdef1234567890abcdef1234567890
+          maxLength: 71
+          pattern: "^sha256_[0-9a-f]{64}$"
+          title: phoneHash
+          type: string
+        shippingAddressHash:
+          description: "Normalized+lowercased shipping address hash (e.g., sha256)."
+          example: sha256_abcdef1234567890abcdef1234567890abcdef1234567890
+          maxLength: 71
+          pattern: "^sha256_[0-9a-f]{64}$"
+          title: shippingAddressHash
+          type: string
+        billingAddressHash:
+          description: "Normalized+lowercased billing address hash (e.g., sha256)."
+          example: sha256_abcdef1234567890abcdef1234567890abcdef1234567890
+          maxLength: 71
+          pattern: "^sha256_[0-9a-f]{64}$"
+          title: billingAddressHash
+          type: string
+      title: EntityIds
+      type: object
+    PaymentIntentId:
+      description: Server-minted unique payment identifier.
+      example: pi_0123456789abcdef0123456789abcdef
+      maxLength: 35
+      minLength: 35
+      pattern: "^pi_[a-f0-9]{32}$"
+      title: PaymentIntentId
+      type: string
+    Account:
+      description: The application-layer Account object.
+      example:
+        email: someemail@example-emails.com
+        phone: +1 (415) 555-2671
+        timestamp: 2023-12-14T15:45:30.123Z
+        deviceInfo:
+          fingerprint: fp_5f4dcc3b5aa765d61d8327deb882cf99
+          userAgent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)
+          ip:
+            ipAddress: 192.168.1.100
+            country: US
+        metadata:
+          loyaltyTier: gold
+      properties:
+        deviceInfo:
+          $ref: "#/components/schemas/DeviceInfo"
+        timestamp:
+          description: RFC 3339 timestamp with timezone.
+          example: 2023-12-14T15:45:30.123456Z
+          format: timestamp with timezone
+          pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,9})?(Z|[+-]\\\
+            d{2}:\\d{2})$"
+          type: string
+        phone:
+          description: |
+            Phone number that supports international E.164 format, as well as spaces, dashes, and parentheses.  Examples: "+1 (415)
+            555-2671", "415-555-2671", "+14155552671"
+          example: +1 (415) 555-2671
+          format: phone
+          maxLength: 20
+          minLength: 7
+          pattern: "^\\+?[1-9][0-9 .\\-()]{6,14}[0-9]$"
+          title: PhoneNumber
+          type: string
+        email:
+          description: Email address of the customer.
+          example: someemail@example-emails.com
+          format: email
+          maxLength: 320
+          minLength: 3
+          pattern: "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+          title: EmailAddress
+          type: string
+        metadata:
+          description: |
+            Optional key-value pairs providing additional context for the request.  Each key should be descriptive, and values should not
+            exceed 2048 characters.  Each key should be descriptive.
+          example: '{"key1=value1":null,"key2=value2":null}'
+          maxLength: 2048
+          minLength: 1
+          title: MetaData
+          type: string
+      title: Account
+      type: object
+    InteractionTypeEnum:
+      description: The type of interaction being recorded.
+      enum:
+        - login
+        - feature_use
+        - setting_change
+        - page_view
+        - 3rd_party_event
+        - custom_event
+      example: login
+      title: InteractionTypeEnum
+      type: string
+    Interaction:
+      description: The application-layer Interaction object.
+      example:
+        locationId: loc_1234
+        interactionType: login
+        timestamp: 2023-12-14T15:45:30.123Z
+        deviceInfo:
+          fingerprint: fp_5f4dcc3b5aa765d61d8327deb882cf99
+          userAgent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)
+          ip:
+            ipAddress: 192.168.1.100
+            country: US
+      properties:
+        locationId:
+          description: Unique identifier for the location where the transaction occurred.
+          example: loc_1234
+          maxLength: 50
+          minLength: 3
+          pattern: "^[a-zA-Z0-9-_]{3,50}$"
+          title: LocationId
+          type: string
+        deviceInfo:
+          $ref: "#/components/schemas/DeviceInfo"
+        timestamp:
+          description: RFC 3339 timestamp with timezone.
+          example: 2023-12-14T15:45:30.123456Z
+          format: timestamp with timezone
+          pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,9})?(Z|[+-]\\\
+            d{2}:\\d{2})$"
+          type: string
+        interactionType:
+          $ref: "#/components/schemas/InteractionTypeEnum"
+        metadata:
+          description: |
+            Optional key-value pairs providing additional context for the request.  Each key should be descriptive, and values should not
+            exceed 2048 characters.  Each key should be descriptive.
+          example: '{"key1=value1":null,"key2=value2":null}'
+          maxLength: 2048
+          minLength: 1
+          title: MetaData
+          type: string
+      required:
+        - interactionType
+      title: Interaction
+      type: object
+    PaymentMethod:
+      description: Union of instrument-specific payment details.
+      discriminator:
+        mapping:
+          card: "#/components/schemas/Card"
+          wallet: "#/components/schemas/Wallet"
+          realtime: "#/components/schemas/Realtime"
+          bank_transfer: "#/components/schemas/BankTransfer"
+          crypto: "#/components/schemas/Crypto"
+          invoice: "#/components/schemas/Invoice"
+        propertyName: type
+      example:
+        type: card
+        cardNetwork: visa
+        cardType: credit
+        bin: "411111"
+        issuerCountry: US
+        avsResult: "Y"
+        cvvResult: M
+      oneOf:
+        - $ref: "#/components/schemas/Card"
+        - $ref: "#/components/schemas/Wallet"
+        - $ref: "#/components/schemas/Realtime"
+        - $ref: "#/components/schemas/BankTransfer"
+        - $ref: "#/components/schemas/Crypto"
+        - $ref: "#/components/schemas/Invoice"
+      title: PaymentMethod
+    Purchase:
+      description: |
+        Purchase details for fraud checks; core fields are common, instrument specifics live in `paymentMethod`.
+      example:
+        locationId: loc_1234
+        timestamp: 2023-12-14T15:45:30.123Z
+        transactionId: tx_123
+        amount: 123.45
+        currency: USD
+        paymentMethod:
+          type: card
+          cardNetwork: visa
+          cardType: credit
+          bin: "411111"
+          issuerCountry: US
+          avsResult: "Y"
+          cvvResult: M
+          scaMethod: 3ds_v2
+      properties:
+        locationId:
+          description: Unique identifier for the location where the transaction occurred.
+          example: loc_1234
+          maxLength: 50
+          minLength: 3
+          pattern: "^[a-zA-Z0-9-_]{3,50}$"
+          title: LocationId
+          type: string
+        deviceInfo:
+          $ref: "#/components/schemas/DeviceInfo"
+        timestamp:
+          description: RFC 3339 timestamp with timezone.
+          example: 2023-12-14T15:45:30.123456Z
+          format: timestamp with timezone
+          pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,9})?(Z|[+-]\\\
+            d{2}:\\d{2})$"
+          type: string
+        transactionId:
+          description: |
+            A unique identifier for the transaction. Must be between 3 and 50 characters and only contain alphanumeric characters,
+            underscores, or hyphens.
+          example: tx_123
+          maxLength: 50
+          minLength: 3
+          pattern: "^[a-zA-Z0-9_-]+$"
+          type: string
+        amount:
+          description: |
+            Value of the purchase in the specified currency. Must be a positive number with up to two decimal places.
+          example: 23.0
+          format: float
+          maximum: 10000000
+          minimum: 0.01
+          type: number
+        currency:
+          description: "ISO 4217 currency code (e.g., 'USD')."
+          example: USD
+          maxLength: 3
+          minLength: 3
+          pattern: "^[A-Z]{3}$"
+          type: string
+        channel:
+          $ref: "#/components/schemas/ChannelEnum"
+        entryMethod:
+          $ref: "#/components/schemas/EntryMethodEnum"
+        paymentMethod:
+          $ref: "#/components/schemas/PaymentMethod"
+        order:
+          $ref: "#/components/schemas/OrderContext"
+        payerType:
+          $ref: "#/components/schemas/PayerTypeEnum"
+        storedCredential:
+          $ref: "#/components/schemas/StoredCredentialContext"
+        merchant:
+          $ref: "#/components/schemas/MerchantContext"
+        metadata:
+          description: |
+            Optional key-value pairs providing additional context for the request.  Each key should be descriptive, and values should not
+            exceed 2048 characters.  Each key should be descriptive.
+          example: '{"key1=value1":null,"key2=value2":null}'
+          maxLength: 2048
+          minLength: 1
+          title: MetaData
+          type: string
+      required:
+        - amount
+        - currency
+        - paymentMethod
+      title: Purchase
+      type: object
+    PaymentMethodBase:
+      description: Common base for all payment method variants; determined by `type`.
+      properties:
+        type:
+          description: The payment instrument type for this purchase.
+          enum:
+            - card
+            - wallet
+            - realtime
+            - bank_transfer
+            - crypto
+            - invoice
+          example: card
+          title: type
+          type: string
+      required:
+        - type
+      title: PaymentMethodBase
+      type: object
+    Card:
+      allOf:
+        - $ref: "#/components/schemas/PaymentMethodBase"
+        - description: "Card attributes (network, BIN/IIN, issuer country, AVS/CVV,\
+            \ SCA, optional 3DS)."
+          properties:
+            type:
+              description: Fixed to `card` for this schema.
+              enum:
+                - card
+              title: type
+              type: string
+            cardNetwork:
+              $ref: "#/components/schemas/CardNetworkEnum"
+            cardType:
+              $ref: "#/components/schemas/PaymentCardTypeEnum"
+            bin:
+              description: Bank Identification Number (IIN). First 6–8 digits of the PAN; do not send full PAN.
+              example: "411111"
+              maxLength: 8
+              minLength: 6
+              pattern: "^[0-9]{6,8}$"
+              title: bin
+              type: string
+            issuerCountry:
+              $ref: "#/components/schemas/CountryCode"
+            avsResult:
+              $ref: "#/components/schemas/AvsResultEnum"
+            cvvResult:
+              $ref: "#/components/schemas/CvvResultEnum"
+            scaMethod:
+              $ref: "#/components/schemas/ScaMethodEnum"
+            threeDS:
+              $ref: "#/components/schemas/ThreeDSData"
+          title: Card
+          type: object
+      title: Card
+    Wallet:
+      allOf:
+        - $ref: "#/components/schemas/PaymentMethodBase"
+        - description: "Digital wallet attributes (e.g., PayPal, Apple Pay, Google Pay)."
+          properties:
+            type:
+              description: Fixed to `wallet` for this schema.
+              enum:
+                - wallet
+              title: type
+              type: string
+            walletType:
+              $ref: "#/components/schemas/PaymentWalletTypeEnum"
+          title: Wallet
+          type: object
+      title: Wallet
+    Realtime:
+      allOf:
+        - $ref: "#/components/schemas/PaymentMethodBase"
+        - description: "Real-time account-to-account rails (e.g., Zelle, RTP, FedNow,\
+            \ Faster Payments, UPI)."
+          properties:
+            type:
+              description: Fixed to `realtime` for this schema.
+              enum:
+                - realtime
+              title: type
+              type: string
+            realtimeType:
+              $ref: "#/components/schemas/PaymentRealtimeTypeEnum"
+          title: Realtime
+          type: object
+      title: Realtime
+    BankTransfer:
+      allOf:
+        - $ref: "#/components/schemas/PaymentMethodBase"
+        - description: "Traditional bank transfer (e.g., ACH, SEPA Credit Transfer);\
+            \ keep payload minimal."
+          properties:
+            type:
+              description: Fixed to `bank_transfer` for this schema.
+              enum:
+                - bank_transfer
+              title: type
+              type: string
+          title: BankTransfer
+          type: object
+      title: BankTransfer
+    Crypto:
+      allOf:
+        - $ref: "#/components/schemas/PaymentMethodBase"
+        - description: Cryptocurrency/stablecoin settlement details; include only non-secret identifiers.
+          properties:
+            type:
+              description: Fixed to `crypto` for this schema.
+              enum:
+                - crypto
+              title: type
+              type: string
+          title: Crypto
+          type: object
+      title: Crypto
+    Invoice:
+      allOf:
+        - $ref: "#/components/schemas/PaymentMethodBase"
+        - description: Invoice/pay-later workflows where settlement is asynchronous.
+          properties:
+            type:
+              description: Fixed to `invoice` for this schema.
+              enum:
+                - invoice
+              title: type
+              type: string
+          title: Invoice
+          type: object
+      title: Invoice
+    TransactionId:
+      description: |
+        A unique identifier for the transaction. Must be between 3 and 50 characters and only contain alphanumeric characters, underscores,
+        or hyphens.
+      example: tx_123
+      maxLength: 50
+      minLength: 3
+      pattern: "^[a-zA-Z0-9_-]+$"
+      type: string
+    CurrencyCode:
+      description: "ISO 4217 currency code (e.g., 'USD')."
+      example: USD
+      maxLength: 3
+      minLength: 3
+      pattern: "^[A-Z]{3}$"
+      type: string
+    PurchaseAmount:
+      description: |
+        Value of the purchase in the specified currency. Must be a positive number with up to two decimal places.
+      example: 23.0
+      format: float
+      maximum: 10000000
+      minimum: 0.01
+      type: number
+    PaymentCardTypeEnum:
+      description: The type of card used for the payment.
+      enum:
+        - credit
+        - debit
+        - prepaid
+      example: credit
+      title: PaymentCardTypeEnum
+      type: string
+    PaymentWalletTypeEnum:
+      description: The type of digital wallet used for the payment.
+      enum:
+        - paypal
+        - apple_pay
+        - google_pay
+        - cash_app
+        - venmo
+      example: paypal
+      title: PaymentWalletTypeEnum
+      type: string
+    PaymentRealtimeTypeEnum:
+      description: The type of real-time payment network used.
+      enum:
+        - zelle
+        - rtp
+        - fed_now
+        - faster_payments
+        - upi
+      example: zelle
+      title: PaymentRealtimeTypeEnum
+      type: string
+    PayerTypeEnum:
+      default: consumer
+      description: The type of payer (consumer or business).
+      enum:
+        - consumer
+        - business
+      example: consumer
+      title: PayerTypeEnum
+      type: string
+    StoredCredentialContext:
+      description: Minimal stored-credential / recurrence context.
+      properties:
+        usage:
+          $ref: "#/components/schemas/PurchaseUsageEnum"
+        sequence:
+          $ref: "#/components/schemas/PurchaseSequenceEnum"
+        initiator:
+          $ref: "#/components/schemas/PurchaseInitiatorEnum"
+      title: StoredCredentialContext
+      type: object
+    RiskLevelEnum:
+      description: The risk level of the entity.
+      enum:
+        - low
+        - medium
+        - high
+      example: medium
+      title: RiskLevelEnum
+      type: string
+    ConfidenceEnum:
+      description: The confidence level of the risk assessment.
+      enum:
+        - low
+        - medium
+        - high
+      example: medium
+      title: ConfidenceEnum
+      type: string
+    FraudScore:
+      description: Fraud score for a specific transaction or entity.
+      properties:
+        riskLevel:
+          $ref: "#/components/schemas/RiskLevelEnum"
+        confidence:
+          $ref: "#/components/schemas/ConfidenceEnum"
+        score:
+          description: Fraud risk score (0.00 - 1.00).
+          example: 0.98
+          format: float
+          maximum: 1.0
+          minimum: 0.0
+          title: score
+          type: number
+        explanation:
+          description: "A human-readable explanation of the fraud score, if available."
+          example: Sleeper account
+          maxLength: 512
+          title: explanation
+          type: string
+      required:
+        - riskLevel
+      title: FraudScore
+      type: object
+    RiskCategoryEnum:
+      description: High-level business category for risk signals.
+      enum:
+        - geography
+        - identity
+        - behavior
+        - transaction
+      title: RiskCategoryEnum
+      type: string
+    ReasonDetail:
+      description: Merchant-friendly detail for a specific risk reason.
+      properties:
+        code:
+          description: "Technical reason code (e.g., GEO_COUNTRY_SANCTIONED)."
+          title: code
+          type: string
+        category:
+          $ref: "#/components/schemas/RiskCategoryEnum"
+        displayName:
+          description: Merchant-friendly name for the risk reason.
+          title: displayName
+          type: string
+        description:
+          description: Detailed explanation of the risk signal.
+          title: description
+          type: string
+        recommendedAction:
+          description: Suggested action for the merchant to mitigate this specific risk.
+          title: recommendedAction
+          type: string
+      required:
+        - category
+        - code
+        - displayName
+      title: ReasonDetail
+      type: object
+    CategorySignal:
+      description: Risk analysis for a specific business category.
+      properties:
+        level:
+          $ref: "#/components/schemas/RiskLevelEnum"
+        score:
+          description: Category-specific risk score (0.00 - 1.00).
+          format: float
+          maximum: 1.0
+          minimum: 0.0
+          title: score
+          type: number
+        reasons:
+          description: Specific reason codes for this category.
+          items:
+            type: string
+          title: reasons
+          type: array
+      required:
+        - level
+      title: CategorySignal
+      type: object
+    RiskBreakdown:
+      description: Breakdown of risk signals by business category.
+      properties:
+        geography:
+          $ref: "#/components/schemas/CategorySignal"
+        identity:
+          $ref: "#/components/schemas/CategorySignal"
+        behavior:
+          $ref: "#/components/schemas/CategorySignal"
+        transaction:
+          $ref: "#/components/schemas/CategorySignal"
+      title: RiskBreakdown
+      type: object
+    ChannelEnum:
+      description: |
+        pos: 'Point of Sale', ecom: 'E-commerce', in_app: 'In-App Purchase', ivr: 'Interactive Voice Response'.
+      enum:
+        - pos
+        - ecom
+        - in_app
+        - ivr
+      example: pos
+      title: ChannelEnum
+      type: string
+    EntryMethodEnum:
+      description: The method used to capture card data.
+      enum:
+        - chip
+        - contactless
+        - magstripe
+        - manual_keyed
+        - card_on_file
+        - wallet_token
+        - network_token
+      example: chip
+      title: EntryMethodEnum
+      type: string
+    CardNetworkEnum:
+      description: The type of card network.
+      enum:
+        - visa
+        - mastercard
+        - amex
+        - discover
+        - jcb
+        - unionpay
+        - other
+      example: mastercard
+      title: CardNetworkEnum
+      type: string
+    AvsResultEnum:
+      description: |
+        AVS response codes:
+        Y: Address and 5-digit ZIP match
+        N: Address and 5-digit ZIP do not match
+        A: Address matches, ZIP does not
+        Z: ZIP matches, address does not
+        U: Address unavailable
+        R: System unavailable
+        S: Not supported
+        G: Global non-AVS
+        B: International AVS
+        C: Street address and postal code not verified due to incompatible formats
+        D: Street address and postal code not verified due to incompatible formats
+        M: Street address and postal code match
+        P: Street address not verified. Postal code matches.
+        X: Street address and 9-digit ZIP match
+        W: Street address not verified. 9-digit ZIP matches.
+      enum:
+        - "Y"
+        - "N"
+        - A
+        - Z
+        - U
+        - R
+        - S
+        - G
+        - B
+        - C
+        - D
+        - M
+        - P
+        - X
+        - W
+      example: "Y"
+      title: AvsResultEnum
+      type: string
+    CvvResultEnum:
+      description: |
+        M: CVV match
+        N: CVV no match
+        P: Not processed
+        S: Should have been present
+        U: Unavailable
+      enum:
+        - M
+        - "N"
+        - P
+        - S
+        - U
+      example: U
+      title: CvvResultEnum
+      type: string
+    ScaMethodEnum:
+      description: The method used for Strong Customer Authentication (SCA).
+      enum:
+        - none
+        - 3ds_v1
+        - 3ds_v2
+        - otp_sms
+        - biometric
+        - fido2
+        - other
+      example: biometric
+      title: ScaMethodEnum
+      type: string
+    ThreeDSData:
+      description: 3D Secure (3DS) data for card transactions.
+      properties:
+        version:
+          description: "The version of the 3D Secure protocol used (e.g., '2.2.0')."
+          example: 2.2.0
+          title: version
+          type: string
+        eci:
+          description: |
+            Electronic Commerce Indicator. Values indicate the outcome of 3D Secure authentication.
+          example: "05"
+          title: eci
+          type: string
+        flow:
+          description: |
+            The flow of the 3D Secure authentication. 'frictionless' means no challenge was presented to the cardholder, 'challenge' means
+            the cardholder was challenged.
+          enum:
+            - frictionless
+            - challenge
+          example: frictionless
+          title: flow
+          type: string
+        liabilityShift:
+          description: |
+            Indicates whether liability for chargebacks has shifted to the issuer (true) or remains with the merchant (false).
+          example: true
+          title: liabilityShift
+          type: boolean
+        cavvPresent:
+          description: |
+            Indicates whether the Cardholder Authentication Verification Value (CAVV) was present in the 3DS message.
+          example: true
+          title: cavvPresent
+          type: boolean
+      title: ThreeDSData
+      type: object
+    MerchantContext:
+      description: Merchant context for the purchase.
+      properties:
+        mcc:
+          description: Merchant Category Code (MCC) for the merchant.
+          example: "5942"
+          maxLength: 4
+          minLength: 4
+          pattern: "^[0-9]{4}$"
+          title: mcc
+          type: string
+        merchantCountry:
+          description: ISO 3166-1 alpha-2 country code.
+          example: FR
+          maxLength: 2
+          minLength: 2
+          pattern: "^[A-Z]{2}$"
+          title: CountryCode
+          type: string
+      title: MerchantContext
+      type: object
+    Identity:
+      description: |
+        Optional raw identity details for the account associated with the purchase.
+        These fields (email, phone, addresses) are used for normalization, hashing,
+        and risk feature extraction (e.g., email/phone/domain scoring, address risk),
+        and are not stored in raw form by Alogram.
+
+        When provided, Alogram will derive and/or cross-check:
+        - emailHash / phoneHash / shippingAddressHash / billingAddressHash
+          in the internal entity model
+        - email/phone/domain risk signals
+        - address consistency and geo-distance checks
+      properties:
+        email:
+          description: Email address of the customer.
+          example: someemail@example-emails.com
+          format: email
+          maxLength: 320
+          minLength: 3
+          pattern: "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+          title: EmailAddress
+          type: string
+        emailDomain:
+          description: |
+            Email domain only (no local part). Useful for domain-level risk and
+            allow/deny lists without sending full email PII.
+            Example: "gmail.com", "merchant-example.co.uk"
+          example: gmail.com
+          maxLength: 255
+          pattern: "^[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+          title: emailDomain
+          type: string
+        phone:
+          description: |
+            Phone number that supports international E.164 format, as well as spaces, dashes, and parentheses.  Examples: "+1 (415)
+            555-2671", "415-555-2671", "+14155552671"
+          example: +1 (415) 555-2671
+          format: phone
+          maxLength: 20
+          minLength: 7
+          pattern: "^\\+?[1-9][0-9 .\\-()]{6,14}[0-9]$"
+          title: PhoneNumber
+          type: string
+        shippingAddress:
+          $ref: "#/components/schemas/PostalAddress"
+        billingAddress:
+          $ref: "#/components/schemas/PostalAddress"
+      title: Identity
+      type: object
+    OrderContext:
+      description: Order context for the purchase.
+      example:
+        orderId: ORD-789012
+        orderTotal: 123.45
+        shippingMethod: ship
+        lineItemCount: 2
+      properties:
+        orderId:
+          description: Unique identifier for the order.
+          example: ORD-789012
+          type: string
+        orderTotal:
+          description: |
+            Value of the purchase in the specified currency. Must be a positive number with up to two decimal places.
+          example: 23.0
+          format: float
+          maximum: 10000000
+          minimum: 0.01
+          type: number
+        shippingMethod:
+          description: Shipping method for the order.
+          enum:
+            - digital
+            - ship
+            - bopis
+          example: ship
+          type: string
+        lineItemCount:
+          description: Number of items in the order.
+          example: 2
+          maximum: 100
+          minimum: 0
+          type: integer
+      title: OrderContext
+      type: object
+    PurchaseUsageEnum:
+      default: one_time
+      description: Payment use case.
+      enum:
+        - one_time
+        - recurring
+        - installment
+        - unscheduled
+      example: recurring
+      title: PurchaseUsageEnum
+      type: string
+    PurchaseSequenceEnum:
+      description: First transaction in the series vs a subsequent one.
+      enum:
+        - first
+        - subsequent
+      example: first
+      title: PurchaseSequenceEnum
+      type: string
+    PurchaseInitiatorEnum:
+      description: Who initiated the transaction (CIT vs MIT).
+      enum:
+        - cardholder
+        - merchant
+      example: merchant
+      title: PurchaseInitiatorEnum
+      type: string
+    PaymentEventType:
+      description: The type of payment lifecycle event.
+      enum:
+        - authorization
+        - capture
+        - settlement
+        - refund
+        - dispute
+        - chargeback
+        - chargeback_outcome
+      example: authorization
+      title: PaymentEventType
+      type: string
+    PaymentAuthorizationOutcome:
+      description: Authorization outcome details.
+      properties:
+        approved:
+          description: Indicates whether authorization was approved.
+          example: true
+          title: approved
+          type: boolean
+        responseCode:
+          description: Authorization response code.
+          example: "00"
+          maxLength: 16
+          title: responseCode
+          type: string
+      title: PaymentAuthorizationOutcome
+      type: object
+    PaymentCaptureOutcome:
+      description: Capture outcome details.
+      properties:
+        status:
+          description: Capture status.
+          enum:
+            - none
+            - partial
+            - full
+            - failed
+          example: full
+          title: status
+          type: string
+      title: PaymentCaptureOutcome
+      type: object
+    PaymentRefundOutcome:
+      description: Refund outcome details.
+      properties:
+        status:
+          description: Refund status.
+          enum:
+            - none
+            - partial
+            - full
+          example: none
+          title: status
+          type: string
+      title: PaymentRefundOutcome
+      type: object
+    PaymentDisputeOutcome:
+      description: Dispute lifecycle status for the transaction.
+      properties:
+        status:
+          description: Dispute status.
+          enum:
+            - none
+            - open
+            - won
+            - lost
+            - canceled
+          example: open
+          title: status
+          type: string
+      title: PaymentDisputeOutcome
+      type: object
+    PaymentChargeback:
+      description: "Chargeback details, including reason code."
+      properties:
+        reason:
+          description: Chargeback reason code.
+          example: "10.4"
+          maxLength: 32
+          title: reason
+          type: string
+      title: PaymentChargeback
+      type: object
+    PaymentChargebackOutcome:
+      description: Final disposition of the chargeback after investigation/representment.
+      properties:
+        status:
+          description: Outcome of the chargeback case.
+          enum:
+            - won
+            - lost
+            - representment
+            - reversed
+          example: won
+          title: status
+          type: string
+      title: PaymentChargebackOutcome
+      type: object
+    PaymentOutcome:
+      additionalProperties: true
+      description: |
+        Payment outcome details. Structured by lifecycle stage for clarity and validation. Stages include authorization, capture, refund,
+        dispute, chargeback, and chargebackOutcome.
+      example:
+        authorization:
+          approved: true
+          responseCode: "00"
+        capture:
+          status: full
+        refund:
+          status: none
+        dispute:
+          status: open
+        chargeback:
+          reason: "10.4"
+        chargebackOutcome:
+          status: won
+      properties:
+        authorization:
+          $ref: "#/components/schemas/PaymentAuthorizationOutcome"
+        capture:
+          $ref: "#/components/schemas/PaymentCaptureOutcome"
+        refund:
+          $ref: "#/components/schemas/PaymentRefundOutcome"
+        dispute:
+          $ref: "#/components/schemas/PaymentDisputeOutcome"
+        chargeback:
+          $ref: "#/components/schemas/PaymentChargeback"
+        chargebackOutcome:
+          $ref: "#/components/schemas/PaymentChargebackOutcome"
+      title: PaymentOutcome
+      type: object
+    PaymentEvent:
+      description: Payment lifecycle event.
+      example:
+        paymentIntentId: pi_0123456789abcdef0123456789abcdef
+        eventType: authorization
+        timestamp: 2023-12-14T15:45:30.123Z
+      properties:
+        paymentIntentId:
+          description: Server-minted unique payment identifier.
+          example: pi_0123456789abcdef0123456789abcdef
+          maxLength: 35
+          minLength: 35
+          pattern: "^pi_[a-f0-9]{32}$"
+          title: PaymentIntentId
+          type: string
+        eventType:
+          $ref: "#/components/schemas/PaymentEventType"
+        timestamp:
+          description: RFC 3339 timestamp with timezone.
+          example: 2023-12-14T15:45:30.123456Z
+          format: timestamp with timezone
+          pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,9})?(Z|[+-]\\\
+            d{2}:\\d{2})$"
+          type: string
+        amount:
+          description: |
+            Value of the purchase in the specified currency. Must be a positive number with up to two decimal places.
+          example: 23.0
+          format: float
+          maximum: 10000000
+          minimum: 0.01
+          type: number
+        currency:
+          description: "ISO 4217 currency code (e.g., 'USD')."
+          example: USD
+          maxLength: 3
+          minLength: 3
+          pattern: "^[A-Z]{3}$"
+          type: string
+        outcome:
+          $ref: "#/components/schemas/PaymentOutcome"
+        metadata:
+          description: |
+            Optional key-value pairs providing additional context for the request.  Each key should be descriptive, and values should not
+            exceed 2048 characters.  Each key should be descriptive.
+          example: '{"key1=value1":null,"key2=value2":null}'
+          maxLength: 2048
+          minLength: 1
+          title: MetaData
+          type: string
+      required:
+        - eventType
+        - paymentIntentId
+        - timestamp
+      title: PaymentEvent
+      type: object
+    TraceId:
+      description: |
+        A unique identifier for tracing requests. Must start with "trc_" and be followed by a 32-character  lowercase hexadecimal string
+        (no dashes). Total length is 36 characters.
+      example: trc_123e4567e89b12d3a456426614174000
+      maxLength: 36
+      minLength: 36
+      pattern: "^trc_[a-f0-9]{32}$"
+      title: TraceId
+      type: string
+    IdempotencyKey:
+      description: |
+        Unique Idempotency Key for the request.
+        Must begin with `idk_` followed by a 32-character UUID4 hex string.
+      example: idk_4f9d27e2b8f64b9e9a9cf5e9e4727d0c
+      maxLength: 36
+      minLength: 36
+      pattern: "^idk_[a-f0-9]{32}$"
+      title: IdempotencyKey
+      type: string
+    Problem:
+      description: RFC 7807 Problem Details
+      properties:
+        type:
+          default: about:blank
+          description: A URI reference that identifies the problem type.
+          example: https://example.com/probs/validation
+          format: uri
+          title: type
+          type: string
+        title:
+          description: "A short, human-readable summary of the problem type."
+          example: Validation Error
+          maxLength: 100
+          minLength: 3
+          title: title
+          type: string
+        status:
+          description: The HTTP status code applicable to this problem.
+          example: 404
+          maximum: 599
+          minimum: 100
+          title: status
+          type: integer
+        detail:
+          description: Human-readable explanation specific to this occurrence.
+          example: The 'amount' field is required.
+          maxLength: 1024
+          minLength: 3
+          title: detail
+          type: string
+        instance:
+          description: A URI reference that identifies the specific occurrence.
+          example: /risk/check
+          format: uri
+          maxLength: 1024
+          minLength: 1
+          title: instance
+          type: string
+        errorCode:
+          description: Application-specific error code.
+          example: AUTH_001
+          maxLength: 50
+          minLength: 3
+          title: errorCode
+          type: string
+      required:
+        - status
+        - title
+      title: Problem
+      type: object
+    TenantId:
+      description: |
+        Canonical ID for the paying organization (Tenant). Opaque, immutable, lowercase.  Must start with "tid_". Do not use domains or
+        emails here. For a tenant's domain,  use a separate field (e.g., tenantDomain).
+      example: tid_acme_01
+      maxLength: 64
+      minLength: 5
+      pattern: "^tid_[a-z0-9_-]{2,60}$"
+      title: TenantId
+      type: string
+    Timestamp:
+      description: RFC 3339 timestamp with timezone.
+      example: 2023-12-14T15:45:30.123456Z
+      format: timestamp with timezone
+      pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,9})?(Z|[+-]\\\
+        d{2}:\\d{2})$"
+      type: string
+    MetaData:
+      description: |
+        Optional key-value pairs providing additional context for the request.  Each key should be descriptive, and values should not
+        exceed 2048 characters.  Each key should be descriptive.
+      example: '{"key1=value1":null,"key2=value2":null}'
+      maxLength: 2048
+      minLength: 1
+      title: MetaData
+      type: string
+    ClientId:
+      description: |
+        Canonical ID for the Tenant’s business customer (e.g., merchant/partner).  Opaque, immutable, lowercase. Must start with 'cid_'.
+      example: cid_merchant_42
+      maxLength: 100
+      minLength: 5
+      pattern: "^cid_[a-z0-9_-]{2,96}$"
+      title: ClientId
+      type: string
+    EndCustomerId:
+      description: |
+        Canonical ID for the client’s end user / consumer (account holder).  Opaque, immutable, lowercase. Must start with "ecid_".  Do not
+        put PII (like emails or phone numbers) in this field.
+      example: ecid_shopper_9f
+      maxLength: 100
+      minLength: 6
+      pattern: "^ecid_[a-z0-9_-]{2,96}$"
+      title: EndCustomerId
+      type: string
+    MemberId:
+      description: |
+        Canonical ID for a Tenant member/operator (employee/contractor) using the platform.  Opaque, immutable, lowercase. Must start with 'mid_'.
+      example: mid_ops_27
+      maxLength: 100
+      minLength: 5
+      pattern: "^mid_[a-z0-9_-]{2,96}$"
+      title: MemberId
+      type: string
+    DeviceInfo:
+      description: Aggregated device fingerprinting and behavioral patterns used for fraud detection.
+      example:
+        fingerprint: fp_5f4dcc3b5aa765d61d8327deb882cf99
+        userAgent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)
+        ip:
+          ipAddress: 192.168.1.100
+          country: US
+        integrity:
+          isProxyVpnTor: false
+          isHostingProvider: false
+          isHeadless: false
+          isAutomation: false
+          isEmulator: false
+          isRootedJailbroken: false
+      properties:
+        fingerprint:
+          description: |
+            Unique hash representing the device's fingerprint. Lowercase hex. Prefix "fp_".
+          example: fp_5f4dcc3b5aa765d61d8327deb882cf99
+          maxLength: 67
+          minLength: 35
+          pattern: "^fp_[a-f0-9]{32,64}$"
+          title: Fingerprint
+          type: string
+        userAgent:
+          description: |
+            Browser's User-Agent string, useful for identifying OS and browser type.  Must be between 10 and 512 printable ASCII characters.
+          example: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)
+          maxLength: 512
+          minLength: 10
+          pattern: "^[ -~]{10,512}$"
+          title: UserAgent
+          type: string
+        ip:
+          $ref: "#/components/schemas/IpInfo"
+        integrity:
+          $ref: "#/components/schemas/Integrity"
+      title: DeviceInfo
+      type: object
+    Fingerprint:
+      description: |
+        Unique hash representing the device's fingerprint. Lowercase hex. Prefix "fp_".
+      example: fp_5f4dcc3b5aa765d61d8327deb882cf99
+      maxLength: 67
+      minLength: 35
+      pattern: "^fp_[a-f0-9]{32,64}$"
+      title: Fingerprint
+      type: string
+    UserAgent:
+      description: |
+        Browser's User-Agent string, useful for identifying OS and browser type.  Must be between 10 and 512 printable ASCII characters.
+      example: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)
+      maxLength: 512
+      minLength: 10
+      pattern: "^[ -~]{10,512}$"
+      title: UserAgent
+      type: string
+    IpInfo:
+      properties:
+        ipAddress:
+          description: |
+            IP address of the customer, client, or user that initiated the request. Each octet must be between 0 and 255.
+          example: 192.168.1.100
+          format: ipv4
+          maxLength: 15
+          minLength: 7
+          pattern: "^(\\d{1,3}\\.){3}\\d{1,3}$"
+          title: Ipv4Address
+          type: string
+        ipv6:
+          description: IPv6 address.
+          format: ipv6
+          title: Ipv6Address
+          type: string
+        ipVersion:
+          default: ipv4
+          description: IP protocol version.
+          enum:
+            - ipv4
+            - ipv6
+          example: ipv4
+          title: ipVersion
+          type: string
+        ipPrefix:
+          description: "CIDR, e.g., 198.51.100.0/24 or 2001:db8::/48"
+          example: 198.51.100.0/24
+          title: ipPrefix
+          type: string
+        asn:
+          description: Autonomous System Number (ASN) of the IP address.
+          example: AS15169
+          pattern: ^AS\d+$
+          title: asn
+          type: string
+        org:
+          description: Organization associated with the IP address.
+          example: Google LLC
+          title: org
+          type: string
+        company:
+          description: Company associated with the IP address.
+          example: Google LLC
+          title: company
+          type: string
+        country:
+          description: ISO 3166-1 alpha-2 country code.
+          example: FR
+          maxLength: 2
+          minLength: 2
+          pattern: "^[A-Z]{2}$"
+          title: CountryCode
+          type: string
+        region:
+          description: Region associated with the IP address.
+          example: California
+          maxLength: 60
+          minLength: 2
+          title: region
+          type: string
+        city:
+          description: City associated with the IP address.
+          example: Los Angeles
+          maxLength: 60
+          minLength: 2
+          title: city
+          type: string
+        postalCode:
+          description: Postal code associated with the IP address.
+          example: "90001"
+          maxLength: 10
+          minLength: 2
+          title: postalCode
+          type: string
+      title: IpInfo
+      type: object
+    Ipv4Address:
+      description: |
+        IP address of the customer, client, or user that initiated the request. Each octet must be between 0 and 255.
+      example: 192.168.1.100
+      format: ipv4
+      maxLength: 15
+      minLength: 7
+      pattern: "^(\\d{1,3}\\.){3}\\d{1,3}$"
+      title: Ipv4Address
+      type: string
+    Ipv6Address:
+      description: IPv6 address.
+      format: ipv6
+      title: Ipv6Address
+      type: string
+    CountryCode:
+      description: ISO 3166-1 alpha-2 country code.
+      example: FR
+      maxLength: 2
+      minLength: 2
+      pattern: "^[A-Z]{2}$"
+      title: CountryCode
+      type: string
+    Integrity:
+      properties:
+        isProxyVpnTor:
+          description: |
+            Indicates whether the IP address is associated with a proxy, VPN, or Tor exit node.
+          example: true
+          title: isProxyVpnTor
+          type: boolean
+        isHostingProvider:
+          description: |
+            Indicates whether the IP address belongs to a hosting provider (e.g., data center, cloud provider).
+          example: false
+          title: isHostingProvider
+          type: boolean
+        isHeadless:
+          description: |
+            Indicates whether the browser is running in headless mode (e.g., automated testing, scraping).
+          example: false
+          title: isHeadless
+          type: boolean
+        isAutomation:
+          description: |
+            Indicates whether the request originated from an automated script or bot.
+          example: false
+          title: isAutomation
+          type: boolean
+        isEmulator:
+          description: |
+            Indicates whether the request originated from an emulator (e.g., Android Emulator, iOS Simulator).
+          example: false
+          title: isEmulator
+          type: boolean
+        isRootedJailbroken:
+          description: |
+            Indicates whether the device is rooted (Android) or jailbroken (iOS).
+          example: false
+          title: isRootedJailbroken
+          type: boolean
+      title: Integrity
+      type: object
+    PhoneNumber:
+      description: |
+        Phone number that supports international E.164 format, as well as spaces, dashes, and parentheses.  Examples: "+1 (415) 555-2671",
+        "415-555-2671", "+14155552671"
+      example: +1 (415) 555-2671
+      format: phone
+      maxLength: 20
+      minLength: 7
+      pattern: "^\\+?[1-9][0-9 .\\-()]{6,14}[0-9]$"
+      title: PhoneNumber
+      type: string
+    EmailAddress:
+      description: Email address of the customer.
+      example: someemail@example-emails.com
+      format: email
+      maxLength: 320
+      minLength: 3
+      pattern: "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+      title: EmailAddress
+      type: string
+    LocationId:
+      description: Unique identifier for the location where the transaction occurred.
+      example: loc_1234
+      maxLength: 50
+      minLength: 3
+      pattern: "^[a-zA-Z0-9-_]{3,50}$"
+      title: LocationId
+      type: string
+    PostalAddress:
+      description: |
+        Postal address used for shipping or billing. Raw values are used only
+        for normalization and risk signals; Alogram will not persist raw address
+        fields in long-term storage.
+      properties:
+        line1:
+          description: First line of the street address.
+          example: 123 Market Street
+          maxLength: 128
+          title: line1
+          type: string
+        line2:
+          description: "Second line of the street address (apartment, suite, etc.)."
+          example: Apt 4B
+          maxLength: 128
+          title: line2
+          type: string
+        city:
+          description: City or locality.
+          example: San Francisco
+          maxLength: 60
+          title: city
+          type: string
+        region:
+          description: "State, province, or region."
+          example: CA
+          maxLength: 60
+          title: region
+          type: string
+        postalCode:
+          description: Postal / ZIP code.
+          example: "94103"
+          maxLength: 20
+          title: postalCode
+          type: string
+        country:
+          description: ISO 3166-1 alpha-2 country code.
+          example: FR
+          maxLength: 2
+          minLength: 2
+          pattern: "^[A-Z]{2}$"
+          title: CountryCode
+          type: string
+      title: PostalAddress
+      type: object
+  securitySchemes:
+    ApiKey:
+      description: |
+        API key issued via Apigee Developer App. In production the proxy verifies this key and injects trusted headers (e.g.
+        X-Trusted-Tenant-Id) to the backend. Clients should pass x-api-key.
+      in: header
+      name: x-api-key
+      type: apiKey
+    oAuth2:
+      description: |
+        OAuth 2.0 Authorization Code. The client obtains an access token and sends it as 'Authorization: Bearer <token>'. Apigee validates
+        the token and injects trusted headers to the backend.
+      flows:
+        authorizationCode:
+          authorizationUrl: https://api.alogram.ai/oauth2/authorize
+          scopes:
+            payrisk.read: Read fraud scores and decisions.
+            payrisk.write: "Submit fraud checks, events, and signals."
+          tokenUrl: https://api.alogram.ai/oauth2/token
+      type: oauth2
