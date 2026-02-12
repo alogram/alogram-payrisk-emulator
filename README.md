@@ -40,6 +40,30 @@ services:
       - DEBUG=true
 ```
 
+## 🧪 Verification
+
+### 1. Health Check
+Verify the emulator is running and healthy:
+```bash
+curl -i http://localhost:8080/v1/health
+```
+
+### 2. Smoke Test (Risk Check)
+Test a mock purchase evaluation:
+```bash
+curl -X POST http://localhost:8080/v1/risk/check \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: test_key" \
+  -H "X-Idempotency-Key: idk_550e8400e29b41d4a716446655440000" \
+  -d '{
+    "purchase": {
+      "amount": 99.99,
+      "currency": "USD",
+      "transaction_id": "tx_smoke_001"
+    }
+  }'
+```
+
 ## 🛡️ SDK Integration
 
 To use the emulator, simply override the `baseUrl` (or `BaseURL`) in your SDK client:

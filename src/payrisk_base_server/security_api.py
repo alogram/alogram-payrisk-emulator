@@ -26,16 +26,11 @@ def get_token_ApiKey(
 ) -> TokenModel:
     """
     Check and retrieve authentication information from api_key.
-
-    :param token_api_key_header API key provided by Authorization[x-api-key] header
-    
-    
-    :type token_api_key_header: str
-    :return: Information attached to provided api_key or None if api_key is invalid or does not allow access to called API
-    :rtype: TokenModel | None
+    Emulator Implementation: Accepts any non-empty key.
     """
-
-    ...
+    if token_api_key_header:
+        return TokenModel(sub="emulator-user")
+    return None
 
 oauth2_code = OAuth2AuthorizationCodeBearer(
     authorizationUrl="https://api.alogram.ai/oauth2/authorize",
@@ -53,14 +48,11 @@ def get_token_oAuth2(
 ) -> TokenModel:
     """
     Validate and decode token.
-
-    :param token Token provided by Authorization header
-    :type token: str
-    :return: Decoded token information or None if token is invalid
-    :rtype: TokenModel | None
+    Emulator Implementation: Accepts any non-empty token.
     """
-
-    ...
+    if token:
+        return TokenModel(sub="emulator-user", scopes=list(security_scopes.scopes))
+    return None
 
 
 def validate_scope_oAuth2(
