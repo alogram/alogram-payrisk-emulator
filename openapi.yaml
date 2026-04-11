@@ -13,8 +13,8 @@ info:
   title: Alogram PayRisk Engine
   version: 0.2.8
   x-logo:
-    url: https://alogram.ai/logo.png
-    altText: Alogram Logo
+    url: https://raw.githubusercontent.com/alogram/alogram-payrisk-emulator/main/.github/assets/logo.png
+    altText: Alogram PayRisk Logo
 servers:
 - description: Production Environment
   url: https://api.alogram.ai/v1
