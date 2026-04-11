@@ -1,7 +1,6 @@
 import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
-
 from payrisk_base_server.main import app as application
 
 

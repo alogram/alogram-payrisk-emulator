@@ -14,8 +14,11 @@ from fastapi.security import (  # noqa: F401
     OAuth2PasswordBearer,
     SecurityScopes,
 )
-from fastapi.security.api_key import APIKeyCookie, APIKeyHeader, APIKeyQuery  # noqa: F401
-
+from fastapi.security.api_key import (  # noqa: F401
+    APIKeyCookie,
+    APIKeyHeader,
+    APIKeyQuery,
+)
 from payrisk_base_server.models.extra_models import TokenModel
 
 
@@ -32,6 +35,7 @@ def get_token_ApiKey(
         return TokenModel(sub="emulator-user")
     return None
 
+
 oauth2_code = OAuth2AuthorizationCodeBearer(
     authorizationUrl="https://api.alogram.ai/oauth2/authorize",
     tokenUrl="https://api.alogram.ai/oauth2/token",
@@ -39,7 +43,7 @@ oauth2_code = OAuth2AuthorizationCodeBearer(
     scopes={
         "payrisk.read": "Read fraud scores and decisions.",
         "payrisk.write": "Submit fraud checks, events, and signals.",
-    }
+    },
 )
 
 
@@ -70,4 +74,3 @@ def validate_scope_oAuth2(
     """
 
     return False
-
