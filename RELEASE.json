@@ -1,7 +1,9 @@
 {
-  "artifact": "alogram-payrisk-emulator",
-  "version": "0.1.6-rc.12",
-  "monorepo_commit": "HEAD",
-  "license": "Apache-2.0",
-  "ai_ready": true
+  "sdk": "emulator",
+  "version": "0.2.8",
+  "monorepo_commit": "cfbfd57b1302f02017d1ed00744f8d6ba2de16f9",
+  "openapi_path": "apis/payrisk-v1/openapi-shared.yaml",
+  "openapi_commit": "",
+  "generator": "openapi-generator-cli@7.10.0",
+  "built_at": "2026-04-11T22:23:37Z"
 }

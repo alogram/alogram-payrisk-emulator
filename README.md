@@ -1,3 +1,7 @@
+<p align="center">
+  <img src=".github/assets/logo.png" width="200" alt="Alogram PayRisk Logo">
+</p>
+
 # Alogram PayRisk Local Emulator
 
 [![Docker Image](https://img.shields.io/badge/docker-alogram%2Fpayrisk--emulator-blue.svg)](https://hub.docker.com/r/alogram/payrisk-emulator)
