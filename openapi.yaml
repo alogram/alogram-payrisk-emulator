@@ -1,20 +1,38 @@
 openapi: 3.0.4
 info:
   contact:
-    email: support@alogram.ai
-    name: Alogram Support
-    url: https://alogram.ai/#contact
-  description: |
-    Alogram PayRisk is a decision management and risk orchestration engine  for global commerce. It fuses adaptive machine learning, behavioral  analytics, and deterministic business rules into a high-fidelity scoring  pipeline designed for enterprise scale and auditability. Key capabilities  include real-time risk scoring, advanced behavioral fingerprinting,  geographic triangulation, and forensic decision transparency.
+    email: packages@alogram.ai
+    name: Alogram Engineering
+    url: https://developers.alogram.ai
+  description: "Alogram PayRisk is an AI-native decision engine built for the speed\
+    \ and \ncomplexity of the modern commerce era. In a high-velocity world where\
+    \ \nAI-driven threats evolve in milliseconds, Alogram provides the real-time \n\
+    adaptability and forensic transparency needed to protect your ecosystem \nwith\
+    \ total confidence. We solve the challenge of balancing frictionless \ngrowth\
+    \ with regulatory explainability, delivering instant, intelligent \nrisk orchestration\
+    \ at enterprise scale.\n\n---\n\n\n## Licensing & Terms\n\n\nOur client libraries\
+    \ and API specifications are open-source under the **Apache License 2.0** \nto\
+    \ ensure seamless integration into your tech stack.\n\nUse of the Alogram PayRisk\
+    \ API service is proprietary and governed by our \n[Terms of Service](https://alogram.ai/#tos)\
+    \ and your specific **Enterprise Agreement**, \nif applicable.\n\nTo access the\
+    \ service, you must have:\n*   A valid Alogram API Key.\n*   An active subscription\
+    \ or signed Master Service Agreement.\n\nUnauthorized use, including automated\
+    \ scraping or reverse engineering of the \nscoring engine, is strictly prohibited.\n\
+    \n\n---\n\n\n## Support & Traceability\n\n\nEvery Alogram API response includes\
+    \ a unique **`x-trace-id`** header. \nPlease include this ID when contacting [packages@alogram.ai](mailto:packages@alogram.ai)\
+    \ \nregarding specific transactions or errors.\n\n\n---\n\n\n## Specification\n\
+    \n\nThe authoritative OpenAPI specification for this version is available for\
+    \ download:\n**[Download openapi.yaml](https://developers.alogram.ai/openapi.yaml)**\n"
   license:
-    name: LicenseRef-Alogram
-    url: https://alogram.ai/#tos
+    name: Apache-2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
   termsOfService: https://alogram.ai/#tos
   title: Alogram PayRisk Engine
-  version: 0.2.8
+  version: 0.2.9
   x-logo:
-    url: https://raw.githubusercontent.com/alogram/alogram-payrisk-emulator/main/.github/assets/logo.png
+    url: logo.png
     altText: Alogram PayRisk Logo
+    backgroundColor: "#FFFFFF"
 servers:
 - description: Production Environment
   url: https://api.alogram.ai/v1
@@ -33,6 +51,10 @@ tags:
   name: Signal Intelligence
 - description: Retrieval of historical assessments and deep forensic insights.
   name: Forensic Data
+- description: Service health and connectivity diagnostics.
+  name: System
+- description: Future capabilities currently in active development or private beta.
+  name: Roadmap & Preview
 paths:
   /v1/risk/check:
     post:
@@ -536,9 +558,12 @@ paths:
       security: []
       summary: Health check for the service
       tags:
-      - payrisk
+      - System
   /v1/risk/account/check:
     post:
+      description: |
+        > **Coming Soon**: This endpoint is currently in active development.
+        Assess risk for account-level events such as signup, login, and profile changes.
       operationId: accountRiskCheck
       parameters:
       - description: Echoed or generated trace ID for tracking requests.
@@ -617,13 +642,21 @@ paths:
               $ref: "#/components/headers/TraceIdHeader"
             x-idempotency-key:
               $ref: "#/components/headers/XIdempotencyKeyHeader"
-      summary: "Synchronous fraud decision for account/session events (signup, login,\
-        \ settings)"
+      security:
+      - ApiKey: []
+      - oAuth2:
+        - payrisk.write
+      summary: Synchronous fraud decision for account/session events
       tags:
-      - payrisk
-      x-enabled: false
+      - Roadmap & Preview
+      x-badges:
+      - name: Coming Soon
+        color: grey
   /v1/risk/kyc/check:
     post:
+      description: |
+        > **Coming Soon**: This endpoint is currently in active development.
+        Assess risk for identity verification and KYC workflows.
       operationId: kycRiskCheck
       parameters:
       - description: Echoed or generated trace ID for tracking requests.
@@ -702,10 +735,16 @@ paths:
               $ref: "#/components/headers/TraceIdHeader"
             x-idempotency-key:
               $ref: "#/components/headers/XIdempotencyKeyHeader"
+      security:
+      - ApiKey: []
+      - oAuth2:
+        - payrisk.write
       summary: Synchronous decision for KYC/identity verification
       tags:
-      - payrisk
-      x-enabled: false
+      - Roadmap & Preview
+      x-badges:
+      - name: Coming Soon
+        color: grey
 components:
   headers:
     TraceIdHeader:
@@ -855,7 +894,7 @@ components:
           description: "Universal decision identifier. For purchases, equals paymentIntentId."
           maxLength: 64
           minLength: 8
-          pattern: "^[a-zA-Z0-9_-]+$"
+          pattern: "^[a-zA-Z0-9\\-_]+$"
           type: string
         decision:
           enum:
@@ -1328,64 +1367,81 @@ components:
           example: tid_acme_01
           maxLength: 64
           minLength: 5
-          pattern: "^tid_[a-z0-9_-]{2,60}$"
+          pattern: "^tid_[a-z0-9\\-_]{2,60}$"
           title: TenantId
           type: string
+          x-alogram-origin: server
+          x-alogram-importance: system
         clientId:
           description: |
             Canonical ID for the Tenant’s business customer (e.g., merchant/partner).  Opaque, immutable, lowercase. Must start with 'cid_'.
           example: cid_merchant_42
           maxLength: 100
           minLength: 5
-          pattern: "^cid_[a-z0-9_-]{2,96}$"
+          pattern: "^cid_[a-z0-9\\-_]{2,96}$"
           title: ClientId
           type: string
+          x-alogram-origin: server
+          x-alogram-importance: recommended
         endCustomerId:
           description: |
             Canonical ID for the client’s end user / consumer (account holder).  Opaque, immutable, lowercase. Must start with "ecid_".  Do not put PII (like emails or phone numbers) in this field.
           example: ecid_shopper_9f
           maxLength: 100
           minLength: 6
-          pattern: "^ecid_[a-z0-9_-]{2,96}$"
+          pattern: "^ecid_[a-z0-9\\-_]{2,96}$"
           title: EndCustomerId
           type: string
+          x-alogram-origin: server
+          x-alogram-importance: recommended
         memberId:
           description: |
             Canonical ID for a Tenant member/operator (employee/contractor) using the platform.  Opaque, immutable, lowercase. Must start with 'mid_'.
           example: mid_ops_27
           maxLength: 100
           minLength: 5
-          pattern: "^mid_[a-z0-9_-]{2,96}$"
+          pattern: "^mid_[a-z0-9\\-_]{2,96}$"
           title: MemberId
           type: string
         paymentInstrumentId:
           description: Tokenized instrument ID (non-PCI).
           example: tok_abcdef1234567890
           maxLength: 100
-          pattern: "^[a-zA-Z0-9_:-]{2,96}$"
+          pattern: "^[a-zA-Z0-9\\-_:]{2,96}$"
           type: string
+          x-alogram-origin: server
+          x-alogram-importance: recommended
         deviceId:
           description: |
             Server-issued stable device token (device-level identifier).
             Should persist across sessions and logins on the same browser/device.
           example: did_a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6
           maxLength: 100
-          pattern: "^did_[a-zA-Z0-9_:-]{2,96}$"
+          pattern: "^did_[a-zA-Z0-9\\-_:]{2,96}$"
           type: string
+          x-alogram-origin: client
+          x-alogram-importance: critical
+          x-alogram-generator: uuid-v4-prefix
         sessionId:
           description: |
             Application/user session identifier (login or checkout session).
             Typically rotates more frequently than deviceId and may be tied to authentication.
           example: sid_a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6
           maxLength: 100
-          pattern: "^sid_[a-zA-Z0-9_:-]{2,96}$"
+          pattern: "^sid_[a-zA-Z0-9\\-_:]{2,96}$"
           type: string
+          x-alogram-origin: client
+          x-alogram-importance: critical
+          x-alogram-generator: uuid-v4-prefix
         emailHash:
           description: "Normalized+lowercased email hash (e.g., sha256)."
           example: sha256_abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890
           maxLength: 71
           pattern: "^sha256_[0-9a-f]{64}$"
           type: string
+          x-alogram-origin: server
+          x-alogram-importance: recommended
+          x-alogram-generator: sha256-prefix
         emailDomainHash:
           description: "Normalized+lowercased email *domain* hash (e.g., sha256)."
           example: sha256_abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890
@@ -1458,7 +1514,7 @@ components:
           format: email
           maxLength: 320
           minLength: 3
-          pattern: "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+          pattern: "^[a-zA-Z0-9._%+\\-]+@[a-zA-Z0-9.\\-]+\\.[a-zA-Z]{2,}$"
           title: EmailAddress
           type: string
         metadata:
@@ -1499,7 +1555,7 @@ components:
           example: loc_1234
           maxLength: 50
           minLength: 3
-          pattern: "^[a-zA-Z0-9-_]{3,50}$"
+          pattern: "^[a-zA-Z0-9\\-_]{3,50}$"
           title: LocationId
           type: string
         deviceInfo:
@@ -1579,7 +1635,7 @@ components:
           example: loc_1234
           maxLength: 50
           minLength: 3
-          pattern: "^[a-zA-Z0-9-_]{3,50}$"
+          pattern: "^[a-zA-Z0-9\\-_]{3,50}$"
           title: LocationId
           type: string
         deviceInfo:
@@ -1597,7 +1653,7 @@ components:
           example: tx_123
           maxLength: 50
           minLength: 3
-          pattern: "^[a-zA-Z0-9_-]+$"
+          pattern: "^[a-zA-Z0-9\\-_]+$"
           type: string
         amount:
           description: |
@@ -1789,7 +1845,7 @@ components:
       example: tx_123
       maxLength: 50
       minLength: 3
-      pattern: "^[a-zA-Z0-9_-]+$"
+      pattern: "^[a-zA-Z0-9\\-_]+$"
       type: string
     CurrencyCode:
       description: "ISO 4217 currency code (e.g., 'USD')."
@@ -2128,7 +2184,7 @@ components:
           format: email
           maxLength: 320
           minLength: 3
-          pattern: "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+          pattern: "^[a-zA-Z0-9._%+\\-]+@[a-zA-Z0-9.\\-]+\\.[a-zA-Z]{2,}$"
           title: EmailAddress
           type: string
         emailDomain:
@@ -2499,6 +2555,10 @@ components:
           maxLength: 50
           minLength: 3
           type: string
+        traceId:
+          description: Server-generated trace ID for debugging.
+          example: trc_123e4567e89b12d3a456426614174000
+          type: string
       required:
       - status
       - title
@@ -2510,9 +2570,11 @@ components:
       example: tid_acme_01
       maxLength: 64
       minLength: 5
-      pattern: "^tid_[a-z0-9_-]{2,60}$"
+      pattern: "^tid_[a-z0-9\\-_]{2,60}$"
       title: TenantId
       type: string
+      x-alogram-origin: server
+      x-alogram-importance: system
     Timestamp:
       description: RFC 3339 timestamp with timezone.
       example: 2023-12-14T15:45:30.123456Z
@@ -2534,25 +2596,29 @@ components:
       example: cid_merchant_42
       maxLength: 100
       minLength: 5
-      pattern: "^cid_[a-z0-9_-]{2,96}$"
+      pattern: "^cid_[a-z0-9\\-_]{2,96}$"
       title: ClientId
       type: string
+      x-alogram-origin: server
+      x-alogram-importance: recommended
     EndCustomerId:
       description: |
         Canonical ID for the client’s end user / consumer (account holder).  Opaque, immutable, lowercase. Must start with "ecid_".  Do not put PII (like emails or phone numbers) in this field.
       example: ecid_shopper_9f
       maxLength: 100
       minLength: 6
-      pattern: "^ecid_[a-z0-9_-]{2,96}$"
+      pattern: "^ecid_[a-z0-9\\-_]{2,96}$"
       title: EndCustomerId
       type: string
+      x-alogram-origin: server
+      x-alogram-importance: recommended
     MemberId:
       description: |
         Canonical ID for a Tenant member/operator (employee/contractor) using the platform.  Opaque, immutable, lowercase. Must start with 'mid_'.
       example: mid_ops_27
       maxLength: 100
       minLength: 5
-      pattern: "^mid_[a-z0-9_-]{2,96}$"
+      pattern: "^mid_[a-z0-9\\-_]{2,96}$"
       title: MemberId
       type: string
     DeviceInfo:
@@ -2755,7 +2821,7 @@ components:
       format: email
       maxLength: 320
       minLength: 3
-      pattern: "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+      pattern: "^[a-zA-Z0-9._%+\\-]+@[a-zA-Z0-9.\\-]+\\.[a-zA-Z]{2,}$"
       title: EmailAddress
       type: string
     LocationId:
@@ -2763,7 +2829,7 @@ components:
       example: loc_1234
       maxLength: 50
       minLength: 3
-      pattern: "^[a-zA-Z0-9-_]{3,50}$"
+      pattern: "^[a-zA-Z0-9\\-_]{3,50}$"
       title: LocationId
       type: string
     PostalAddress:

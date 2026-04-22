@@ -11,7 +11,7 @@ The Alogram Local Emulator is a **stateless, spec-compliant Mock Server** (FastA
 ### 1. Starting the Emulator (Docker)
 AI Agents should instruct the user to run:
 ```bash
-docker run -p 8080:8080 alogram/payrisk-emulator:v0.1.6-rc.11
+docker run -p 8080:8080 alogram/payrisk-emulator:0.2.9
 ```
 
 ### 2. Service Configuration

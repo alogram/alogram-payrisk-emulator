@@ -11,20 +11,12 @@ The official local emulator for the Alogram PayRisk API. This emulator provides 
 
 ## 🚀 Quick Start
 
-### 1. Build and Run with Docker
+### 1. Run with Docker (Recommended)
 
-Alogram provides the full source code for the local emulator to ensure maximum transparency and security. Build and launch it locally:
+The official Alogram PayRisk Emulator is hosted on Docker Hub. You can pull and run it directly without cloning the repository:
 
 ```bash
-# 1. Clone the repository
-git clone https://github.com/alogram/alogram-payrisk-emulator.git
-cd alogram-payrisk-emulator
-
-# 2. Build the image
-docker build -t alogram/payrisk-emulator .
-
-# 3. Run the container
-docker run -p 8080:8080 alogram/payrisk-emulator
+docker run -p 8080:8080 alogram/payrisk-emulator:0.2.9
 ```
 
 The emulator will be available at `http://localhost:8080`.
@@ -36,12 +28,25 @@ Add this to your `docker-compose.yml` for seamless local development:
 ```yaml
 services:
   alogram-emulator:
-    build: 
-      context: ./path/to/alogram-payrisk-emulator
+    image: alogram/payrisk-emulator:0.2.9
     ports:
       - "8080:8080"
     environment:
       - DEBUG=true
+```
+
+### 3. Build from Source (Optional)
+
+If you wish to build the emulator image manually from source:
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/alogram/alogram-payrisk-emulator.git
+cd alogram-payrisk-emulator
+
+# 2. Build and run
+docker build -t alogram/payrisk-emulator .
+docker run -p 8080:8080 alogram/payrisk-emulator
 ```
 
 ## 🧪 Verification
