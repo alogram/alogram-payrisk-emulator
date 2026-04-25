@@ -4,19 +4,19 @@
 
 # Alogram PayRisk Local Emulator
 
-[![Docker Image](https://img.shields.io/badge/docker-alogram%2Fpayrisk--emulator-blue.svg)](https://hub.docker.com/r/alogram/payrisk-emulator)
+[![Docker Image](https://img.shields.io/badge/docker-alogram%2Fpayrisk--emulator-blue.svg)](https://us-docker.pkg.dev/alogram-public/sdk/payrisk-emulator)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 The official local emulator for the Alogram PayRisk API. This emulator provides a fully spec-compliant API for local development and CI/CD, allowing you to test your integrations without requiring network access or production API keys.
 
 ## 🚀 Quick Start
 
-### 1. Run with Docker (Recommended)
+### 1. Run with Docker (Authoritative Registry)
 
-The official Alogram PayRisk Emulator is hosted on Docker Hub. You can pull and run it directly without cloning the repository:
+The Alogram PayRisk Emulator is available from our high-availability enterprise registry. You can pull and run the hardened image directly:
 
 ```bash
-docker run -p 8080:8080 alogram/payrisk-emulator:0.2.9
+docker run -p 8080:8080 us-docker.pkg.dev/alogram-public/sdk/payrisk-emulator:0.2.9
 ```
 
 The emulator will be available at `http://localhost:8080`.
@@ -28,7 +28,7 @@ Add this to your `docker-compose.yml` for seamless local development:
 ```yaml
 services:
   alogram-emulator:
-    image: alogram/payrisk-emulator:0.2.9
+    image: us-docker.pkg.dev/alogram-public/sdk/payrisk-emulator:0.2.9
     ports:
       - "8080:8080"
     environment:
@@ -45,8 +45,8 @@ git clone https://github.com/alogram/alogram-payrisk-emulator.git
 cd alogram-payrisk-emulator
 
 # 2. Build and run
-docker build -t alogram/payrisk-emulator .
-docker run -p 8080:8080 alogram/payrisk-emulator
+docker build -t us-docker.pkg.dev/alogram-public/sdk/payrisk-emulator .
+docker run -p 8080:8080 us-docker.pkg.dev/alogram-public/sdk/payrisk-emulator
 ```
 
 ## 🧪 Verification
@@ -68,7 +68,11 @@ curl -X POST http://localhost:8080/v1/risk/check \
     "purchase": {
       "amount": 99.99,
       "currency": "USD",
-      "transaction_id": "tx_smoke_001"
+      "paymentMethod": {
+        "type": "card",
+        "bin": "411111",
+        "cardNetwork": "visa"
+      }
     }
   }'
 ```
@@ -104,7 +108,7 @@ The emulator returns spec-compliant responses (e.g., `approve`) by default. In f
 If you wish to build the emulator image manually:
 
 ```bash
-docker build -t alogram/payrisk-emulator .
+docker build -t us-docker.pkg.dev/alogram-public/sdk/payrisk-emulator .
 ```
 
 ## ⚖️ License

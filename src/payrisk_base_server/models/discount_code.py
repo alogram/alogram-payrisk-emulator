@@ -17,9 +17,10 @@ from __future__ import annotations
 import json
 import pprint
 import re  # noqa: F401
-from typing import Any, ClassVar, Dict, List, Optional
+from typing import Any, ClassVar, Dict, List, Optional, Union
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
+from pydantic import (BaseModel, ConfigDict, Field, StrictFloat, StrictInt,
+                      StrictStr, field_validator)
 
 try:
     from typing import Self
@@ -27,29 +28,39 @@ except ImportError:
     from typing_extensions import Self
 
 
-class PaymentDisputeOutcome(BaseModel):
+class DiscountCode(BaseModel):
     """
-    Dispute lifecycle status for the transaction.
+    DiscountCode
     """  # noqa: E501
 
-    status: Optional[StrictStr] = Field(default=None, description="Dispute status.")
-    __properties: ClassVar[List[str]] = ["status"]
+    code: StrictStr = Field(description="The discount code string (e.g., 'SUMMER20').")
+    amount: Optional[Union[StrictFloat, StrictInt]] = Field(
+        default=None, description="The monetary value saved by this discount."
+    )
+    type: Optional[StrictStr] = Field(
+        default=None, description="The type of discount applied."
+    )
+    usage_limit_per_user: Optional[StrictInt] = Field(
+        default=None,
+        description="Optional: The number of times a single user/device is allowed to use this specific code.",
+        alias="usageLimitPerUser",
+    )
+    __properties: ClassVar[List[str]] = ["code", "amount", "type", "usageLimitPerUser"]
 
-    @field_validator("status")
-    def status_validate_enum(cls, value):
+    @field_validator("type")
+    def type_validate_enum(cls, value):
         """Validates the enum"""
         if value is None:
             return value
 
         if value not in (
-            "none",
-            "open",
-            "won",
-            "lost",
-            "canceled",
+            "percentage",
+            "fixed_amount",
+            "free_shipping",
+            "buy_x_get_y",
         ):
             raise ValueError(
-                "must be one of enum values ('none', 'open', 'won', 'lost', 'canceled')"
+                "must be one of enum values ('percentage', 'fixed_amount', 'free_shipping', 'buy_x_get_y')"
             )
         return value
 
@@ -70,7 +81,7 @@ class PaymentDisputeOutcome(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:
-        """Create an instance of PaymentDisputeOutcome from a JSON string"""
+        """Create an instance of DiscountCode from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -92,12 +103,19 @@ class PaymentDisputeOutcome(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Dict) -> Self:
-        """Create an instance of PaymentDisputeOutcome from a dict"""
+        """Create an instance of DiscountCode from a dict"""
         if obj is None:
             return None
 
         if not isinstance(obj, dict):
             return cls.model_validate(obj)
 
-        _obj = cls.model_validate({"status": obj.get("status")})
+        _obj = cls.model_validate(
+            {
+                "code": obj.get("code"),
+                "amount": obj.get("amount"),
+                "type": obj.get("type"),
+                "usageLimitPerUser": obj.get("usageLimitPerUser"),
+            }
+        )
         return _obj

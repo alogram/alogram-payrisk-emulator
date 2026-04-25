@@ -16,7 +16,11 @@ import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
-from payrisk_base_server.apis.payrisk_api import router as PayriskApiRouter
+from payrisk_base_server.apis.risk_scoring_api import router as RiskScoringApiRouter
+from payrisk_base_server.apis.signal_intelligence_api import router as SignalIntelligenceApiRouter
+from payrisk_base_server.apis.forensic_data_api import router as ForensicDataApiRouter
+from payrisk_base_server.apis.roadmap_preview_api import router as RoadmapPreviewApiRouter
+from payrisk_base_server.apis.system_api import router as SystemApiRouter
 
 # Configure logging for main
 logger = logging.getLogger("alogram.payrisk.emulator")
@@ -37,4 +41,8 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-app.include_router(PayriskApiRouter)
+app.include_router(RiskScoringApiRouter)
+app.include_router(SignalIntelligenceApiRouter)
+app.include_router(ForensicDataApiRouter)
+app.include_router(RoadmapPreviewApiRouter)
+app.include_router(SystemApiRouter)

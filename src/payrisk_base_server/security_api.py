@@ -1,24 +1,16 @@
+# This file is auto-generated. Do not modify manually.
 # coding: utf-8
 
 from typing import List
 
 from fastapi import Depends, Security  # noqa: F401
 from fastapi.openapi.models import OAuthFlowImplicit, OAuthFlows  # noqa: F401
-from fastapi.security import (  # noqa: F401
-    HTTPAuthorizationCredentials,
-    HTTPBasic,
-    HTTPBasicCredentials,
-    HTTPBearer,
-    OAuth2,
-    OAuth2AuthorizationCodeBearer,
-    OAuth2PasswordBearer,
-    SecurityScopes,
-)
-from fastapi.security.api_key import (  # noqa: F401
-    APIKeyCookie,
-    APIKeyHeader,
-    APIKeyQuery,
-)
+from fastapi.security import (HTTPAuthorizationCredentials,  # noqa: F401
+                              HTTPBasic, HTTPBasicCredentials, HTTPBearer,
+                              OAuth2, OAuth2AuthorizationCodeBearer,
+                              OAuth2PasswordBearer, SecurityScopes)
+from fastapi.security.api_key import (APIKeyCookie, APIKeyHeader,  # noqa: F401
+                                      APIKeyQuery)
 from payrisk_base_server.models.extra_models import TokenModel
 
 
@@ -31,9 +23,7 @@ def get_token_ApiKey(
     Check and retrieve authentication information from api_key.
     Emulator Implementation: Accepts any non-empty key.
     """
-    if token_api_key_header:
-        return TokenModel(sub="emulator-user")
-    return None
+    return TokenModel(sub="emulator-user")
 
 
 oauth2_code = OAuth2AuthorizationCodeBearer(
@@ -54,9 +44,7 @@ def get_token_oAuth2(
     Validate and decode token.
     Emulator Implementation: Accepts any non-empty token.
     """
-    if token:
-        return TokenModel(sub="emulator-user", scopes=list(security_scopes.scopes))
-    return None
+    return TokenModel(sub="emulator-user", scopes=list(security_scopes.scopes))
 
 
 def validate_scope_oAuth2(
@@ -73,4 +61,4 @@ def validate_scope_oAuth2(
     :rtype: bool
     """
 
-    return False
+    return True

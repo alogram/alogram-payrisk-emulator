@@ -4,76 +4,57 @@ info:
     email: packages@alogram.ai
     name: Alogram Engineering
     url: https://developers.alogram.ai
-  description: "Alogram PayRisk is an AI-native decision engine built for the speed\
-    \ and \ncomplexity of the modern commerce era. In a high-velocity world where\
-    \ \nAI-driven threats evolve in milliseconds, Alogram provides the real-time \n\
-    adaptability and forensic transparency needed to protect your ecosystem \nwith\
-    \ total confidence. We solve the challenge of balancing frictionless \ngrowth\
-    \ with regulatory explainability, delivering instant, intelligent \nrisk orchestration\
-    \ at enterprise scale.\n\n---\n\n\n## Licensing & Terms\n\n\nOur client libraries\
-    \ and API specifications are open-source under the **Apache License 2.0** \nto\
-    \ ensure seamless integration into your tech stack.\n\nUse of the Alogram PayRisk\
-    \ API service is proprietary and governed by our \n[Terms of Service](https://alogram.ai/#tos)\
-    \ and your specific **Enterprise Agreement**, \nif applicable.\n\nTo access the\
-    \ service, you must have:\n*   A valid Alogram API Key.\n*   An active subscription\
-    \ or signed Master Service Agreement.\n\nUnauthorized use, including automated\
-    \ scraping or reverse engineering of the \nscoring engine, is strictly prohibited.\n\
-    \n\n---\n\n\n## Support & Traceability\n\n\nEvery Alogram API response includes\
-    \ a unique **`x-trace-id`** header. \nPlease include this ID when contacting [packages@alogram.ai](mailto:packages@alogram.ai)\
-    \ \nregarding specific transactions or errors.\n\n\n---\n\n\n## Specification\n\
-    \n\nThe authoritative OpenAPI specification for this version is available for\
-    \ download:\n**[Download openapi.yaml](https://developers.alogram.ai/openapi.yaml)**\n"
+  description: "Alogram PayRisk is an AI-native decision engine built for the speed and \ncomplexity of the modern commerce era. In a high-velocity world where \nAI-driven threats evolve in milliseconds, Alogram provides the real-time \nadaptability and forensic transparency needed to protect your ecosystem \nwith total confidence. We solve the challenge of balancing frictionless \ngrowth with regulatory explainability, delivering instant, intelligent \nrisk orchestration at enterprise scale.\n\n---\n\n\n## Licensing & Terms\n\n\nOur client libraries and API specifications are open-source under the **Apache License 2.0** \nto ensure seamless integration into your tech stack.\n\nUse of the Alogram PayRisk API service is proprietary and governed by our \n[Terms of Service](https://alogram.ai/#tos) and your specific **Enterprise Agreement**, \nif applicable.\n\nTo access the service, you must have:\n*   A valid Alogram API Key.\n*   An active subscription or signed Master Service Agreement.\n\
+    \nUnauthorized use, including automated scraping or reverse engineering of the \nscoring engine, is strictly prohibited.\n\n\n---\n\n\n## Support & Traceability\n\n\nEvery Alogram API response includes a unique **`x-trace-id`** header. \nPlease include this ID when contacting [packages@alogram.ai](mailto:packages@alogram.ai) \nregarding specific transactions or errors.\n\n\n---\n\n\n## Specification\n\n\nThe authoritative OpenAPI specification for this version is available for download:\n**[Download openapi.yaml](https://developers.alogram.ai/openapi.yaml)** | **[Download openapi.json](https://developers.alogram.ai/openapi.json)**\n"
   license:
     name: Apache-2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
   termsOfService: https://alogram.ai/#tos
   title: Alogram PayRisk Engine
-  version: 0.2.9
+  version: 0.2.10
   x-logo:
     url: logo.png
     altText: Alogram PayRisk Logo
     backgroundColor: "#FFFFFF"
 servers:
-- description: Production Environment
-  url: https://api.alogram.ai/v1
-  x-google-endpoint:
-    name: api.alogram.ai
-- description: Sandbox Environment (for integration testing)
-  url: https://sandbox.api.alogram.ai/v1
+  - description: Production Environment
+    url: https://api.alogram.ai
+  - description: Sandbox Environment (for integration testing)
+    url: https://sandbox.api.alogram.ai
 security:
-- ApiKey: []
-- oAuth2:
-  - payrisk.write
+  - ApiKey: []
+  - oAuth2:
+      - payrisk.write
 tags:
-- description: Real-time risk assessment and automated decision orchestration.
-  name: Risk Scoring
-- description: Ingestion of payment lifecycle events and behavioral telemetry.
-  name: Signal Intelligence
-- description: Retrieval of historical assessments and deep forensic insights.
-  name: Forensic Data
-- description: Service health and connectivity diagnostics.
-  name: System
-- description: Future capabilities currently in active development or private beta.
-  name: Roadmap & Preview
+  - description: Real-time risk assessment and automated decision orchestration.
+    name: Risk Scoring
+  - description: Ingestion of payment lifecycle events and behavioral telemetry.
+    name: Signal Intelligence
+  - description: Retrieval of historical assessments and deep forensic insights.
+    name: Forensic Data
+  - description: Service health and connectivity diagnostics.
+    name: System
+  - description: Future capabilities currently in active development or private beta.
+    name: Roadmap & Preview
 paths:
   /v1/risk/check:
     post:
       operationId: riskCheck
       parameters:
-      - description: Echoed or generated trace ID for tracking requests.
-        explode: false
-        in: header
-        name: x-trace-id
-        required: false
-        schema:
-          $ref: "#/components/schemas/TraceId"
-        style: simple
-      - description: Unique Idempotency-Key sent in the POST request etc.
-        in: header
-        name: x-idempotency-key
-        required: true
-        schema:
-          $ref: "#/components/schemas/IdempotencyKey"
+        - description: Echoed or generated trace ID for tracking requests.
+          explode: false
+          in: header
+          name: x-trace-id
+          required: false
+          schema:
+            $ref: "#/components/schemas/TraceId"
+          style: simple
+        - description: Unique Idempotency-Key sent in the POST request etc.
+          in: header
+          name: x-idempotency-key
+          required: true
+          schema:
+            $ref: "#/components/schemas/IdempotencyKey"
       requestBody:
         content:
           application/json:
@@ -111,7 +92,7 @@ paths:
               example:
                 assessmentId: pi_0123456789abcdef0123456789abcdef
                 decision: approve
-                decisionAt: 2023-12-14T15:45:30.123Z
+                decisionAt: 2023-12-14T15:45:30.123000Z
                 riskScore: 0.12
                 fraudScore:
                   score: 0.12
@@ -192,37 +173,37 @@ paths:
             x-idempotency-key:
               $ref: "#/components/headers/XIdempotencyKeyHeader"
       security:
-      - ApiKey: []
-      - oAuth2:
-        - payrisk.write
+        - ApiKey: []
+        - oAuth2:
+            - payrisk.write
       summary: Assess Transaction Risk
       tags:
-      - Risk Scoring
+        - Risk Scoring
   /v1/events:
     post:
       operationId: ingestPaymentEvent
       parameters:
-      - description: Echoed or generated trace ID for tracking requests.
-        explode: false
-        in: header
-        name: x-trace-id
-        required: false
-        schema:
-          $ref: "#/components/schemas/TraceId"
-        style: simple
-      - description: Unique Idempotency-Key sent in the POST request etc.
-        in: header
-        name: x-idempotency-key
-        required: true
-        schema:
-          $ref: "#/components/schemas/IdempotencyKey"
+        - description: Echoed or generated trace ID for tracking requests.
+          explode: false
+          in: header
+          name: x-trace-id
+          required: false
+          schema:
+            $ref: "#/components/schemas/TraceId"
+          style: simple
+        - description: Unique Idempotency-Key sent in the POST request etc.
+          in: header
+          name: x-idempotency-key
+          required: true
+          schema:
+            $ref: "#/components/schemas/IdempotencyKey"
       requestBody:
         content:
           application/json:
             example:
               paymentIntentId: pi_0123456789abcdef0123456789abcdef
               eventType: authorization
-              timestamp: 2023-12-14T15:45:30.123Z
+              timestamp: 2023-12-14T15:45:30.123000Z
               amount: 123.45
               currency: USD
               outcome:
@@ -340,30 +321,30 @@ paths:
             x-idempotency-key:
               $ref: "#/components/headers/XIdempotencyKeyHeader"
       security:
-      - ApiKey: []
-      - oAuth2:
-        - payrisk.write
+        - ApiKey: []
+        - oAuth2:
+            - payrisk.write
       summary: Ingest Lifecycle Signals
       tags:
-      - Signal Intelligence
+        - Signal Intelligence
   /v1/signals:
     post:
       operationId: ingestSignals
       parameters:
-      - description: Echoed or generated trace ID for tracking requests.
-        explode: false
-        in: header
-        name: x-trace-id
-        required: false
-        schema:
-          $ref: "#/components/schemas/TraceId"
-        style: simple
-      - description: Unique Idempotency-Key sent in the POST request etc.
-        in: header
-        name: x-idempotency-key
-        required: true
-        schema:
-          $ref: "#/components/schemas/IdempotencyKey"
+        - description: Echoed or generated trace ID for tracking requests.
+          explode: false
+          in: header
+          name: x-trace-id
+          required: false
+          schema:
+            $ref: "#/components/schemas/TraceId"
+          style: simple
+        - description: Unique Idempotency-Key sent in the POST request etc.
+          in: header
+          name: x-idempotency-key
+          required: true
+          schema:
+            $ref: "#/components/schemas/IdempotencyKey"
       requestBody:
         content:
           application/json:
@@ -373,10 +354,10 @@ paths:
                 tenantId: tid_alogram_01
                 endCustomerId: ecid_shopper_9f
               interactions:
-              - type: login
-                interactionType: login
-                timestamp: 2023-12-14T15:45:30.123Z
-                locationId: loc_1234
+                - type: login
+                  interactionType: login
+                  timestamp: 2023-12-14T15:45:30.123000Z
+                  locationId: loc_1234
             schema:
               $ref: "#/components/schemas/SignalsRequest"
         required: true
@@ -444,68 +425,68 @@ paths:
             x-idempotency-key:
               $ref: "#/components/headers/XIdempotencyKeyHeader"
       security:
-      - ApiKey: []
-      - oAuth2:
-        - payrisk.write
+        - ApiKey: []
+        - oAuth2:
+            - payrisk.write
       summary: Submit Behavioral Intelligence
       tags:
-      - Signal Intelligence
+        - Signal Intelligence
   /v1/scores/{tenantId}:
     get:
       operationId: getFraudScores
       parameters:
-      - description: Echoed or generated trace ID for tracking requests.
-        explode: false
-        in: header
-        name: x-trace-id
-        required: false
-        schema:
-          $ref: "#/components/schemas/TraceId"
-        style: simple
-      - description: Unique Idempotency-Key sent in the GET request etc.
-        in: header
-        name: x-idempotency-key
-        required: false
-        schema:
-          $ref: "#/components/schemas/IdempotencyKey"
-      - explode: false
-        in: path
-        name: tenantId
-        required: true
-        schema:
-          $ref: "#/components/schemas/TenantId"
-        style: simple
-      - explode: true
-        in: query
-        name: startTime
-        required: false
-        schema:
-          $ref: "#/components/schemas/Timestamp"
-        style: form
-      - explode: true
-        in: query
-        name: endTime
-        required: false
-        schema:
-          $ref: "#/components/schemas/Timestamp"
-        style: form
-      - explode: true
-        in: query
-        name: pageSize
-        required: false
-        schema:
-          default: 50
-          maximum: 500
-          minimum: 1
-          type: integer
-        style: form
-      - explode: true
-        in: query
-        name: pageToken
-        required: false
-        schema:
-          type: string
-        style: form
+        - description: Echoed or generated trace ID for tracking requests.
+          explode: false
+          in: header
+          name: x-trace-id
+          required: false
+          schema:
+            $ref: "#/components/schemas/TraceId"
+          style: simple
+        - description: Unique Idempotency-Key sent in the GET request etc.
+          in: header
+          name: x-idempotency-key
+          required: false
+          schema:
+            $ref: "#/components/schemas/IdempotencyKey"
+        - explode: false
+          in: path
+          name: tenantId
+          required: true
+          schema:
+            $ref: "#/components/schemas/TenantId"
+          style: simple
+        - explode: true
+          in: query
+          name: startTime
+          required: false
+          schema:
+            $ref: "#/components/schemas/Timestamp"
+          style: form
+        - explode: true
+          in: query
+          name: endTime
+          required: false
+          schema:
+            $ref: "#/components/schemas/Timestamp"
+          style: form
+        - explode: true
+          in: query
+          name: pageSize
+          required: false
+          schema:
+            default: 50
+            maximum: 500
+            minimum: 1
+            type: integer
+          style: form
+        - explode: true
+          in: query
+          name: pageToken
+          required: false
+          schema:
+            type: string
+          style: form
       responses:
         "200":
           content:
@@ -541,12 +522,12 @@ paths:
             x-idempotency-key:
               $ref: "#/components/headers/XIdempotencyKeyHeader"
       security:
-      - ApiKey: []
-      - oAuth2:
-        - payrisk.read
+        - ApiKey: []
+        - oAuth2:
+            - payrisk.read
       summary: Query Historical Assessments
       tags:
-      - Forensic Data
+        - Forensic Data
   /v1/health:
     get:
       operationId: healthCheck
@@ -558,7 +539,7 @@ paths:
       security: []
       summary: Health check for the service
       tags:
-      - System
+        - System
   /v1/risk/account/check:
     post:
       description: |
@@ -566,20 +547,20 @@ paths:
         Assess risk for account-level events such as signup, login, and profile changes.
       operationId: accountRiskCheck
       parameters:
-      - description: Echoed or generated trace ID for tracking requests.
-        explode: false
-        in: header
-        name: x-trace-id
-        required: false
-        schema:
-          $ref: "#/components/schemas/TraceId"
-        style: simple
-      - description: Unique Idempotency-Key sent in the POST request etc.
-        in: header
-        name: x-idempotency-key
-        required: true
-        schema:
-          $ref: "#/components/schemas/IdempotencyKey"
+        - description: Echoed or generated trace ID for tracking requests.
+          explode: false
+          in: header
+          name: x-trace-id
+          required: false
+          schema:
+            $ref: "#/components/schemas/TraceId"
+          style: simple
+        - description: Unique Idempotency-Key sent in the POST request etc.
+          in: header
+          name: x-idempotency-key
+          required: true
+          schema:
+            $ref: "#/components/schemas/IdempotencyKey"
       requestBody:
         content:
           application/json:
@@ -643,15 +624,15 @@ paths:
             x-idempotency-key:
               $ref: "#/components/headers/XIdempotencyKeyHeader"
       security:
-      - ApiKey: []
-      - oAuth2:
-        - payrisk.write
+        - ApiKey: []
+        - oAuth2:
+            - payrisk.write
       summary: Synchronous fraud decision for account/session events
       tags:
-      - Roadmap & Preview
+        - Roadmap & Preview
       x-badges:
-      - name: Coming Soon
-        color: grey
+        - name: Coming Soon
+          color: grey
   /v1/risk/kyc/check:
     post:
       description: |
@@ -659,20 +640,20 @@ paths:
         Assess risk for identity verification and KYC workflows.
       operationId: kycRiskCheck
       parameters:
-      - description: Echoed or generated trace ID for tracking requests.
-        explode: false
-        in: header
-        name: x-trace-id
-        required: false
-        schema:
-          $ref: "#/components/schemas/TraceId"
-        style: simple
-      - description: Unique Idempotency-Key sent in the POST request etc.
-        in: header
-        name: x-idempotency-key
-        required: true
-        schema:
-          $ref: "#/components/schemas/IdempotencyKey"
+        - description: Echoed or generated trace ID for tracking requests.
+          explode: false
+          in: header
+          name: x-trace-id
+          required: false
+          schema:
+            $ref: "#/components/schemas/TraceId"
+          style: simple
+        - description: Unique Idempotency-Key sent in the POST request etc.
+          in: header
+          name: x-idempotency-key
+          required: true
+          schema:
+            $ref: "#/components/schemas/IdempotencyKey"
       requestBody:
         content:
           application/json:
@@ -736,20 +717,19 @@ paths:
             x-idempotency-key:
               $ref: "#/components/headers/XIdempotencyKeyHeader"
       security:
-      - ApiKey: []
-      - oAuth2:
-        - payrisk.write
+        - ApiKey: []
+        - oAuth2:
+            - payrisk.write
       summary: Synchronous decision for KYC/identity verification
       tags:
-      - Roadmap & Preview
+        - Roadmap & Preview
       x-badges:
-      - name: Coming Soon
-        color: grey
+        - name: Coming Soon
+          color: grey
 components:
   headers:
     TraceIdHeader:
-      description: "Echoed or generated trace ID for tracking requests, returned in\
-        \ the response headers."
+      description: "Echoed or generated trace ID for tracking requests, returned in the response headers."
       schema:
         $ref: "#/components/schemas/TraceId"
     XIdempotencyKeyHeader:
@@ -853,10 +833,9 @@ components:
       properties:
         eventType:
           default: purchase
-          description: "(optional) event being checked, this may expand later beyond\
-            \ 'purchase'."
+          description: "(optional) event being checked, this may expand later beyond 'purchase'."
           enum:
-          - purchase
+            - purchase
           type: string
         paymentIntentId:
           description: Server-minted unique payment identifier.
@@ -873,21 +852,20 @@ components:
         identity:
           $ref: "#/components/schemas/Identity"
         externalAssessments:
-          description: "Optional 3rd party risk assessments (e.g. Shopify, Stripe,\
-            \ Signifyd)."
+          description: "Optional 3rd party risk assessments (e.g. Shopify, Stripe, Signifyd)."
           items:
             $ref: "#/components/schemas/ExternalAssessment"
           type: array
       required:
-      - entities
-      - purchase
+        - entities
+        - purchase
       type: object
     DecisionResponse:
       description: The synchronous risk decision for a purchase.
       example:
         assessmentId: pi_0123456789abcdef0123456789abcdef
         decision: approve
-        decisionAt: 2023-12-14T15:45:30.123Z
+        decisionAt: 2023-12-14T15:45:30.123000Z
         riskScore: 0.98
       properties:
         assessmentId:
@@ -898,28 +876,25 @@ components:
           type: string
         decision:
           enum:
-          - approve
-          - review
-          - decline
-          - step_up
+            - approve
+            - review
+            - decline
+            - step_up
           type: string
         decisionAt:
           description: RFC 3339 timestamp with timezone.
           example: 2023-12-14T15:45:30.123456Z
           format: timestamp with timezone
-          pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,9})?(Z|[+-]\\\
-            d{2}:\\d{2})$"
+          pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,9})?(Z|[+-]\\d{2}:\\d{2})$"
           type: string
         riskScore:
-          description: "DEPRECATED: Use decisionScore instead. Current blended risk\
-            \ score."
+          description: "DEPRECATED: Use decisionScore instead. Current blended risk score."
           format: float
           maximum: 1.0
           minimum: 0.0
           type: number
         decisionScore:
-          description: The authoritative blended risk score (0.0 - 1.0) derived from
-            expert fusion.
+          description: The authoritative blended risk score (0.0 - 1.0) derived from expert fusion.
           format: float
           maximum: 1.0
           minimum: 0.0
@@ -931,8 +906,8 @@ components:
         reasonCodes:
           description: Technical reason codes for the decision.
           example:
-          - HIGH_VALUE
-          - UNUSUAL_LOCATION
+            - HIGH_VALUE
+            - UNUSUAL_LOCATION
           items:
             type: string
           type: array
@@ -943,16 +918,16 @@ components:
           type: array
         actions:
           example:
-          - queue_review
+            - queue_review
           items:
             description: |
               Action to be taken based on the decision. 'step_up' for Strong Customer Authentication, 'throttle' for rate limiting, 'lock_account' for account suspension, 'decline' for transaction rejection, 'queue_review' for manual review.
             enum:
-            - step_up
-            - throttle
-            - lock_account
-            - decline
-            - queue_review
+              - step_up
+              - throttle
+              - lock_account
+              - decline
+              - queue_review
             type: string
           type: array
         paymentIntentId:
@@ -977,11 +952,11 @@ components:
           minimum: 0
           type: integer
       required:
-      - assessmentId
-      - decision
-      - decisionAt
-      - decisionScore
-      - riskScore
+        - assessmentId
+        - decision
+        - decisionAt
+        - decisionScore
+        - riskScore
       title: DecisionResponse
       type: object
     SignalsAccountVariant:
@@ -990,16 +965,16 @@ components:
         signalType:
           description: Value for account signals.
           enum:
-          - account
+            - account
           type: string
         entities:
           $ref: "#/components/schemas/EntityIds"
         account:
           $ref: "#/components/schemas/Account"
       required:
-      - account
-      - entities
-      - signalType
+        - account
+        - entities
+        - signalType
       title: SignalsAccountVariant
       type: object
     SignalsInteractionVariant:
@@ -1008,7 +983,7 @@ components:
         signalType:
           description: Value for interaction signals.
           enum:
-          - interaction
+            - interaction
           type: string
         entities:
           $ref: "#/components/schemas/EntityIds"
@@ -1020,9 +995,9 @@ components:
           minItems: 1
           type: array
       required:
-      - entities
-      - interactions
-      - signalType
+        - entities
+        - interactions
+        - signalType
       title: SignalsInteractionVariant
       type: object
     SignalsRequest:
@@ -1040,7 +1015,7 @@ components:
           endCustomerId: ecid_shopper_9f
         account:
           email: someemail@example-emails.com
-          timestamp: 2023-12-14T15:45:30.123Z
+          timestamp: 2023-12-14T15:45:30.123000Z
           deviceInfo:
             fingerprint: fp_5f4dcc3b5aa765d61d8327deb882cf99
             userAgent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)
@@ -1048,22 +1023,22 @@ components:
               ipAddress: 192.168.1.100
               country: US
       oneOf:
-      - $ref: "#/components/schemas/SignalsAccountVariant"
-      - $ref: "#/components/schemas/SignalsInteractionVariant"
+        - $ref: "#/components/schemas/SignalsAccountVariant"
+        - $ref: "#/components/schemas/SignalsInteractionVariant"
       title: SignalsRequest
     ScoresSuccessResponse:
       description: List of fraud scores for a customer.
       example:
         scores:
-        - assessmentId: pi_0123456789abcdef0123456789abcdef
-          decisionAt: 2023-12-14T15:45:30.123Z
-          decision: approve
-          riskScore: 0.98
-          entity:
-            tenantId: tid_alogram_01
-            endCustomerId: ecid_shopper_9f
-          amount: 100.0
-          currency: USD
+          - assessmentId: pi_0123456789abcdef0123456789abcdef
+            decisionAt: 2023-12-14T15:45:30.123000Z
+            decision: approve
+            riskScore: 0.98
+            entity:
+              tenantId: tid_alogram_01
+              endCustomerId: ecid_shopper_9f
+            amount: 100.0
+            currency: USD
         nextPageToken: eyJhbGciOi...
       properties:
         scores:
@@ -1077,13 +1052,13 @@ components:
           maxLength: 4096
           type: string
       required:
-      - scores
+        - scores
       type: object
     ScoreRecord:
       description: Fraud score for a specific transaction or entity.
       example:
         assessmentId: pi_0123456789abcdef0123456789abcdef
-        decisionAt: 2023-12-14T15:45:30.123Z
+        decisionAt: 2023-12-14T15:45:30.123000Z
         decision: approve
         riskScore: 0.98
         decisionScore: 0.98
@@ -1109,29 +1084,26 @@ components:
           description: RFC 3339 timestamp with timezone.
           example: 2023-12-14T15:45:30.123456Z
           format: timestamp with timezone
-          pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,9})?(Z|[+-]\\\
-            d{2}:\\d{2})$"
+          pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,9})?(Z|[+-]\\d{2}:\\d{2})$"
           type: string
         decision:
           description: The synchronous risk decision for a purchase.
           enum:
-          - approve
-          - review
-          - decline
-          - step_up
+            - approve
+            - review
+            - decline
+            - step_up
           example: approve
           type: string
         riskScore:
-          description: "DEPRECATED: Use decisionScore instead. Fraud risk score (0.00\
-            \ - 1.00)."
+          description: "DEPRECATED: Use decisionScore instead. Fraud risk score (0.00 - 1.00)."
           example: 0.98
           format: float
           maximum: 1.0
           minimum: 0.0
           type: number
         decisionScore:
-          description: The authoritative blended risk score (0.0 - 1.0) derived from
-            expert fusion.
+          description: The authoritative blended risk score (0.0 - 1.0) derived from expert fusion.
           example: 0.98
           format: float
           maximum: 1.0
@@ -1164,11 +1136,11 @@ components:
           pattern: "^[A-Z]{3}$"
           type: string
       required:
-      - assessmentId
-      - decision
-      - decisionAt
-      - decisionScore
-      - riskScore
+        - assessmentId
+        - decision
+        - decisionAt
+        - decisionScore
+        - riskScore
       type: object
     AccountCheckRequest:
       example:
@@ -1189,7 +1161,7 @@ components:
         interaction:
           locationId: loc_1234
           interactionType: login
-          timestamp: 2023-12-14T15:45:30.123Z
+          timestamp: 2023-12-14T15:45:30.123000Z
           deviceInfo:
             fingerprint: fp_5f4dcc3b5aa765d61d8327deb882cf99
             userAgent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)
@@ -1199,7 +1171,7 @@ components:
         account:
           email: someemail@example-emails.com
           phone: +1 (415) 555-2671
-          timestamp: 2023-12-14T15:45:30.123Z
+          timestamp: 2023-12-14T15:45:30.123000Z
           deviceInfo:
             fingerprint: fp_5f4dcc3b5aa765d61d8327deb882cf99
             userAgent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)
@@ -1209,14 +1181,13 @@ components:
           metadata: "{\"loyaltyTier\": \"gold\"}"
       properties:
         eventSubtype:
-          description: "The specific subtype of the account event (e.g., 'signup',\
-            \ 'login')."
+          description: "The specific subtype of the account event (e.g., 'signup', 'login')."
           enum:
-          - signup
-          - login
-          - password_reset
-          - mfa_reset
-          - setting_change
+            - signup
+            - login
+            - password_reset
+            - mfa_reset
+            - setting_change
           type: string
         entities:
           $ref: "#/components/schemas/EntityIds"
@@ -1225,7 +1196,7 @@ components:
         interaction:
           $ref: "#/components/schemas/Interaction"
       required:
-      - eventSubtype
+        - eventSubtype
       type: object
     KycPayload:
       description: KYC provider result payload.
@@ -1233,8 +1204,8 @@ components:
         result: passed
         country: US
         reasonCodes:
-        - HIGH_VALUE
-        - HIGH_VALUE
+          - HIGH_VALUE
+          - HIGH_VALUE
         metadata: "{\"key1\": \"value1\", \"key2\": \"value2\"}"
         provider: onfido
         documentType: national_id
@@ -1245,10 +1216,10 @@ components:
         documentType:
           description: The document type used for verification.
           enum:
-          - passport
-          - national_id
-          - driver_license
-          - other
+            - passport
+            - national_id
+            - driver_license
+            - other
           example: national_id
           type: string
         country:
@@ -1259,11 +1230,11 @@ components:
         result:
           description: The result of the KYC check.
           enum:
-          - passed
-          - failed
-          - review
-          - timeout
-          - error
+            - passed
+            - failed
+            - review
+            - timeout
+            - error
           example: passed
           type: string
         reasonCodes:
@@ -1289,8 +1260,8 @@ components:
           result: passed
           country: US
           reasonCodes:
-          - HIGH_VALUE
-          - HIGH_VALUE
+            - HIGH_VALUE
+            - HIGH_VALUE
           metadata: "{\"key1\": \"value1\", \"key2\": \"value2\"}"
           provider: onfido
           documentType: national_id
@@ -1310,7 +1281,7 @@ components:
         account:
           email: someemail@example-emails.com
           phone: +1 (415) 555-2671
-          timestamp: 2023-12-14T15:45:30.123Z
+          timestamp: 2023-12-14T15:45:30.123000Z
           deviceInfo:
             fingerprint: fp_5f4dcc3b5aa765d61d8327deb882cf99
             userAgent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)
@@ -1322,11 +1293,11 @@ components:
         eventSubtype:
           description: The specific subtype of the KYC event.
           enum:
-          - pre_kyc_check
-          - doc_scan
-          - liveness
-          - address_check
-          - sanctions_pep
+            - pre_kyc_check
+            - doc_scan
+            - liveness
+            - address_check
+            - sanctions_pep
           type: string
         entities:
           $ref: "#/components/schemas/EntityIds"
@@ -1335,8 +1306,8 @@ components:
         kyc:
           $ref: "#/components/schemas/KycPayload"
       required:
-      - account
-      - eventSubtype
+        - account
+        - eventSubtype
       type: object
     EntityIds:
       description: |
@@ -1480,7 +1451,7 @@ components:
       example:
         email: someemail@example-emails.com
         phone: +1 (415) 555-2671
-        timestamp: 2023-12-14T15:45:30.123Z
+        timestamp: 2023-12-14T15:45:30.123000Z
         deviceInfo:
           fingerprint: fp_5f4dcc3b5aa765d61d8327deb882cf99
           userAgent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)
@@ -1495,8 +1466,7 @@ components:
           description: RFC 3339 timestamp with timezone.
           example: 2023-12-14T15:45:30.123456Z
           format: timestamp with timezone
-          pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,9})?(Z|[+-]\\\
-            d{2}:\\d{2})$"
+          pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,9})?(Z|[+-]\\d{2}:\\d{2})$"
           type: string
         phone:
           description: |
@@ -1529,12 +1499,12 @@ components:
     InteractionTypeEnum:
       description: The type of interaction being recorded.
       enum:
-      - login
-      - feature_use
-      - setting_change
-      - page_view
-      - 3rd_party_event
-      - custom_event
+        - login
+        - feature_use
+        - setting_change
+        - page_view
+        - 3rd_party_event
+        - custom_event
       example: login
       type: string
     Interaction:
@@ -1542,7 +1512,7 @@ components:
       example:
         locationId: loc_1234
         interactionType: login
-        timestamp: 2023-12-14T15:45:30.123Z
+        timestamp: 2023-12-14T15:45:30.123000Z
         deviceInfo:
           fingerprint: fp_5f4dcc3b5aa765d61d8327deb882cf99
           userAgent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)
@@ -1564,8 +1534,7 @@ components:
           description: RFC 3339 timestamp with timezone.
           example: 2023-12-14T15:45:30.123456Z
           format: timestamp with timezone
-          pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,9})?(Z|[+-]\\\
-            d{2}:\\d{2})$"
+          pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,9})?(Z|[+-]\\d{2}:\\d{2})$"
           type: string
         interactionType:
           $ref: "#/components/schemas/InteractionTypeEnum"
@@ -1578,7 +1547,7 @@ components:
           title: MetaData
           type: string
       required:
-      - interactionType
+        - interactionType
       type: object
     PaymentMethod:
       description: Union of instrument-specific payment details.
@@ -1600,19 +1569,19 @@ components:
         avsResult: "Y"
         cvvResult: M
       oneOf:
-      - $ref: "#/components/schemas/Card"
-      - $ref: "#/components/schemas/Wallet"
-      - $ref: "#/components/schemas/Realtime"
-      - $ref: "#/components/schemas/BankTransfer"
-      - $ref: "#/components/schemas/Crypto"
-      - $ref: "#/components/schemas/Invoice"
+        - $ref: "#/components/schemas/Card"
+        - $ref: "#/components/schemas/Wallet"
+        - $ref: "#/components/schemas/Realtime"
+        - $ref: "#/components/schemas/BankTransfer"
+        - $ref: "#/components/schemas/Crypto"
+        - $ref: "#/components/schemas/Invoice"
       title: PaymentMethod
     Purchase:
       description: |
         Purchase details for fraud checks; core fields are common, instrument specifics live in `paymentMethod`.
       example:
         locationId: loc_1234
-        timestamp: 2023-12-14T15:45:30.123Z
+        timestamp: 2023-12-14T15:45:30.123000Z
         transactionId: tx_123
         amount: 123.45
         currency: USD
@@ -1626,9 +1595,9 @@ components:
           cvvResult: M
           scaMethod: 3ds_v2
         discounts:
-        - code: SAVE20
-          amount: 24.69
-          type: percentage
+          - code: SAVE20
+            amount: 24.69
+            type: percentage
       properties:
         locationId:
           description: Unique identifier for the location where the transaction occurred.
@@ -1644,8 +1613,7 @@ components:
           description: RFC 3339 timestamp with timezone.
           example: 2023-12-14T15:45:30.123456Z
           format: timestamp with timezone
-          pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,9})?(Z|[+-]\\\
-            d{2}:\\d{2})$"
+          pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,9})?(Z|[+-]\\d{2}:\\d{2})$"
           type: string
         transactionId:
           description: |
@@ -1698,9 +1666,9 @@ components:
           title: MetaData
           type: string
       required:
-      - amount
-      - currency
-      - paymentMethod
+        - amount
+        - currency
+        - paymentMethod
       type: object
     DiscountCode:
       properties:
@@ -1716,37 +1684,34 @@ components:
         type:
           description: The type of discount applied.
           enum:
-          - percentage
-          - fixed_amount
-          - free_shipping
-          - buy_x_get_y
+            - percentage
+            - fixed_amount
+            - free_shipping
+            - buy_x_get_y
           example: percentage
           type: string
         usageLimitPerUser:
-          description: "Optional: The number of times a single user/device is allowed\
-            \ to use this specific code."
+          description: "Optional: The number of times a single user/device is allowed to use this specific code."
           example: 1
           type: integer
       required:
-      - code
+        - code
       title: DiscountCode
       type: object
     Card:
-      description: "Card attributes (network, BIN/IIN, issuer country, AVS/CVV, SCA,\
-        \ optional 3DS)."
+      description: "Card attributes (network, BIN/IIN, issuer country, AVS/CVV, SCA, optional 3DS)."
       properties:
         type:
           description: Fixed to `card` for this schema.
           enum:
-          - card
+            - card
           type: string
         cardNetwork:
           $ref: "#/components/schemas/CardNetworkEnum"
         cardType:
           $ref: "#/components/schemas/PaymentCardTypeEnum"
         bin:
-          description: Bank Identification Number (IIN). First 6-8 digits of the PAN;
-            do not send full PAN.
+          description: Bank Identification Number (IIN). First 6-8 digits of the PAN; do not send full PAN.
           example: "411111"
           maxLength: 8
           minLength: 6
@@ -1769,7 +1734,7 @@ components:
         threeDS:
           $ref: "#/components/schemas/ThreeDSData"
       required:
-      - type
+        - type
       title: Card
       type: object
     Wallet:
@@ -1778,53 +1743,50 @@ components:
         type:
           description: Fixed to `wallet` for this schema.
           enum:
-          - wallet
+            - wallet
           type: string
         walletType:
           $ref: "#/components/schemas/PaymentWalletTypeEnum"
       required:
-      - type
+        - type
       title: Wallet
       type: object
     Realtime:
-      description: "Real-time account-to-account rails (e.g., Zelle, RTP, FedNow,\
-        \ Faster Payments, UPI)."
+      description: "Real-time account-to-account rails (e.g., Zelle, RTP, FedNow, Faster Payments, UPI)."
       properties:
         type:
           description: Fixed to `realtime` for this schema.
           enum:
-          - realtime
+            - realtime
           type: string
         realtimeType:
           $ref: "#/components/schemas/PaymentRealtimeTypeEnum"
       required:
-      - type
+        - type
       title: Realtime
       type: object
     BankTransfer:
-      description: "Traditional bank transfer (e.g., ACH, SEPA Credit Transfer); keep\
-        \ payload minimal."
+      description: "Traditional bank transfer (e.g., ACH, SEPA Credit Transfer); keep payload minimal."
       properties:
         type:
           description: Fixed to `bank_transfer` for this schema.
           enum:
-          - bank_transfer
+            - bank_transfer
           type: string
       required:
-      - type
+        - type
       title: BankTransfer
       type: object
     Crypto:
-      description: Cryptocurrency/stablecoin settlement details; include only non-secret
-        identifiers.
+      description: Cryptocurrency/stablecoin settlement details; include only non-secret identifiers.
       properties:
         type:
           description: Fixed to `crypto` for this schema.
           enum:
-          - crypto
+            - crypto
           type: string
       required:
-      - type
+        - type
       title: Crypto
       type: object
     Invoice:
@@ -1833,10 +1795,10 @@ components:
         type:
           description: Fixed to `invoice` for this schema.
           enum:
-          - invoice
+            - invoice
           type: string
       required:
-      - type
+        - type
       title: Invoice
       type: object
     TransactionId:
@@ -1865,37 +1827,37 @@ components:
     PaymentCardTypeEnum:
       description: The type of card used for the payment.
       enum:
-      - credit
-      - debit
-      - prepaid
+        - credit
+        - debit
+        - prepaid
       example: credit
       type: string
     PaymentWalletTypeEnum:
       description: The type of digital wallet used for the payment.
       enum:
-      - paypal
-      - apple_pay
-      - google_pay
-      - cash_app
-      - venmo
+        - paypal
+        - apple_pay
+        - google_pay
+        - cash_app
+        - venmo
       example: paypal
       type: string
     PaymentRealtimeTypeEnum:
       description: The type of real-time payment network used.
       enum:
-      - zelle
-      - rtp
-      - fed_now
-      - faster_payments
-      - upi
+        - zelle
+        - rtp
+        - fed_now
+        - faster_payments
+        - upi
       example: zelle
       type: string
     PayerTypeEnum:
       default: consumer
       description: The type of payer (consumer or business).
       enum:
-      - consumer
-      - business
+        - consumer
+        - business
       example: consumer
       type: string
     StoredCredentialContext:
@@ -1911,17 +1873,17 @@ components:
     RiskLevelEnum:
       description: The risk level of the entity.
       enum:
-      - low
-      - medium
-      - high
+        - low
+        - medium
+        - high
       example: medium
       type: string
     ConfidenceEnum:
       description: The confidence level of the risk assessment.
       enum:
-      - low
-      - medium
-      - high
+        - low
+        - medium
+        - high
       example: medium
       type: string
     FraudScore:
@@ -1944,16 +1906,16 @@ components:
           maxLength: 512
           type: string
       required:
-      - riskLevel
+        - riskLevel
       type: object
     RiskCategoryEnum:
       description: High-level business category for risk signals.
       enum:
-      - geography
-      - identity
-      - behavior
-      - transaction
-      - network
+        - geography
+        - identity
+        - behavior
+        - transaction
+        - network
       type: string
     ReasonDetail:
       description: Merchant-friendly detail for a specific risk reason.
@@ -1970,13 +1932,12 @@ components:
           description: Detailed explanation of the risk signal.
           type: string
         recommendedAction:
-          description: Suggested action for the merchant to mitigate this specific
-            risk.
+          description: Suggested action for the merchant to mitigate this specific risk.
           type: string
       required:
-      - category
-      - code
-      - displayName
+        - category
+        - code
+        - displayName
       type: object
     CategorySignal:
       description: Risk analysis for a specific business category.
@@ -2002,7 +1963,7 @@ components:
             is_proxy: true
           type: object
       required:
-      - level
+        - level
       type: object
     RiskBreakdown:
       description: Breakdown of risk signals by business category.
@@ -2022,34 +1983,34 @@ components:
       description: |
         pos: 'Point of Sale', ecom: 'E-commerce', in_app: 'In-App Purchase', ivr: 'Interactive Voice Response'.
       enum:
-      - pos
-      - ecom
-      - in_app
-      - ivr
+        - pos
+        - ecom
+        - in_app
+        - ivr
       example: pos
       type: string
     EntryMethodEnum:
       description: The method used to capture card data.
       enum:
-      - chip
-      - contactless
-      - magstripe
-      - manual_keyed
-      - card_on_file
-      - wallet_token
-      - network_token
+        - chip
+        - contactless
+        - magstripe
+        - manual_keyed
+        - card_on_file
+        - wallet_token
+        - network_token
       example: chip
       type: string
     CardNetworkEnum:
       description: The type of card network.
       enum:
-      - visa
-      - mastercard
-      - amex
-      - discover
-      - jcb
-      - unionpay
-      - other
+        - visa
+        - mastercard
+        - amex
+        - discover
+        - jcb
+        - unionpay
+        - other
       example: mastercard
       type: string
     AvsResultEnum:
@@ -2071,21 +2032,21 @@ components:
         X: Street address and 9-digit ZIP match
         W: Street address not verified. 9-digit ZIP matches.
       enum:
-      - "Y"
-      - "N"
-      - A
-      - Z
-      - U
-      - R
-      - S
-      - G
-      - B
-      - C
-      - D
-      - M
-      - P
-      - X
-      - W
+        - "Y"
+        - "N"
+        - A
+        - Z
+        - U
+        - R
+        - S
+        - G
+        - B
+        - C
+        - D
+        - M
+        - P
+        - X
+        - W
       example: "Y"
       type: string
     CvvResultEnum:
@@ -2096,23 +2057,23 @@ components:
         S: Should have been present
         U: Unavailable
       enum:
-      - M
-      - "N"
-      - P
-      - S
-      - U
+        - M
+        - "N"
+        - P
+        - S
+        - U
       example: U
       type: string
     ScaMethodEnum:
       description: The method used for Strong Customer Authentication (SCA).
       enum:
-      - none
-      - 3ds_v1
-      - 3ds_v2
-      - otp_sms
-      - biometric
-      - fido2
-      - other
+        - none
+        - 3ds_v1
+        - 3ds_v2
+        - otp_sms
+        - biometric
+        - fido2
+        - other
       example: biometric
       type: string
     ThreeDSData:
@@ -2131,8 +2092,8 @@ components:
           description: |
             The flow of the 3D Secure authentication. 'frictionless' means no challenge was presented to the cardholder, 'challenge' means the cardholder was challenged.
           enum:
-          - frictionless
-          - challenge
+            - frictionless
+            - challenge
           example: frictionless
           type: string
         liabilityShift:
@@ -2211,16 +2172,15 @@ components:
         billingAddress:
           $ref: "#/components/schemas/PostalAddress"
         isBot:
-          description: "Optional: Set to true if client-side bot detection (e.g. reCAPTCHA)\
-            \ triggered."
+          description: "Optional: Set to true if client-side bot detection (e.g. reCAPTCHA) triggered."
           example: false
           type: boolean
         emailReputation:
           description: "Optional: Client-side assessment of email reputation."
           enum:
-          - low
-          - medium
-          - high
+            - low
+            - medium
+            - high
           example: high
           type: string
       type: object
@@ -2247,9 +2207,9 @@ components:
         shippingMethod:
           description: Shipping method for the order.
           enum:
-          - digital
-          - ship
-          - bopis
+            - digital
+            - ship
+            - bopis
           example: ship
           type: string
         lineItemCount:
@@ -2263,36 +2223,36 @@ components:
       default: one_time
       description: Payment use case.
       enum:
-      - one_time
-      - recurring
-      - installment
-      - unscheduled
+        - one_time
+        - recurring
+        - installment
+        - unscheduled
       example: recurring
       type: string
     PurchaseSequenceEnum:
       description: First transaction in the series vs a subsequent one.
       enum:
-      - first
-      - subsequent
+        - first
+        - subsequent
       example: first
       type: string
     PurchaseInitiatorEnum:
       description: Who initiated the transaction (CIT vs MIT).
       enum:
-      - cardholder
-      - merchant
+        - cardholder
+        - merchant
       example: merchant
       type: string
     PaymentEventType:
       description: The type of payment lifecycle event.
       enum:
-      - authorization
-      - capture
-      - settlement
-      - refund
-      - dispute
-      - chargeback
-      - chargeback_outcome
+        - authorization
+        - capture
+        - settlement
+        - refund
+        - dispute
+        - chargeback
+        - chargeback_outcome
       example: authorization
       type: string
     ExternalAssessment:
@@ -2314,8 +2274,8 @@ components:
         reasonCodes:
           description: Raw reason codes provided by the 3rd party vendor.
           example:
-          - address_mismatch
-          - high_risk_country
+            - address_mismatch
+            - high_risk_country
           items:
             type: string
           type: array
@@ -2328,8 +2288,8 @@ components:
           title: MetaData
           type: string
       required:
-      - level
-      - source
+        - level
+        - source
       type: object
     PaymentAuthorizationOutcome:
       description: Authorization outcome details.
@@ -2351,10 +2311,10 @@ components:
         status:
           description: Capture status.
           enum:
-          - none
-          - partial
-          - full
-          - failed
+            - none
+            - partial
+            - full
+            - failed
           example: full
           type: string
       title: PaymentCaptureOutcome
@@ -2365,9 +2325,9 @@ components:
         status:
           description: Refund status.
           enum:
-          - none
-          - partial
-          - full
+            - none
+            - partial
+            - full
           example: none
           type: string
       title: PaymentRefundOutcome
@@ -2378,11 +2338,11 @@ components:
         status:
           description: Dispute status.
           enum:
-          - none
-          - open
-          - won
-          - lost
-          - canceled
+            - none
+            - open
+            - won
+            - lost
+            - canceled
           example: open
           type: string
       title: PaymentDisputeOutcome
@@ -2403,10 +2363,10 @@ components:
         status:
           description: Outcome of the chargeback case.
           enum:
-          - won
-          - lost
-          - representment
-          - reversed
+            - won
+            - lost
+            - representment
+            - reversed
           example: won
           type: string
       title: PaymentChargebackOutcome
@@ -2447,7 +2407,7 @@ components:
       example:
         paymentIntentId: pi_0123456789abcdef0123456789abcdef
         eventType: authorization
-        timestamp: 2023-12-14T15:45:30.123Z
+        timestamp: 2023-12-14T15:45:30.123000Z
       properties:
         paymentIntentId:
           description: Server-minted unique payment identifier.
@@ -2463,8 +2423,7 @@ components:
           description: RFC 3339 timestamp with timezone.
           example: 2023-12-14T15:45:30.123456Z
           format: timestamp with timezone
-          pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,9})?(Z|[+-]\\\
-            d{2}:\\d{2})$"
+          pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,9})?(Z|[+-]\\d{2}:\\d{2})$"
           type: string
         amount:
           description: |
@@ -2492,9 +2451,9 @@ components:
           title: MetaData
           type: string
       required:
-      - eventType
-      - paymentIntentId
-      - timestamp
+        - eventType
+        - paymentIntentId
+        - timestamp
       type: object
     TraceId:
       description: |
@@ -2559,9 +2518,6 @@ components:
           description: Server-generated trace ID for debugging.
           example: trc_123e4567e89b12d3a456426614174000
           type: string
-      required:
-      - status
-      - title
       title: Problem
       type: object
     TenantId:
@@ -2579,8 +2535,7 @@ components:
       description: RFC 3339 timestamp with timezone.
       example: 2023-12-14T15:45:30.123456Z
       format: timestamp with timezone
-      pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,9})?(Z|[+-]\\\
-        d{2}:\\d{2})$"
+      pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,9})?(Z|[+-]\\d{2}:\\d{2})$"
       type: string
     MetaData:
       description: |
@@ -2622,8 +2577,7 @@ components:
       title: MemberId
       type: string
     DeviceInfo:
-      description: Aggregated device fingerprinting and behavioral patterns used for
-        fraud detection.
+      description: Aggregated device fingerprinting and behavioral patterns used for fraud detection.
       example:
         fingerprint: fp_5f4dcc3b5aa765d61d8327deb882cf99
         userAgent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)
@@ -2701,8 +2655,8 @@ components:
           default: ipv4
           description: IP protocol version.
           enum:
-          - ipv4
-          - ipv6
+            - ipv4
+            - ipv6
           example: ipv4
           type: string
         ipPrefix:
