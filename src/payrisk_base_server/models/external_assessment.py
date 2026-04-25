@@ -17,9 +17,12 @@ from __future__ import annotations
 import json
 import pprint
 import re  # noqa: F401
-from typing import Any, ClassVar, Dict, List, Optional
+from typing import Any, ClassVar, Dict, List, Optional, Union
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
+from payrisk_base_server.models.risk_level_enum import RiskLevelEnum
+from pydantic import (BaseModel, ConfigDict, Field, StrictFloat, StrictInt,
+                      StrictStr)
+from typing_extensions import Annotated
 
 try:
     from typing import Self
@@ -27,31 +30,39 @@ except ImportError:
     from typing_extensions import Self
 
 
-class PaymentDisputeOutcome(BaseModel):
+class ExternalAssessment(BaseModel):
     """
-    Dispute lifecycle status for the transaction.
+    ExternalAssessment
     """  # noqa: E501
 
-    status: Optional[StrictStr] = Field(default=None, description="Dispute status.")
-    __properties: ClassVar[List[str]] = ["status"]
-
-    @field_validator("status")
-    def status_validate_enum(cls, value):
-        """Validates the enum"""
-        if value is None:
-            return value
-
-        if value not in (
-            "none",
-            "open",
-            "won",
-            "lost",
-            "canceled",
-        ):
-            raise ValueError(
-                "must be one of enum values ('none', 'open', 'won', 'lost', 'canceled')"
-            )
-        return value
+    source: StrictStr = Field(
+        description="The provider of the assessment (e.g., 'shopify', 'signifyd')."
+    )
+    level: RiskLevelEnum
+    score: Optional[Union[StrictFloat, StrictInt]] = Field(
+        default=None,
+        description="The raw score provided by the 3rd party (if applicable).",
+    )
+    recommendation: Optional[StrictStr] = Field(
+        default=None, description="The specific action recommended by the 3rd party."
+    )
+    reason_codes: Optional[List[StrictStr]] = Field(
+        default=None,
+        description="Raw reason codes provided by the 3rd party vendor.",
+        alias="reasonCodes",
+    )
+    metadata: Optional[Annotated[str, Field(min_length=1, max_length=2048)]] = Field(
+        default=None,
+        description="Optional key-value pairs providing additional context for the request.  Each key should be descriptive, and values should not exceed 2048 characters.  Each key should be descriptive. ",
+    )
+    __properties: ClassVar[List[str]] = [
+        "source",
+        "level",
+        "score",
+        "recommendation",
+        "reasonCodes",
+        "metadata",
+    ]
 
     model_config = {
         "populate_by_name": True,
@@ -70,7 +81,7 @@ class PaymentDisputeOutcome(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:
-        """Create an instance of PaymentDisputeOutcome from a JSON string"""
+        """Create an instance of ExternalAssessment from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -92,12 +103,21 @@ class PaymentDisputeOutcome(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Dict) -> Self:
-        """Create an instance of PaymentDisputeOutcome from a dict"""
+        """Create an instance of ExternalAssessment from a dict"""
         if obj is None:
             return None
 
         if not isinstance(obj, dict):
             return cls.model_validate(obj)
 
-        _obj = cls.model_validate({"status": obj.get("status")})
+        _obj = cls.model_validate(
+            {
+                "source": obj.get("source"),
+                "level": obj.get("level"),
+                "score": obj.get("score"),
+                "recommendation": obj.get("recommendation"),
+                "reasonCodes": obj.get("reasonCodes"),
+                "metadata": obj.get("metadata"),
+            }
+        )
         return _obj

@@ -1,3 +1,4 @@
+# This file is auto-generated. Do not modify manually.
 # coding: utf-8
 
 from pydantic import BaseModel

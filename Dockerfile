@@ -1,20 +1,21 @@
 # Copyright (c) 2025 Alogram Inc.
 # The official Alogram PayRisk Local Emulator.
-# Generated from Payments Risk API v0.2.9
+# Generated from Payments Risk API v0.2.10
 
-FROM python:3.12-slim
+FROM python:3.12-slim-bookworm
 
 WORKDIR /app
 
-# 1. Install system dependencies for build
-RUN apt-get update && apt-get install -y --no-install-recommends \
+# 1. Patch OS vulnerabilities (glibc, systemd) and install build deps
+RUN apt-get update && apt-get dist-upgrade -y && apt-get install -y --no-install-recommends \
     build-essential \
+    && rm -f /usr/lib/x86_64-linux-gnu/gconv/IBM1390.so /usr/lib/x86_64-linux-gnu/gconv/IBM1399.so \
     && rm -rf /var/lib/apt/lists/*
 
-# 2. Copy the self-contained server source and metadata
+# 2. Upgrade pip to fix CVE-2025-8869 and copy source
+RUN pip install --no-cache-dir --upgrade pip
 COPY src /app/src
 COPY pyproject.toml /app/
-# Use wildcard to make copy optional if file is missing
 COPY requirements.txt* /app/
 
 # 3. Install the server and its dependencies
