@@ -25,22 +25,21 @@ except ImportError:
     from typing_extensions import Self
 
 
-class InteractionTypeEnum(str, Enum):
+class AgentProvider(str, Enum):
     """
-    The type of interaction being recorded.
+    The AI system provider that issued the agent manifest.
     """
 
     """
     allowed enum values
     """
-    LOGIN = "login"
-    FEATURE_USE = "feature_use"
-    SETTING_CHANGE = "setting_change"
-    PAGE_VIEW = "page_view"
-    ENUM_3RD_PARTY_EVENT = "3rd_party_event"
-    CUSTOM_EVENT = "custom_event"
+    GOOGLE = "google"
+    OPENAI = "openai"
+    ANTHROPIC = "anthropic"
+    ALOGRAM = "alogram"
+    OTHER = "other"
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:
-        """Create an instance of InteractionTypeEnum from a JSON string"""
+        """Create an instance of AgentProvider from a JSON string"""
         return cls(json.loads(json_str))

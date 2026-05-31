@@ -19,7 +19,7 @@ import pprint
 import re  # noqa: F401
 from typing import Any, ClassVar, Dict, List, Optional
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from typing_extensions import Annotated
 
 try:
@@ -28,41 +28,31 @@ except ImportError:
     from typing_extensions import Self
 
 
-class MerchantContext(BaseModel):
+class AuthContext(BaseModel):
     """
-    Merchant context for the purchase.
+    Contextual identity information from the authentication layer.
     """  # noqa: E501
 
-    mcc: Optional[Annotated[str, Field(min_length=4, max_length=4)]] = Field(
-        default=None, description="Merchant Category Code (MCC) for the merchant."
+    uid: Optional[Annotated[str, Field(min_length=10, max_length=128)]] = Field(
+        default=None,
+        description='Unique identifier for an authenticated principal (e.g., an identity provider UID or Subject).  Unprefixed and case-sensitive. Supports common OIDC characters like ":", "|", "@", and ".". ',
     )
-    merchant_country: Optional[Annotated[str, Field(min_length=2, max_length=2)]] = (
-        Field(
-            default=None,
-            description="ISO 3166-1 alpha-2 country code.",
-            alias="merchantCountry",
-        )
+    provider: Optional[StrictStr] = Field(
+        default=None,
+        description='The identity provider type (e.g., "external", "oidc", "saml").',
     )
-    __properties: ClassVar[List[str]] = ["mcc", "merchantCountry"]
+    __properties: ClassVar[List[str]] = ["uid", "provider"]
 
-    @field_validator("mcc")
-    def mcc_validate_regular_expression(cls, value):
+    @field_validator("uid")
+    def uid_validate_regular_expression(cls, value):
         """Validates the regular expression"""
         if value is None:
             return value
 
-        if not re.match(r"^[0-9]{4}$", value):
-            raise ValueError(r"must validate the regular expression /^[0-9]{4}$/")
-        return value
-
-    @field_validator("merchant_country")
-    def merchant_country_validate_regular_expression(cls, value):
-        """Validates the regular expression"""
-        if value is None:
-            return value
-
-        if not re.match(r"^[A-Z]{2}$", value):
-            raise ValueError(r"must validate the regular expression /^[A-Z]{2}$/")
+        if not re.match(r"^[a-zA-Z0-9\-_:|@.]{10,128}$", value):
+            raise ValueError(
+                r"must validate the regular expression /^[a-zA-Z0-9\-_:|@.]{10,128}$/"
+            )
         return value
 
     model_config = {
@@ -82,7 +72,7 @@ class MerchantContext(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:
-        """Create an instance of MerchantContext from a JSON string"""
+        """Create an instance of AuthContext from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -104,7 +94,7 @@ class MerchantContext(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Dict) -> Self:
-        """Create an instance of MerchantContext from a dict"""
+        """Create an instance of AuthContext from a dict"""
         if obj is None:
             return None
 
@@ -112,6 +102,6 @@ class MerchantContext(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate(
-            {"mcc": obj.get("mcc"), "merchantCountry": obj.get("merchantCountry")}
+            {"uid": obj.get("uid"), "provider": obj.get("provider")}
         )
         return _obj

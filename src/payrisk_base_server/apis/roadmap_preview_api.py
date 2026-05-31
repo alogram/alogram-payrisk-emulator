@@ -12,6 +12,7 @@ from payrisk_base_server.apis.roadmap_preview_api_base import \
     BaseRoadmapPreviewApi
 from payrisk_base_server.models.account_check_request import \
     AccountCheckRequest
+from payrisk_base_server.models.agent_manifest import AgentManifest
 from payrisk_base_server.models.decision_response import DecisionResponse
 from payrisk_base_server.models.extra_models import TokenModel  # noqa: F401
 from payrisk_base_server.models.kyc_check_request import KycCheckRequest
@@ -66,12 +67,21 @@ async def account_risk_check(
         min_length=36,
         max_length=36,
     ),
+    x_alogram_agent_manifest: Annotated[
+        Optional[AgentManifest],
+        Field(
+            description="JSON-encoded AgentManifest for autonomous shopping agents.  Required for machine-to-machine trust validation (UCP/MCP). "
+        ),
+    ] = Header(
+        None,
+        description="JSON-encoded AgentManifest for autonomous shopping agents.  Required for machine-to-machine trust validation (UCP/MCP). ",
+    ),
 ) -> DecisionResponse:
     """&gt; **Coming Soon**: This endpoint is currently in active development. Assess risk for account-level events such as signup, login, and profile changes."""
     if not BaseRoadmapPreviewApi.subclasses:
         raise HTTPException(status_code=500, detail="Not implemented")
     return await BaseRoadmapPreviewApi.subclasses[0]().account_risk_check(
-        x_idempotency_key, account_check_request, x_trace_id
+        x_idempotency_key, account_check_request, x_trace_id, x_alogram_agent_manifest
     )
 
 
@@ -114,10 +124,19 @@ async def kyc_risk_check(
         min_length=36,
         max_length=36,
     ),
+    x_alogram_agent_manifest: Annotated[
+        Optional[AgentManifest],
+        Field(
+            description="JSON-encoded AgentManifest for autonomous shopping agents.  Required for machine-to-machine trust validation (UCP/MCP). "
+        ),
+    ] = Header(
+        None,
+        description="JSON-encoded AgentManifest for autonomous shopping agents.  Required for machine-to-machine trust validation (UCP/MCP). ",
+    ),
 ) -> DecisionResponse:
     """&gt; **Coming Soon**: This endpoint is currently in active development. Assess risk for identity verification and KYC workflows."""
     if not BaseRoadmapPreviewApi.subclasses:
         raise HTTPException(status_code=500, detail="Not implemented")
     return await BaseRoadmapPreviewApi.subclasses[0]().kyc_risk_check(
-        x_idempotency_key, kyc_check_request, x_trace_id
+        x_idempotency_key, kyc_check_request, x_trace_id, x_alogram_agent_manifest
     )

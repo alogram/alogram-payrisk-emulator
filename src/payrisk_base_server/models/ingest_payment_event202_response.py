@@ -19,8 +19,7 @@ import pprint
 import re  # noqa: F401
 from typing import Any, ClassVar, Dict, List, Optional
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
-from typing_extensions import Annotated
+from pydantic import BaseModel, ConfigDict, StrictStr
 
 try:
     from typing import Self
@@ -28,42 +27,13 @@ except ImportError:
     from typing_extensions import Self
 
 
-class MerchantContext(BaseModel):
+class IngestPaymentEvent202Response(BaseModel):
     """
-    Merchant context for the purchase.
+    IngestPaymentEvent202Response
     """  # noqa: E501
 
-    mcc: Optional[Annotated[str, Field(min_length=4, max_length=4)]] = Field(
-        default=None, description="Merchant Category Code (MCC) for the merchant."
-    )
-    merchant_country: Optional[Annotated[str, Field(min_length=2, max_length=2)]] = (
-        Field(
-            default=None,
-            description="ISO 3166-1 alpha-2 country code.",
-            alias="merchantCountry",
-        )
-    )
-    __properties: ClassVar[List[str]] = ["mcc", "merchantCountry"]
-
-    @field_validator("mcc")
-    def mcc_validate_regular_expression(cls, value):
-        """Validates the regular expression"""
-        if value is None:
-            return value
-
-        if not re.match(r"^[0-9]{4}$", value):
-            raise ValueError(r"must validate the regular expression /^[0-9]{4}$/")
-        return value
-
-    @field_validator("merchant_country")
-    def merchant_country_validate_regular_expression(cls, value):
-        """Validates the regular expression"""
-        if value is None:
-            return value
-
-        if not re.match(r"^[A-Z]{2}$", value):
-            raise ValueError(r"must validate the regular expression /^[A-Z]{2}$/")
-        return value
+    status: Optional[StrictStr] = None
+    __properties: ClassVar[List[str]] = ["status"]
 
     model_config = {
         "populate_by_name": True,
@@ -82,7 +52,7 @@ class MerchantContext(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:
-        """Create an instance of MerchantContext from a JSON string"""
+        """Create an instance of IngestPaymentEvent202Response from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -104,14 +74,12 @@ class MerchantContext(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Dict) -> Self:
-        """Create an instance of MerchantContext from a dict"""
+        """Create an instance of IngestPaymentEvent202Response from a dict"""
         if obj is None:
             return None
 
         if not isinstance(obj, dict):
             return cls.model_validate(obj)
 
-        _obj = cls.model_validate(
-            {"mcc": obj.get("mcc"), "merchantCountry": obj.get("merchantCountry")}
-        )
+        _obj = cls.model_validate({"status": obj.get("status")})
         return _obj

@@ -2,7 +2,7 @@
 
 import importlib
 import pkgutil
-from typing import Any, Dict, List, Optional  # noqa: F401
+from typing import Dict, List, Optional  # noqa: F401
 
 import payrisk_base_server.impl
 from fastapi import (APIRouter, Body, Cookie, Depends, Form,  # noqa: F401
@@ -10,7 +10,10 @@ from fastapi import (APIRouter, Body, Cookie, Depends, Form,  # noqa: F401
                      status)
 from payrisk_base_server.apis.signal_intelligence_api_base import \
     BaseSignalIntelligenceApi
+from payrisk_base_server.models.agent_manifest import AgentManifest
 from payrisk_base_server.models.extra_models import TokenModel  # noqa: F401
+from payrisk_base_server.models.ingest_payment_event202_response import \
+    IngestPaymentEvent202Response
 from payrisk_base_server.models.payment_event import PaymentEvent
 from payrisk_base_server.models.problem import Problem
 from payrisk_base_server.models.signals_request import SignalsRequest
@@ -28,7 +31,7 @@ for _, name, _ in pkgutil.iter_modules(ns_pkg.__path__, ns_pkg.__name__ + "."):
 @router.post(
     "/v1/events",
     responses={
-        202: {"description": "Accepted"},
+        202: {"model": IngestPaymentEvent202Response, "description": "Accepted"},
         400: {"model": Problem, "description": "An error response."},
         401: {"model": Problem, "description": "An error response."},
         403: {"model": Problem, "description": "An error response."},
@@ -69,18 +72,27 @@ async def ingest_payment_event(
         min_length=36,
         max_length=36,
     ),
-) -> None:
+    x_alogram_agent_manifest: Annotated[
+        Optional[AgentManifest],
+        Field(
+            description="JSON-encoded AgentManifest for autonomous shopping agents.  Required for machine-to-machine trust validation (UCP/MCP). "
+        ),
+    ] = Header(
+        None,
+        description="JSON-encoded AgentManifest for autonomous shopping agents.  Required for machine-to-machine trust validation (UCP/MCP). ",
+    ),
+) -> IngestPaymentEvent202Response:
     if not BaseSignalIntelligenceApi.subclasses:
         raise HTTPException(status_code=500, detail="Not implemented")
     return await BaseSignalIntelligenceApi.subclasses[0]().ingest_payment_event(
-        x_idempotency_key, payment_event, x_trace_id
+        x_idempotency_key, payment_event, x_trace_id, x_alogram_agent_manifest
     )
 
 
 @router.post(
     "/v1/signals",
     responses={
-        202: {"description": "Accepted"},
+        202: {"model": IngestPaymentEvent202Response, "description": "Accepted"},
         400: {"model": Problem, "description": "An error response."},
         413: {"model": Problem, "description": "An error response."},
         422: {"model": Problem, "description": "An error response."},
@@ -117,9 +129,18 @@ async def ingest_signals(
         min_length=36,
         max_length=36,
     ),
-) -> None:
+    x_alogram_agent_manifest: Annotated[
+        Optional[AgentManifest],
+        Field(
+            description="JSON-encoded AgentManifest for autonomous shopping agents.  Required for machine-to-machine trust validation (UCP/MCP). "
+        ),
+    ] = Header(
+        None,
+        description="JSON-encoded AgentManifest for autonomous shopping agents.  Required for machine-to-machine trust validation (UCP/MCP). ",
+    ),
+) -> IngestPaymentEvent202Response:
     if not BaseSignalIntelligenceApi.subclasses:
         raise HTTPException(status_code=500, detail="Not implemented")
     return await BaseSignalIntelligenceApi.subclasses[0]().ingest_signals(
-        x_idempotency_key, signals_request, x_trace_id
+        x_idempotency_key, signals_request, x_trace_id, x_alogram_agent_manifest
     )

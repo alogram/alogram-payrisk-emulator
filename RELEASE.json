@@ -1,9 +1,9 @@
 {
   "sdk": "emulator",
-  "version": "0.2.10",
-  "monorepo_commit": "41b4afdbfaae75264fb427312b3f4a21b1edbfa1",
+  "version": "0.2.21",
+  "monorepo_commit": "90c0c955816fb64327d106ff76318fb9f3c1f868",
   "openapi_path": "apis/payrisk-v1/openapi.yaml",
-  "openapi_commit": "6a49398d773f2b61accca63752e129fa0e557766",
+  "openapi_commit": "90c0c955816fb64327d106ff76318fb9f3c1f868",
   "generator": "openapi-generator-cli@7.19.0",
-  "built_at": "2026-04-25T07:21:29Z"
+  "built_at": "2026-05-16T09:39:35Z"
 }

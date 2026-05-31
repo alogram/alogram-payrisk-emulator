@@ -4,6 +4,7 @@ from typing import ClassVar, Dict, List, Optional, Tuple  # noqa: F401
 
 from payrisk_base_server.models.account_check_request import \
     AccountCheckRequest
+from payrisk_base_server.models.agent_manifest import AgentManifest
 from payrisk_base_server.models.decision_response import DecisionResponse
 from payrisk_base_server.models.kyc_check_request import KycCheckRequest
 from payrisk_base_server.models.problem import Problem
@@ -34,6 +35,12 @@ class BaseRoadmapPreviewApi:
             Optional[Annotated[str, Field(min_length=36, max_length=36)]],
             Field(description="Echoed or generated trace ID for tracking requests."),
         ],
+        x_alogram_agent_manifest: Annotated[
+            Optional[AgentManifest],
+            Field(
+                description="JSON-encoded AgentManifest for autonomous shopping agents.  Required for machine-to-machine trust validation (UCP/MCP). "
+            ),
+        ],
     ) -> DecisionResponse:
         """&gt; **Coming Soon**: This endpoint is currently in active development. Assess risk for account-level events such as signup, login, and profile changes."""
         ...
@@ -52,6 +59,12 @@ class BaseRoadmapPreviewApi:
         x_trace_id: Annotated[
             Optional[Annotated[str, Field(min_length=36, max_length=36)]],
             Field(description="Echoed or generated trace ID for tracking requests."),
+        ],
+        x_alogram_agent_manifest: Annotated[
+            Optional[AgentManifest],
+            Field(
+                description="JSON-encoded AgentManifest for autonomous shopping agents.  Required for machine-to-machine trust validation (UCP/MCP). "
+            ),
         ],
     ) -> DecisionResponse:
         """&gt; **Coming Soon**: This endpoint is currently in active development. Assess risk for identity verification and KYC workflows."""

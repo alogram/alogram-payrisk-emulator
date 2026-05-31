@@ -19,7 +19,7 @@ class BaseForensicDataApi:
 
     async def get_fraud_scores(
         self,
-        tenantId: Annotated[str, Field(min_length=5, max_length=64)],
+        tenantId: Annotated[str, Field(min_length=6, max_length=68)],
         x_trace_id: Annotated[
             Optional[Annotated[str, Field(min_length=36, max_length=36)]],
             Field(description="Echoed or generated trace ID for tracking requests."),

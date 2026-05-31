@@ -2,6 +2,7 @@
 
 from typing import ClassVar, Dict, List, Optional, Tuple  # noqa: F401
 
+from payrisk_base_server.models.agent_manifest import AgentManifest
 from payrisk_base_server.models.check_request import CheckRequest
 from payrisk_base_server.models.decision_response import DecisionResponse
 from payrisk_base_server.models.problem import Problem
@@ -31,5 +32,11 @@ class BaseRiskScoringApi:
         x_trace_id: Annotated[
             Optional[Annotated[str, Field(min_length=36, max_length=36)]],
             Field(description="Echoed or generated trace ID for tracking requests."),
+        ],
+        x_alogram_agent_manifest: Annotated[
+            Optional[AgentManifest],
+            Field(
+                description="JSON-encoded AgentManifest for autonomous shopping agents.  Required for machine-to-machine trust validation (UCP/MCP). "
+            ),
         ],
     ) -> DecisionResponse: ...
