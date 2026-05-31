@@ -39,12 +39,12 @@ for _, name, _ in pkgutil.iter_modules(ns_pkg.__path__, ns_pkg.__name__ + "."):
     response_model_by_alias=True,
 )
 async def get_fraud_scores(
-    tenantId: Annotated[str, Field(min_length=5, max_length=64)] = Path(
+    tenantId: Annotated[str, Field(min_length=6, max_length=68)] = Path(
         ...,
         description="",
-        regex=r"^tid_[a-z0-9\-_]{2,60}$",
-        min_length=5,
-        max_length=64,
+        regex=r"^(tid|ten)_[a-z0-9_-]{2,64}$",
+        min_length=6,
+        max_length=68,
     ),
     x_trace_id: Annotated[
         Optional[Annotated[str, Field(min_length=36, max_length=36)]],

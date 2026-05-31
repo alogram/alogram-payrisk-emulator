@@ -9,6 +9,7 @@ from fastapi import (APIRouter, Body, Cookie, Depends, Form,  # noqa: F401
                      Header, HTTPException, Path, Query, Response, Security,
                      status)
 from payrisk_base_server.apis.risk_scoring_api_base import BaseRiskScoringApi
+from payrisk_base_server.models.agent_manifest import AgentManifest
 from payrisk_base_server.models.check_request import CheckRequest
 from payrisk_base_server.models.decision_response import DecisionResponse
 from payrisk_base_server.models.extra_models import TokenModel  # noqa: F401
@@ -65,9 +66,18 @@ async def risk_check(
         min_length=36,
         max_length=36,
     ),
+    x_alogram_agent_manifest: Annotated[
+        Optional[AgentManifest],
+        Field(
+            description="JSON-encoded AgentManifest for autonomous shopping agents.  Required for machine-to-machine trust validation (UCP/MCP). "
+        ),
+    ] = Header(
+        None,
+        description="JSON-encoded AgentManifest for autonomous shopping agents.  Required for machine-to-machine trust validation (UCP/MCP). ",
+    ),
 ) -> DecisionResponse:
     if not BaseRiskScoringApi.subclasses:
         raise HTTPException(status_code=500, detail="Not implemented")
     return await BaseRiskScoringApi.subclasses[0]().risk_check(
-        x_idempotency_key, check_request, x_trace_id
+        x_idempotency_key, check_request, x_trace_id, x_alogram_agent_manifest
     )

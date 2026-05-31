@@ -1,6 +1,6 @@
 # Copyright (c) 2025 Alogram Inc.
 # The official Alogram PayRisk Local Emulator.
-# Generated from Payments Risk API v0.2.10
+# Generated from Payments Risk API v0.2.21
 
 FROM python:3.12-slim-bookworm
 

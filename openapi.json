@@ -1,19 +1,19 @@
 {
   "openapi": "3.0.4",
   "info": {
-    "contact": {
-      "email": "packages@alogram.ai",
-      "name": "Alogram Engineering",
-      "url": "https://developers.alogram.ai"
-    },
+    "title": "Alogram PayRisk Engine",
     "description": "Alogram PayRisk is an AI-native decision engine built for the speed and \ncomplexity of the modern commerce era. In a high-velocity world where \nAI-driven threats evolve in milliseconds, Alogram provides the real-time \nadaptability and forensic transparency needed to protect your ecosystem \nwith total confidence. We solve the challenge of balancing frictionless \ngrowth with regulatory explainability, delivering instant, intelligent \nrisk orchestration at enterprise scale.\n\n---\n\n\n## Licensing & Terms\n\n\nOur client libraries and API specifications are open-source under the **Apache License 2.0** \nto ensure seamless integration into your tech stack.\n\nUse of the Alogram PayRisk API service is proprietary and governed by our \n[Terms of Service](https://alogram.ai/#tos) and your specific **Enterprise Agreement**, \nif applicable.\n\nTo access the service, you must have:\n*   A valid Alogram API Key.\n*   An active subscription or signed Master Service Agreement.\n\nUnauthorized use, including automated scraping or reverse engineering of the \nscoring engine, is strictly prohibited.\n\n\n---\n\n\n## Support & Traceability\n\n\nEvery Alogram API response includes a unique **`x-trace-id`** header. \nPlease include this ID when contacting [packages@alogram.ai](mailto:packages@alogram.ai) \nregarding specific transactions or errors.\n\n\n---\n\n\n## Specification\n\n\nThe authoritative OpenAPI specification for this version is available for download:\n**[Download openapi.yaml](https://developers.alogram.ai/openapi.yaml)** | **[Download openapi.json](https://developers.alogram.ai/openapi.json)**\n",
+    "termsOfService": "https://alogram.ai/#tos",
+    "contact": {
+      "name": "Alogram Engineering",
+      "url": "https://developers.alogram.ai",
+      "email": "packages@alogram.ai"
+    },
     "license": {
       "name": "Apache-2.0",
       "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
     },
-    "termsOfService": "https://alogram.ai/#tos",
-    "title": "Alogram PayRisk Engine",
-    "version": "0.2.10",
+    "version": "0.2.21",
     "x-logo": {
       "url": "logo.png",
       "altText": "Alogram PayRisk Logo",
@@ -22,12 +22,12 @@
   },
   "servers": [
     {
-      "description": "Production Environment",
-      "url": "https://api.alogram.ai"
+      "url": "https://api.alogram.ai",
+      "description": "Production Environment"
     },
     {
-      "description": "Sandbox Environment (for integration testing)",
-      "url": "https://sandbox.api.alogram.ai"
+      "url": "https://api-sandbox.alogram.ai",
+      "description": "Sandbox Environment (for integration testing)"
     }
   ],
   "security": [
@@ -42,112 +42,102 @@
   ],
   "tags": [
     {
-      "description": "Real-time risk assessment and automated decision orchestration.",
-      "name": "Risk Scoring"
+      "name": "Risk Scoring",
+      "description": "Real-time risk assessment and automated decision orchestration."
     },
     {
-      "description": "Ingestion of payment lifecycle events and behavioral telemetry.",
-      "name": "Signal Intelligence"
+      "name": "Signal Intelligence",
+      "description": "Ingestion of payment lifecycle events and behavioral telemetry."
     },
     {
-      "description": "Retrieval of historical assessments and deep forensic insights.",
-      "name": "Forensic Data"
+      "name": "Forensic Data",
+      "description": "Retrieval of historical assessments and deep forensic insights."
     },
     {
-      "description": "Service health and connectivity diagnostics.",
-      "name": "System"
+      "name": "System",
+      "description": "Service health and connectivity diagnostics."
     },
     {
-      "description": "Future capabilities currently in active development or private beta.",
-      "name": "Roadmap & Preview"
+      "name": "Roadmap & Preview",
+      "description": "Future capabilities currently in active development or private beta."
     }
   ],
   "paths": {
     "/v1/risk/check": {
       "post": {
-        "operationId": "riskCheck",
-        "parameters": [
+        "summary": "Assess Transaction Risk",
+        "security": [
           {
-            "description": "Echoed or generated trace ID for tracking requests.",
-            "explode": false,
-            "in": "header",
-            "name": "x-trace-id",
-            "required": false,
-            "schema": {
-              "$ref": "#/components/schemas/TraceId"
-            },
-            "style": "simple"
+            "ApiKey": []
           },
           {
-            "description": "Unique Idempotency-Key sent in the POST request etc.",
-            "in": "header",
-            "name": "x-idempotency-key",
-            "required": true,
-            "schema": {
-              "$ref": "#/components/schemas/IdempotencyKey"
-            }
+            "oAuth2": [
+              "payrisk.write"
+            ]
+          }
+        ],
+        "operationId": "riskCheck",
+        "tags": [
+          "Risk Scoring"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/TraceIdHeader"
+          },
+          {
+            "$ref": "#/components/parameters/IdempotencyKeyHeaderRequired"
+          },
+          {
+            "$ref": "#/components/parameters/AgentManifestHeader"
           }
         ],
         "requestBody": {
+          "required": true,
           "content": {
             "application/json": {
-              "example": {
-                "paymentIntentId": "pi_0123456789abcdef0123456789abcdef",
-                "entities": {
-                  "tenantId": "tid_acme_01",
-                  "clientId": "cid_merchant_42",
-                  "endCustomerId": "ecid_shopper_9f",
-                  "deviceId": "did_a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6",
-                  "sessionId": "sid_a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6"
-                },
-                "identity": {
-                  "email": "shopper@example.com",
-                  "phone": "+1 (415) 555-2671",
-                  "shippingAddress": {
-                    "line1": "123 Market Street",
-                    "city": "San Francisco",
-                    "region": "CA",
-                    "postalCode": "94103",
-                    "country": "US"
-                  }
-                },
-                "purchase": {
-                  "amount": 123.45,
-                  "currency": "USD",
-                  "paymentMethod": {
-                    "type": "card",
-                    "cardNetwork": "visa",
-                    "bin": "411111"
-                  }
-                }
-              },
               "schema": {
                 "$ref": "#/components/schemas/CheckRequest"
+              },
+              "examples": {
+                "StandardPurchase": {
+                  "summary": "A typical e-commerce purchase check",
+                  "value": {
+                    "paymentIntentId": "pi_0123456789abcdef0123456789abcdef",
+                    "entities": {
+                      "tenantId": "ten_acme_01",
+                      "clientId": "cli_merchant_42",
+                      "endCustomerId": "cus_4f9d27e2b8f64b9e9a9cf5e9e4727d0c",
+                      "deviceId": "did_a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6",
+                      "sessionId": "sid_a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6"
+                    },
+                    "identity": {
+                      "email": "shopper@example.com",
+                      "phone": "+1 (415) 555-2671",
+                      "shippingAddress": {
+                        "line1": "123 Market Street",
+                        "city": "San Francisco",
+                        "region": "CA",
+                        "postalCode": "94103",
+                        "country": "US"
+                      }
+                    },
+                    "purchase": {
+                      "amount": 123.45,
+                      "currency": "USD",
+                      "paymentMethod": {
+                        "type": "card",
+                        "cardNetwork": "visa",
+                        "bin": "411111"
+                      }
+                    }
+                  }
+                }
               }
             }
-          },
-          "required": true
+          }
         },
         "responses": {
           "200": {
-            "content": {
-              "application/json": {
-                "example": {
-                  "assessmentId": "pi_0123456789abcdef0123456789abcdef",
-                  "decision": "approve",
-                  "decisionAt": "2023-12-14T15:45:30.123Z",
-                  "riskScore": 0.12,
-                  "fraudScore": {
-                    "score": 0.12,
-                    "riskLevel": "low",
-                    "confidence": "high"
-                  }
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/DecisionResponse"
-                }
-              }
-            },
             "description": "Synchronous risk decision.",
             "headers": {
               "x-trace-id": {
@@ -156,180 +146,108 @@
               "x-idempotency-key": {
                 "$ref": "#/components/headers/XIdempotencyKeyHeader"
               }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DecisionResponse"
+                },
+                "examples": {
+                  "ApprovedResponse": {
+                    "summary": "A successful low-risk decision",
+                    "value": {
+                      "assessmentId": "pi_0123456789abcdef0123456789abcdef",
+                      "decision": "approve",
+                      "decisionAt": "2026-05-07T15:45:30.123Z",
+                      "riskScore": 0.12,
+                      "decisionScore": 0.12,
+                      "fraudScore": {
+                        "score": 0.12,
+                        "riskLevel": "low",
+                        "confidence": "high"
+                      }
+                    }
+                  }
+                }
+              }
             }
           },
           "400": {
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              }
-            },
-            "description": "An error response.",
-            "headers": {
-              "x-trace-id": {
-                "$ref": "#/components/headers/TraceIdHeader"
-              },
-              "x-idempotency-key": {
-                "$ref": "#/components/headers/XIdempotencyKeyHeader"
-              }
-            }
+            "$ref": "#/components/responses/SharedErrorResponse"
           },
           "401": {
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              }
-            },
-            "description": "An error response.",
-            "headers": {
-              "x-trace-id": {
-                "$ref": "#/components/headers/TraceIdHeader"
-              },
-              "x-idempotency-key": {
-                "$ref": "#/components/headers/XIdempotencyKeyHeader"
-              }
-            }
+            "$ref": "#/components/responses/SharedErrorResponse"
           },
           "403": {
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              }
-            },
-            "description": "An error response.",
-            "headers": {
-              "x-trace-id": {
-                "$ref": "#/components/headers/TraceIdHeader"
-              },
-              "x-idempotency-key": {
-                "$ref": "#/components/headers/XIdempotencyKeyHeader"
-              }
-            }
+            "$ref": "#/components/responses/SharedErrorResponse"
           },
           "422": {
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              }
-            },
-            "description": "An error response.",
-            "headers": {
-              "x-trace-id": {
-                "$ref": "#/components/headers/TraceIdHeader"
-              },
-              "x-idempotency-key": {
-                "$ref": "#/components/headers/XIdempotencyKeyHeader"
-              }
-            }
+            "$ref": "#/components/responses/SharedErrorResponse"
           },
           "429": {
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              }
-            },
-            "description": "An error response.",
-            "headers": {
-              "x-trace-id": {
-                "$ref": "#/components/headers/TraceIdHeader"
-              },
-              "x-idempotency-key": {
-                "$ref": "#/components/headers/XIdempotencyKeyHeader"
-              }
-            }
+            "$ref": "#/components/responses/SharedErrorResponse"
           },
           "500": {
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              }
-            },
-            "description": "An error response.",
-            "headers": {
-              "x-trace-id": {
-                "$ref": "#/components/headers/TraceIdHeader"
-              },
-              "x-idempotency-key": {
-                "$ref": "#/components/headers/XIdempotencyKeyHeader"
-              }
-            }
+            "$ref": "#/components/responses/SharedErrorResponse"
           }
-        },
-        "security": [
-          {
-            "ApiKey": []
-          },
-          {
-            "oAuth2": [
-              "payrisk.write"
-            ]
-          }
-        ],
-        "summary": "Assess Transaction Risk",
-        "tags": [
-          "Risk Scoring"
-        ]
+        }
       }
     },
     "/v1/events": {
       "post": {
+        "summary": "Ingest Lifecycle Signals",
         "operationId": "ingestPaymentEvent",
-        "parameters": [
+        "tags": [
+          "Signal Intelligence"
+        ],
+        "security": [
           {
-            "description": "Echoed or generated trace ID for tracking requests.",
-            "explode": false,
-            "in": "header",
-            "name": "x-trace-id",
-            "required": false,
-            "schema": {
-              "$ref": "#/components/schemas/TraceId"
-            },
-            "style": "simple"
+            "ApiKey": []
           },
           {
-            "description": "Unique Idempotency-Key sent in the POST request etc.",
-            "in": "header",
-            "name": "x-idempotency-key",
-            "required": true,
-            "schema": {
-              "$ref": "#/components/schemas/IdempotencyKey"
-            }
+            "oAuth2": [
+              "payrisk.write"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/TraceIdHeader"
+          },
+          {
+            "$ref": "#/components/parameters/IdempotencyKeyHeaderRequired"
+          },
+          {
+            "$ref": "#/components/parameters/AgentManifestHeader"
           }
         ],
         "requestBody": {
+          "required": true,
           "content": {
             "application/json": {
-              "example": {
-                "paymentIntentId": "pi_0123456789abcdef0123456789abcdef",
-                "eventType": "authorization",
-                "timestamp": "2023-12-14T15:45:30.123Z",
-                "amount": 123.45,
-                "currency": "USD",
-                "outcome": {
-                  "authorization": {
-                    "approved": true,
-                    "responseCode": "00"
-                  }
-                }
-              },
               "schema": {
                 "$ref": "#/components/schemas/PaymentEvent"
+              },
+              "examples": {
+                "AuthorizationEvent": {
+                  "summary": "A standard payment authorization event",
+                  "value": {
+                    "paymentIntentId": "pi_0123456789abcdef0123456789abcdef",
+                    "eventType": "authorization",
+                    "timestamp": "2026-05-07T15:45:30.123Z",
+                    "amount": 123.45,
+                    "currency": "USD",
+                    "outcome": {
+                      "authorization": {
+                        "approved": true,
+                        "responseCode": "00"
+                      }
+                    }
+                  }
+                }
               }
             }
-          },
-          "required": true
+          }
         },
         "responses": {
           "202": {
@@ -341,236 +259,115 @@
               "x-idempotency-key": {
                 "$ref": "#/components/headers/XIdempotencyKeyHeader"
               }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "accepted"
+                    }
+                  }
+                },
+                "examples": {
+                  "AcceptedResponse": {
+                    "summary": "Event received and queued for processing",
+                    "value": {
+                      "status": "accepted"
+                    }
+                  }
+                }
+              }
             }
           },
           "400": {
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              }
-            },
-            "description": "An error response.",
-            "headers": {
-              "x-trace-id": {
-                "$ref": "#/components/headers/TraceIdHeader"
-              },
-              "x-idempotency-key": {
-                "$ref": "#/components/headers/XIdempotencyKeyHeader"
-              }
-            }
+            "$ref": "#/components/responses/SharedErrorResponse"
           },
           "401": {
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              }
-            },
-            "description": "An error response.",
-            "headers": {
-              "x-trace-id": {
-                "$ref": "#/components/headers/TraceIdHeader"
-              },
-              "x-idempotency-key": {
-                "$ref": "#/components/headers/XIdempotencyKeyHeader"
-              }
-            }
+            "$ref": "#/components/responses/SharedErrorResponse"
           },
           "403": {
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              }
-            },
-            "description": "An error response.",
-            "headers": {
-              "x-trace-id": {
-                "$ref": "#/components/headers/TraceIdHeader"
-              },
-              "x-idempotency-key": {
-                "$ref": "#/components/headers/XIdempotencyKeyHeader"
-              }
-            }
+            "$ref": "#/components/responses/SharedErrorResponse"
           },
           "404": {
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              }
-            },
-            "description": "An error response.",
-            "headers": {
-              "x-trace-id": {
-                "$ref": "#/components/headers/TraceIdHeader"
-              },
-              "x-idempotency-key": {
-                "$ref": "#/components/headers/XIdempotencyKeyHeader"
-              }
-            }
+            "$ref": "#/components/responses/SharedErrorResponse"
           },
           "409": {
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              }
-            },
-            "description": "An error response.",
-            "headers": {
-              "x-trace-id": {
-                "$ref": "#/components/headers/TraceIdHeader"
-              },
-              "x-idempotency-key": {
-                "$ref": "#/components/headers/XIdempotencyKeyHeader"
-              }
-            }
+            "$ref": "#/components/responses/SharedErrorResponse"
           },
           "413": {
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              }
-            },
-            "description": "An error response.",
-            "headers": {
-              "x-trace-id": {
-                "$ref": "#/components/headers/TraceIdHeader"
-              },
-              "x-idempotency-key": {
-                "$ref": "#/components/headers/XIdempotencyKeyHeader"
-              }
-            }
+            "$ref": "#/components/responses/SharedErrorResponse"
           },
           "422": {
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              }
-            },
-            "description": "An error response.",
-            "headers": {
-              "x-trace-id": {
-                "$ref": "#/components/headers/TraceIdHeader"
-              },
-              "x-idempotency-key": {
-                "$ref": "#/components/headers/XIdempotencyKeyHeader"
-              }
-            }
+            "$ref": "#/components/responses/SharedErrorResponse"
           },
           "429": {
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              }
-            },
-            "description": "An error response.",
-            "headers": {
-              "x-trace-id": {
-                "$ref": "#/components/headers/TraceIdHeader"
-              },
-              "x-idempotency-key": {
-                "$ref": "#/components/headers/XIdempotencyKeyHeader"
-              }
-            }
+            "$ref": "#/components/responses/SharedErrorResponse"
           },
           "500": {
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              }
-            },
-            "description": "An error response.",
-            "headers": {
-              "x-trace-id": {
-                "$ref": "#/components/headers/TraceIdHeader"
-              },
-              "x-idempotency-key": {
-                "$ref": "#/components/headers/XIdempotencyKeyHeader"
-              }
-            }
+            "$ref": "#/components/responses/SharedErrorResponse"
           }
-        },
-        "security": [
-          {
-            "ApiKey": []
-          },
-          {
-            "oAuth2": [
-              "payrisk.write"
-            ]
-          }
-        ],
-        "summary": "Ingest Lifecycle Signals",
-        "tags": [
-          "Signal Intelligence"
-        ]
+        }
       }
     },
     "/v1/signals": {
       "post": {
+        "summary": "Submit Behavioral Intelligence",
         "operationId": "ingestSignals",
-        "parameters": [
+        "tags": [
+          "Signal Intelligence"
+        ],
+        "security": [
           {
-            "description": "Echoed or generated trace ID for tracking requests.",
-            "explode": false,
-            "in": "header",
-            "name": "x-trace-id",
-            "required": false,
-            "schema": {
-              "$ref": "#/components/schemas/TraceId"
-            },
-            "style": "simple"
+            "ApiKey": []
           },
           {
-            "description": "Unique Idempotency-Key sent in the POST request etc.",
-            "in": "header",
-            "name": "x-idempotency-key",
-            "required": true,
-            "schema": {
-              "$ref": "#/components/schemas/IdempotencyKey"
-            }
+            "oAuth2": [
+              "payrisk.write"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/TraceIdHeader"
+          },
+          {
+            "$ref": "#/components/parameters/IdempotencyKeyHeaderRequired"
+          },
+          {
+            "$ref": "#/components/parameters/AgentManifestHeader"
           }
         ],
         "requestBody": {
+          "required": true,
           "content": {
             "application/json": {
-              "example": {
-                "signalType": "interaction",
-                "entities": {
-                  "tenantId": "tid_alogram_01",
-                  "endCustomerId": "ecid_shopper_9f"
-                },
-                "interactions": [
-                  {
-                    "type": "login",
-                    "interactionType": "login",
-                    "timestamp": "2023-12-14T15:45:30.123Z",
-                    "locationId": "loc_1234"
-                  }
-                ]
-              },
               "schema": {
                 "$ref": "#/components/schemas/SignalsRequest"
+              },
+              "examples": {
+                "UserInteraction": {
+                  "summary": "A standard user interaction signal (e.g. login)",
+                  "value": {
+                    "signalType": "interaction",
+                    "entities": {
+                      "tenantId": "ten_alogram_01",
+                      "endCustomerId": "cus_4f9d27e2b8f64b9e9a9cf5e9e4727d0c"
+                    },
+                    "interactions": [
+                      {
+                        "interactionType": "login",
+                        "timestamp": "2026-05-07T15:45:30.123Z",
+                        "locationId": "loc_1234"
+                      }
+                    ]
+                  }
+                }
               }
             }
-          },
-          "required": true
+          }
         },
         "responses": {
           "202": {
@@ -582,249 +379,54 @@
               "x-idempotency-key": {
                 "$ref": "#/components/headers/XIdempotencyKeyHeader"
               }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "accepted"
+                    }
+                  }
+                },
+                "examples": {
+                  "AcceptedResponse": {
+                    "summary": "Signals received and queued for processing",
+                    "value": {
+                      "status": "accepted"
+                    }
+                  }
+                }
+              }
             }
           },
           "400": {
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              }
-            },
-            "description": "An error response.",
-            "headers": {
-              "x-trace-id": {
-                "$ref": "#/components/headers/TraceIdHeader"
-              },
-              "x-idempotency-key": {
-                "$ref": "#/components/headers/XIdempotencyKeyHeader"
-              }
-            }
+            "$ref": "#/components/responses/SharedErrorResponse"
           },
           "413": {
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              }
-            },
-            "description": "An error response.",
-            "headers": {
-              "x-trace-id": {
-                "$ref": "#/components/headers/TraceIdHeader"
-              },
-              "x-idempotency-key": {
-                "$ref": "#/components/headers/XIdempotencyKeyHeader"
-              }
-            }
+            "$ref": "#/components/responses/SharedErrorResponse"
           },
           "422": {
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              }
-            },
-            "description": "An error response.",
-            "headers": {
-              "x-trace-id": {
-                "$ref": "#/components/headers/TraceIdHeader"
-              },
-              "x-idempotency-key": {
-                "$ref": "#/components/headers/XIdempotencyKeyHeader"
-              }
-            }
+            "$ref": "#/components/responses/SharedErrorResponse"
           },
           "429": {
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              }
-            },
-            "description": "An error response.",
-            "headers": {
-              "x-trace-id": {
-                "$ref": "#/components/headers/TraceIdHeader"
-              },
-              "x-idempotency-key": {
-                "$ref": "#/components/headers/XIdempotencyKeyHeader"
-              }
-            }
+            "$ref": "#/components/responses/SharedErrorResponse"
           },
           "500": {
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              }
-            },
-            "description": "An error response.",
-            "headers": {
-              "x-trace-id": {
-                "$ref": "#/components/headers/TraceIdHeader"
-              },
-              "x-idempotency-key": {
-                "$ref": "#/components/headers/XIdempotencyKeyHeader"
-              }
-            }
+            "$ref": "#/components/responses/SharedErrorResponse"
           }
-        },
-        "security": [
-          {
-            "ApiKey": []
-          },
-          {
-            "oAuth2": [
-              "payrisk.write"
-            ]
-          }
-        ],
-        "summary": "Submit Behavioral Intelligence",
-        "tags": [
-          "Signal Intelligence"
-        ]
+        }
       }
     },
     "/v1/scores/{tenantId}": {
       "get": {
+        "summary": "Query Historical Assessments",
         "operationId": "getFraudScores",
-        "parameters": [
-          {
-            "description": "Echoed or generated trace ID for tracking requests.",
-            "explode": false,
-            "in": "header",
-            "name": "x-trace-id",
-            "required": false,
-            "schema": {
-              "$ref": "#/components/schemas/TraceId"
-            },
-            "style": "simple"
-          },
-          {
-            "description": "Unique Idempotency-Key sent in the GET request etc.",
-            "in": "header",
-            "name": "x-idempotency-key",
-            "required": false,
-            "schema": {
-              "$ref": "#/components/schemas/IdempotencyKey"
-            }
-          },
-          {
-            "explode": false,
-            "in": "path",
-            "name": "tenantId",
-            "required": true,
-            "schema": {
-              "$ref": "#/components/schemas/TenantId"
-            },
-            "style": "simple"
-          },
-          {
-            "explode": true,
-            "in": "query",
-            "name": "startTime",
-            "required": false,
-            "schema": {
-              "$ref": "#/components/schemas/Timestamp"
-            },
-            "style": "form"
-          },
-          {
-            "explode": true,
-            "in": "query",
-            "name": "endTime",
-            "required": false,
-            "schema": {
-              "$ref": "#/components/schemas/Timestamp"
-            },
-            "style": "form"
-          },
-          {
-            "explode": true,
-            "in": "query",
-            "name": "pageSize",
-            "required": false,
-            "schema": {
-              "default": 50,
-              "maximum": 500,
-              "minimum": 1,
-              "type": "integer"
-            },
-            "style": "form"
-          },
-          {
-            "explode": true,
-            "in": "query",
-            "name": "pageToken",
-            "required": false,
-            "schema": {
-              "type": "string"
-            },
-            "style": "form"
-          }
+        "tags": [
+          "Forensic Data"
         ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ScoresSuccessResponse"
-                }
-              }
-            },
-            "description": "List of fraud scores for a customer.",
-            "headers": {
-              "x-trace-id": {
-                "$ref": "#/components/headers/TraceIdHeader"
-              },
-              "x-idempotency-key": {
-                "$ref": "#/components/headers/XIdempotencyKeyHeader"
-              }
-            }
-          },
-          "400": {
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              }
-            },
-            "description": "An error response.",
-            "headers": {
-              "x-trace-id": {
-                "$ref": "#/components/headers/TraceIdHeader"
-              },
-              "x-idempotency-key": {
-                "$ref": "#/components/headers/XIdempotencyKeyHeader"
-              }
-            }
-          },
-          "500": {
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              }
-            },
-            "description": "An error response.",
-            "headers": {
-              "x-trace-id": {
-                "$ref": "#/components/headers/TraceIdHeader"
-              },
-              "x-idempotency-key": {
-                "$ref": "#/components/headers/XIdempotencyKeyHeader"
-              }
-            }
-          }
-        },
         "security": [
           {
             "ApiKey": []
@@ -835,15 +437,74 @@
             ]
           }
         ],
-        "summary": "Query Historical Assessments",
-        "tags": [
-          "Forensic Data"
-        ]
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/TraceIdHeader"
+          },
+          {
+            "$ref": "#/components/parameters/IdempotencyKeyHeaderOptional"
+          },
+          {
+            "name": "tenantId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TenantId"
+            }
+          },
+          {
+            "name": "startTime",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/Timestamp"
+            }
+          },
+          {
+            "name": "endTime",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/Timestamp"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 500,
+              "default": 50
+            }
+          },
+          {
+            "name": "pageToken",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/ScoresSuccessResponse"
+          },
+          "400": {
+            "$ref": "#/components/responses/SharedErrorResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/SharedErrorResponse"
+          }
+        }
       }
     },
     "/v1/health": {
       "get": {
+        "summary": "Health check for the service",
         "operationId": "healthCheck",
+        "tags": [
+          "System"
+        ],
+        "security": [],
         "responses": {
           "200": {
             "description": "Service is healthy"
@@ -851,142 +512,87 @@
           "503": {
             "description": "Service is unavailable"
           }
-        },
-        "security": [],
-        "summary": "Health check for the service",
-        "tags": [
-          "System"
-        ]
+        }
       }
     },
     "/v1/risk/account/check": {
       "post": {
+        "summary": "Synchronous fraud decision for account/session events",
         "description": "> **Coming Soon**: This endpoint is currently in active development.\nAssess risk for account-level events such as signup, login, and profile changes.\n",
-        "operationId": "accountRiskCheck",
-        "parameters": [
+        "x-badges": [
           {
-            "description": "Echoed or generated trace ID for tracking requests.",
-            "explode": false,
-            "in": "header",
-            "name": "x-trace-id",
-            "required": false,
-            "schema": {
-              "$ref": "#/components/schemas/TraceId"
-            },
-            "style": "simple"
+            "name": "Coming Soon",
+            "color": "grey"
+          }
+        ],
+        "operationId": "accountRiskCheck",
+        "tags": [
+          "Roadmap & Preview"
+        ],
+        "security": [
+          {
+            "ApiKey": []
           },
           {
-            "description": "Unique Idempotency-Key sent in the POST request etc.",
-            "in": "header",
-            "name": "x-idempotency-key",
-            "required": true,
-            "schema": {
-              "$ref": "#/components/schemas/IdempotencyKey"
-            }
+            "oAuth2": [
+              "payrisk.write"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/TraceIdHeader"
+          },
+          {
+            "$ref": "#/components/parameters/IdempotencyKeyHeaderRequired"
+          },
+          {
+            "$ref": "#/components/parameters/AgentManifestHeader"
           }
         ],
         "requestBody": {
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/AccountCheckRequest"
               }
             }
-          },
-          "required": true
+          }
         },
         "responses": {
           "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/DecisionResponse"
-                }
-              }
-            },
-            "description": "Synchronous risk decision.",
-            "headers": {
-              "x-trace-id": {
-                "$ref": "#/components/headers/TraceIdHeader"
-              },
-              "x-idempotency-key": {
-                "$ref": "#/components/headers/XIdempotencyKeyHeader"
-              }
-            }
+            "$ref": "#/components/responses/DecisionResponse"
           },
           "400": {
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              }
-            },
-            "description": "An error response.",
-            "headers": {
-              "x-trace-id": {
-                "$ref": "#/components/headers/TraceIdHeader"
-              },
-              "x-idempotency-key": {
-                "$ref": "#/components/headers/XIdempotencyKeyHeader"
-              }
-            }
+            "$ref": "#/components/responses/SharedErrorResponse"
           },
           "422": {
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              }
-            },
-            "description": "An error response.",
-            "headers": {
-              "x-trace-id": {
-                "$ref": "#/components/headers/TraceIdHeader"
-              },
-              "x-idempotency-key": {
-                "$ref": "#/components/headers/XIdempotencyKeyHeader"
-              }
-            }
+            "$ref": "#/components/responses/SharedErrorResponse"
           },
           "429": {
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              }
-            },
-            "description": "An error response.",
-            "headers": {
-              "x-trace-id": {
-                "$ref": "#/components/headers/TraceIdHeader"
-              },
-              "x-idempotency-key": {
-                "$ref": "#/components/headers/XIdempotencyKeyHeader"
-              }
-            }
+            "$ref": "#/components/responses/SharedErrorResponse"
           },
           "500": {
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              }
-            },
-            "description": "An error response.",
-            "headers": {
-              "x-trace-id": {
-                "$ref": "#/components/headers/TraceIdHeader"
-              },
-              "x-idempotency-key": {
-                "$ref": "#/components/headers/XIdempotencyKeyHeader"
-              }
-            }
+            "$ref": "#/components/responses/SharedErrorResponse"
           }
-        },
+        }
+      }
+    },
+    "/v1/risk/kyc/check": {
+      "post": {
+        "summary": "Synchronous decision for KYC/identity verification",
+        "description": "> **Coming Soon**: This endpoint is currently in active development.\nAssess risk for identity verification and KYC workflows.\n",
+        "x-badges": [
+          {
+            "name": "Coming Soon",
+            "color": "grey"
+          }
+        ],
+        "operationId": "kycRiskCheck",
+        "tags": [
+          "Roadmap & Preview"
+        ],
         "security": [
           {
             "ApiKey": []
@@ -997,224 +603,50 @@
             ]
           }
         ],
-        "summary": "Synchronous fraud decision for account/session events",
-        "tags": [
-          "Roadmap & Preview"
-        ],
-        "x-badges": [
-          {
-            "name": "Coming Soon",
-            "color": "grey"
-          }
-        ]
-      }
-    },
-    "/v1/risk/kyc/check": {
-      "post": {
-        "description": "> **Coming Soon**: This endpoint is currently in active development.\nAssess risk for identity verification and KYC workflows.\n",
-        "operationId": "kycRiskCheck",
         "parameters": [
           {
-            "description": "Echoed or generated trace ID for tracking requests.",
-            "explode": false,
-            "in": "header",
-            "name": "x-trace-id",
-            "required": false,
-            "schema": {
-              "$ref": "#/components/schemas/TraceId"
-            },
-            "style": "simple"
+            "$ref": "#/components/parameters/TraceIdHeader"
           },
           {
-            "description": "Unique Idempotency-Key sent in the POST request etc.",
-            "in": "header",
-            "name": "x-idempotency-key",
-            "required": true,
-            "schema": {
-              "$ref": "#/components/schemas/IdempotencyKey"
-            }
+            "$ref": "#/components/parameters/IdempotencyKeyHeaderRequired"
+          },
+          {
+            "$ref": "#/components/parameters/AgentManifestHeader"
           }
         ],
         "requestBody": {
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/KycCheckRequest"
               }
             }
-          },
-          "required": true
+          }
         },
         "responses": {
           "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/DecisionResponse"
-                }
-              }
-            },
-            "description": "Synchronous risk decision.",
-            "headers": {
-              "x-trace-id": {
-                "$ref": "#/components/headers/TraceIdHeader"
-              },
-              "x-idempotency-key": {
-                "$ref": "#/components/headers/XIdempotencyKeyHeader"
-              }
-            }
+            "$ref": "#/components/responses/DecisionResponse"
           },
           "400": {
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              }
-            },
-            "description": "An error response.",
-            "headers": {
-              "x-trace-id": {
-                "$ref": "#/components/headers/TraceIdHeader"
-              },
-              "x-idempotency-key": {
-                "$ref": "#/components/headers/XIdempotencyKeyHeader"
-              }
-            }
+            "$ref": "#/components/responses/SharedErrorResponse"
           },
           "422": {
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              }
-            },
-            "description": "An error response.",
-            "headers": {
-              "x-trace-id": {
-                "$ref": "#/components/headers/TraceIdHeader"
-              },
-              "x-idempotency-key": {
-                "$ref": "#/components/headers/XIdempotencyKeyHeader"
-              }
-            }
+            "$ref": "#/components/responses/SharedErrorResponse"
           },
           "429": {
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              }
-            },
-            "description": "An error response.",
-            "headers": {
-              "x-trace-id": {
-                "$ref": "#/components/headers/TraceIdHeader"
-              },
-              "x-idempotency-key": {
-                "$ref": "#/components/headers/XIdempotencyKeyHeader"
-              }
-            }
+            "$ref": "#/components/responses/SharedErrorResponse"
           },
           "500": {
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              }
-            },
-            "description": "An error response.",
-            "headers": {
-              "x-trace-id": {
-                "$ref": "#/components/headers/TraceIdHeader"
-              },
-              "x-idempotency-key": {
-                "$ref": "#/components/headers/XIdempotencyKeyHeader"
-              }
-            }
+            "$ref": "#/components/responses/SharedErrorResponse"
           }
-        },
-        "security": [
-          {
-            "ApiKey": []
-          },
-          {
-            "oAuth2": [
-              "payrisk.write"
-            ]
-          }
-        ],
-        "summary": "Synchronous decision for KYC/identity verification",
-        "tags": [
-          "Roadmap & Preview"
-        ],
-        "x-badges": [
-          {
-            "name": "Coming Soon",
-            "color": "grey"
-          }
-        ]
+        }
       }
     }
   },
   "components": {
-    "headers": {
-      "TraceIdHeader": {
-        "description": "Echoed or generated trace ID for tracking requests, returned in the response headers.",
-        "schema": {
-          "$ref": "#/components/schemas/TraceId"
-        }
-      },
-      "XIdempotencyKeyHeader": {
-        "description": "Echo of the request's x-idempotency-key header.",
-        "schema": {
-          "$ref": "#/components/schemas/IdempotencyKey"
-        }
-      }
-    },
-    "parameters": {
-      "TraceIdHeader": {
-        "description": "Echoed or generated trace ID for tracking requests.",
-        "explode": false,
-        "in": "header",
-        "name": "x-trace-id",
-        "required": false,
-        "schema": {
-          "$ref": "#/components/schemas/TraceId"
-        },
-        "style": "simple"
-      },
-      "IdempotencyKeyHeaderRequired": {
-        "description": "Unique Idempotency-Key sent in the POST request etc.",
-        "in": "header",
-        "name": "x-idempotency-key",
-        "required": true,
-        "schema": {
-          "$ref": "#/components/schemas/IdempotencyKey"
-        }
-      },
-      "IdempotencyKeyHeaderOptional": {
-        "description": "Unique Idempotency-Key sent in the GET request etc.",
-        "in": "header",
-        "name": "x-idempotency-key",
-        "required": false,
-        "schema": {
-          "$ref": "#/components/schemas/IdempotencyKey"
-        }
-      }
-    },
     "responses": {
       "DecisionResponse": {
-        "content": {
-          "application/json": {
-            "schema": {
-              "$ref": "#/components/schemas/DecisionResponse"
-            }
-          }
-        },
         "description": "Synchronous risk decision.",
         "headers": {
           "x-trace-id": {
@@ -1223,16 +655,16 @@
           "x-idempotency-key": {
             "$ref": "#/components/headers/XIdempotencyKeyHeader"
           }
-        }
-      },
-      "ScoresSuccessResponse": {
+        },
         "content": {
           "application/json": {
             "schema": {
-              "$ref": "#/components/schemas/ScoresSuccessResponse"
+              "$ref": "#/components/schemas/DecisionResponse"
             }
           }
-        },
+        }
+      },
+      "ScoresSuccessResponse": {
         "description": "List of fraud scores for a customer.",
         "headers": {
           "x-trace-id": {
@@ -1241,17 +673,48 @@
           "x-idempotency-key": {
             "$ref": "#/components/headers/XIdempotencyKeyHeader"
           }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ScoresSuccessResponse"
+            }
+          }
         }
       },
       "SharedErrorResponse": {
+        "description": "An error response.",
         "content": {
           "application/problem+json": {
             "schema": {
               "$ref": "#/components/schemas/Problem"
+            },
+            "examples": {
+              "ValidationError": {
+                "value": {
+                  "type": "https://api.alogram.ai/probs/validation",
+                  "title": "Validation Error",
+                  "status": 422,
+                  "detail": "The 'entities.tenantId' field is required.",
+                  "instance": "https://api.alogram.ai/v1/risk/check",
+                  "errorCode": "VAL_001",
+                  "traceId": "trc_abcdef1234567890"
+                }
+              },
+              "SystemError": {
+                "value": {
+                  "type": "https://api.alogram.ai/probs/internal-error",
+                  "title": "Internal Server Error",
+                  "status": 500,
+                  "detail": "An unexpected error occurred while processing your request.",
+                  "instance": "https://api.alogram.ai/v1/risk/check",
+                  "errorCode": "SRV_001",
+                  "traceId": "trc_abcdef1234567890"
+                }
+              }
             }
           }
         },
-        "description": "An error response.",
         "headers": {
           "x-trace-id": {
             "$ref": "#/components/headers/TraceIdHeader"
@@ -1264,13 +727,47 @@
     },
     "schemas": {
       "CheckRequest": {
+        "type": "object",
+        "required": [
+          "entities",
+          "purchase"
+        ],
         "description": "Request for synchronous purchase risk check.",
+        "properties": {
+          "eventType": {
+            "type": "string",
+            "enum": [
+              "purchase"
+            ],
+            "default": "purchase",
+            "description": "(optional) event being checked, this may expand later beyond 'purchase'."
+          },
+          "paymentIntentId": {
+            "$ref": "#/components/schemas/PaymentIntentId"
+          },
+          "entities": {
+            "$ref": "#/components/schemas/EntityIds"
+          },
+          "purchase": {
+            "$ref": "#/components/schemas/Purchase"
+          },
+          "identity": {
+            "$ref": "#/components/schemas/Identity"
+          },
+          "externalAssessments": {
+            "type": "array",
+            "description": "Optional 3rd party risk assessments (e.g. Shopify, Stripe, Signifyd).",
+            "items": {
+              "$ref": "#/components/schemas/ExternalAssessment"
+            }
+          }
+        },
         "example": {
           "paymentIntentId": "pi_0123456789abcdef0123456789abcdef",
           "entities": {
-            "tenantId": "tid_acme_01",
-            "clientId": "cid_merchant_42",
-            "endCustomerId": "ecid_shopper_9f",
+            "tenantId": "ten_acme_01",
+            "clientId": "cli_merchant_42",
+            "endCustomerId": "cus_4f9d27e2b8f64b9e9a9cf5e9e4727d0c",
             "paymentInstrumentId": "tok_abcdef1234567890",
             "deviceId": "did_a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6",
             "sessionId": "sid_a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6",
@@ -1304,83 +801,52 @@
               "bin": "411111"
             }
           }
-        },
-        "properties": {
-          "eventType": {
-            "default": "purchase",
-            "description": "(optional) event being checked, this may expand later beyond 'purchase'.",
-            "enum": [
-              "purchase"
-            ],
-            "type": "string"
-          },
-          "paymentIntentId": {
-            "$ref": "#/components/schemas/PaymentIntentId"
-          },
-          "entities": {
-            "$ref": "#/components/schemas/EntityIds"
-          },
-          "purchase": {
-            "$ref": "#/components/schemas/Purchase"
-          },
-          "identity": {
-            "$ref": "#/components/schemas/Identity"
-          },
-          "externalAssessments": {
-            "description": "Optional 3rd party risk assessments (e.g. Shopify, Stripe, Signifyd).",
-            "items": {
-              "$ref": "#/components/schemas/ExternalAssessment"
-            },
-            "type": "array"
-          }
-        },
-        "required": [
-          "entities",
-          "purchase"
-        ],
-        "type": "object"
+        }
       },
       "DecisionResponse": {
+        "title": "DecisionResponse",
+        "type": "object",
         "description": "The synchronous risk decision for a purchase.",
-        "example": {
-          "assessmentId": "pi_0123456789abcdef0123456789abcdef",
-          "decision": "approve",
-          "decisionAt": "2023-12-14T15:45:30.123Z",
-          "riskScore": 0.98
-        },
+        "required": [
+          "assessmentId",
+          "decision",
+          "riskScore",
+          "decisionAt",
+          "decisionScore"
+        ],
         "properties": {
           "assessmentId": {
+            "type": "string",
             "description": "Universal decision identifier. For purchases, equals paymentIntentId.",
-            "maxLength": 64,
             "minLength": 8,
-            "pattern": "^[a-zA-Z0-9\\-_]+$",
-            "type": "string"
+            "maxLength": 64,
+            "pattern": "^[a-zA-Z0-9\\-_]+$"
           },
           "decision": {
+            "type": "string",
             "enum": [
               "approve",
               "review",
               "decline",
               "step_up"
-            ],
-            "type": "string"
+            ]
           },
           "decisionAt": {
             "$ref": "#/components/schemas/Timestamp"
           },
           "riskScore": {
-            "description": "DEPRECATED: Use decisionScore instead. Current blended risk score.",
+            "type": "number",
             "format": "float",
-            "maximum": 1.0,
-            "minimum": 0.0,
-            "type": "number"
+            "minimum": 0,
+            "maximum": 1,
+            "description": "DEPRECATED: Use decisionScore instead. Current blended risk score."
           },
           "decisionScore": {
-            "description": "The authoritative blended risk score (0.0 - 1.0) derived from expert fusion.",
+            "type": "number",
             "format": "float",
-            "maximum": 1.0,
-            "minimum": 0.0,
-            "type": "number"
+            "minimum": 0,
+            "maximum": 1,
+            "description": "The authoritative blended risk score (0.0 - 1.0) derived from expert fusion."
           },
           "fraudScore": {
             "$ref": "#/components/schemas/FraudScore"
@@ -1389,29 +855,27 @@
             "$ref": "#/components/schemas/RiskBreakdown"
           },
           "reasonCodes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
             "description": "Technical reason codes for the decision.",
             "example": [
               "HIGH_VALUE",
               "UNUSUAL_LOCATION"
-            ],
-            "items": {
-              "type": "string"
-            },
-            "type": "array"
+            ]
           },
           "reasons": {
-            "description": "Structured reason details for the decision.",
+            "type": "array",
             "items": {
               "$ref": "#/components/schemas/ReasonDetail"
             },
-            "type": "array"
+            "description": "Structured reason details for the decision."
           },
           "actions": {
-            "example": [
-              "queue_review"
-            ],
+            "type": "array",
             "items": {
-              "description": "Action to be taken based on the decision. 'step_up' for Strong Customer Authentication, 'throttle' for rate limiting, 'lock_account' for account suspension, 'decline' for transaction rejection, 'queue_review' for manual review.\n",
+              "type": "string",
               "enum": [
                 "step_up",
                 "throttle",
@@ -1419,49 +883,56 @@
                 "decline",
                 "queue_review"
               ],
-              "type": "string"
+              "description": "Action to be taken based on the decision. 'step_up' for Strong Customer Authentication, 'throttle' for rate limiting, 'lock_account' for account suspension, 'decline' for transaction rejection, 'queue_review' for manual review.\n"
             },
-            "type": "array"
+            "example": [
+              "queue_review"
+            ]
           },
           "paymentIntentId": {
             "$ref": "#/components/schemas/PaymentIntentId"
           },
           "policyVersion": {
+            "type": "string",
             "description": "The version of the policy that generated the decision.",
-            "example": "v1.0.0",
-            "type": "string"
+            "example": "v1.0.0"
           },
           "modelVersion": {
+            "type": "string",
             "description": "The version of the model that generated the decision.",
-            "example": "v1.0.0",
-            "type": "string"
+            "example": "v1.0.0"
           },
           "ttlSeconds": {
-            "description": "Time to live for the decision in seconds.",
-            "example": 3600,
+            "type": "integer",
             "minimum": 0,
-            "type": "integer"
+            "description": "Time to live for the decision in seconds.",
+            "example": 3600
           }
         },
-        "required": [
-          "assessmentId",
-          "decision",
-          "decisionAt",
-          "decisionScore",
-          "riskScore"
-        ],
-        "title": "DecisionResponse",
-        "type": "object"
+        "example": {
+          "assessmentId": "pi_0123456789abcdef0123456789abcdef",
+          "decision": "approve",
+          "decisionAt": "2023-12-14T15:45:30.123Z",
+          "riskScore": 0.98,
+          "decisionScore": 0.98
+        }
       },
       "SignalsAccountVariant": {
+        "title": "SignalsAccountVariant",
+        "type": "object",
         "description": "Account-level signal variant (single account state snapshot).",
+        "required": [
+          "signalType",
+          "entities",
+          "account"
+        ],
         "properties": {
           "signalType": {
-            "description": "Value for account signals.",
+            "type": "string",
             "enum": [
               "account"
             ],
-            "type": "string"
+            "description": "Value for account signals."
           },
           "entities": {
             "$ref": "#/components/schemas/EntityIds"
@@ -1469,60 +940,62 @@
           "account": {
             "$ref": "#/components/schemas/Account"
           }
-        },
-        "required": [
-          "account",
-          "entities",
-          "signalType"
-        ],
-        "title": "SignalsAccountVariant",
-        "type": "object"
+        }
       },
       "SignalsInteractionVariant": {
+        "title": "SignalsInteractionVariant",
+        "type": "object",
         "description": "Interaction batch signal variant (one or more user interactions).",
+        "required": [
+          "signalType",
+          "entities",
+          "interactions"
+        ],
         "properties": {
           "signalType": {
-            "description": "Value for interaction signals.",
+            "type": "string",
             "enum": [
               "interaction"
             ],
-            "type": "string"
+            "description": "Value for interaction signals."
           },
           "entities": {
             "$ref": "#/components/schemas/EntityIds"
           },
           "interactions": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 1000,
             "description": "One or more interactions associated with the signal.",
             "items": {
               "$ref": "#/components/schemas/Interaction"
-            },
-            "maxItems": 1000,
-            "minItems": 1,
-            "type": "array"
+            }
           }
-        },
-        "required": [
-          "entities",
-          "interactions",
-          "signalType"
-        ],
-        "title": "SignalsInteractionVariant",
-        "type": "object"
+        }
       },
       "SignalsRequest": {
+        "title": "SignalsRequest",
         "description": "Request for processing application workflow signals. Determined by `signalType`.\n",
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/SignalsAccountVariant"
+          },
+          {
+            "$ref": "#/components/schemas/SignalsInteractionVariant"
+          }
+        ],
         "discriminator": {
+          "propertyName": "signalType",
           "mapping": {
             "account": "#/components/schemas/SignalsAccountVariant",
             "interaction": "#/components/schemas/SignalsInteractionVariant"
-          },
-          "propertyName": "signalType"
+          }
         },
         "example": {
           "signalType": "account",
           "entities": {
-            "tenantId": "tid_alogram_01",
-            "endCustomerId": "ecid_shopper_9f"
+            "tenantId": "ten_alogram_01",
+            "endCustomerId": "cus_4f9d27e2b8f64b9e9a9cf5e9e4727d0c"
           },
           "account": {
             "email": "someemail@example-emails.com",
@@ -1536,19 +1009,29 @@
               }
             }
           }
-        },
-        "oneOf": [
-          {
-            "$ref": "#/components/schemas/SignalsAccountVariant"
-          },
-          {
-            "$ref": "#/components/schemas/SignalsInteractionVariant"
-          }
-        ],
-        "title": "SignalsRequest"
+        }
       },
       "ScoresSuccessResponse": {
+        "type": "object",
+        "required": [
+          "scores"
+        ],
         "description": "List of fraud scores for a customer.",
+        "properties": {
+          "scores": {
+            "type": "array",
+            "description": "Score records within the requested window.",
+            "items": {
+              "$ref": "#/components/schemas/ScoreRecord"
+            }
+          },
+          "nextPageToken": {
+            "type": "string",
+            "description": "A token for retrieving the next page of results.",
+            "maxLength": 4096,
+            "example": "eyJhbGciOi..."
+          }
+        },
         "example": {
           "scores": [
             {
@@ -1556,37 +1039,27 @@
               "decisionAt": "2023-12-14T15:45:30.123Z",
               "decision": "approve",
               "riskScore": 0.98,
+              "decisionScore": 0.98,
               "entity": {
-                "tenantId": "tid_alogram_01",
-                "endCustomerId": "ecid_shopper_9f"
+                "tenantId": "ten_alogram_01",
+                "endCustomerId": "cus_4f9d27e2b8f64b9e9a9cf5e9e4727d0c"
               },
-              "amount": 100.0,
+              "amount": 100,
               "currency": "USD"
             }
           ],
           "nextPageToken": "eyJhbGciOi..."
-        },
-        "properties": {
-          "scores": {
-            "description": "Score records within the requested window.",
-            "items": {
-              "$ref": "#/components/schemas/ScoreRecord"
-            },
-            "type": "array"
-          },
-          "nextPageToken": {
-            "description": "A token for retrieving the next page of results.",
-            "example": "eyJhbGciOi...",
-            "maxLength": 4096,
-            "type": "string"
-          }
-        },
-        "required": [
-          "scores"
-        ],
-        "type": "object"
+        }
       },
       "ScoreRecord": {
+        "type": "object",
+        "required": [
+          "assessmentId",
+          "decisionAt",
+          "decision",
+          "riskScore",
+          "decisionScore"
+        ],
         "description": "Fraud score for a specific transaction or entity.",
         "example": {
           "assessmentId": "pi_0123456789abcdef0123456789abcdef",
@@ -1595,17 +1068,17 @@
           "riskScore": 0.98,
           "decisionScore": 0.98,
           "entities": {
-            "tenantId": "tid_alogram_01",
-            "endCustomerId": "ecid_shopper_9f"
+            "tenantId": "ten_alogram_01",
+            "endCustomerId": "cus_4f9d27e2b8f64b9e9a9cf5e9e4727d0c"
           },
-          "amount": 100.0,
+          "amount": 100,
           "currency": "USD"
         },
         "properties": {
           "assessmentId": {
+            "type": "string",
             "description": "Universal decision identifier (for purchases, equals paymentIntentId).",
-            "example": "pi_234567890abcdef",
-            "type": "string"
+            "example": "pi_234567890abcdef"
           },
           "paymentIntentId": {
             "$ref": "#/components/schemas/PaymentIntentId"
@@ -1614,31 +1087,31 @@
             "$ref": "#/components/schemas/Timestamp"
           },
           "decision": {
-            "description": "The synchronous risk decision for a purchase.",
+            "type": "string",
             "enum": [
               "approve",
               "review",
               "decline",
               "step_up"
             ],
-            "example": "approve",
-            "type": "string"
+            "description": "The synchronous risk decision for a purchase.",
+            "example": "approve"
           },
           "riskScore": {
-            "description": "DEPRECATED: Use decisionScore instead. Fraud risk score (0.00 - 1.00).",
-            "example": 0.98,
+            "type": "number",
             "format": "float",
-            "maximum": 1.0,
-            "minimum": 0.0,
-            "type": "number"
+            "minimum": 0,
+            "maximum": 1,
+            "description": "DEPRECATED: Use decisionScore instead. Fraud risk score (0.00 - 1.00).",
+            "example": 0.98
           },
           "decisionScore": {
-            "description": "The authoritative blended risk score (0.0 - 1.0) derived from expert fusion.",
-            "example": 0.98,
+            "type": "number",
             "format": "float",
-            "maximum": 1.0,
-            "minimum": 0.0,
-            "type": "number"
+            "minimum": 0,
+            "maximum": 1,
+            "description": "The authoritative blended risk score (0.0 - 1.0) derived from expert fusion.",
+            "example": 0.98
           },
           "fraudScore": {
             "$ref": "#/components/schemas/FraudScore"
@@ -1647,11 +1120,11 @@
             "$ref": "#/components/schemas/RiskBreakdown"
           },
           "reasons": {
-            "description": "Structured reason details for the score.",
+            "type": "array",
             "items": {
               "$ref": "#/components/schemas/ReasonDetail"
             },
-            "type": "array"
+            "description": "Structured reason details for the score."
           },
           "entities": {
             "$ref": "#/components/schemas/EntityIds"
@@ -1662,20 +1135,16 @@
           "currency": {
             "$ref": "#/components/schemas/CurrencyCode"
           }
-        },
-        "required": [
-          "assessmentId",
-          "decision",
-          "decisionAt",
-          "decisionScore",
-          "riskScore"
-        ],
-        "type": "object"
+        }
       },
       "AccountCheckRequest": {
+        "type": "object",
+        "required": [
+          "eventSubtype"
+        ],
         "properties": {
           "eventSubtype": {
-            "description": "The specific subtype of the account event (e.g., 'signup', 'login').",
+            "type": "string",
             "enum": [
               "signup",
               "login",
@@ -1683,7 +1152,7 @@
               "mfa_reset",
               "setting_change"
             ],
-            "type": "string"
+            "description": "The specific subtype of the account event (e.g., 'signup', 'login')."
           },
           "entities": {
             "$ref": "#/components/schemas/EntityIds"
@@ -1694,21 +1163,19 @@
           "interaction": {
             "$ref": "#/components/schemas/Interaction"
           }
-        },
-        "required": [
-          "eventSubtype"
-        ],
-        "type": "object"
+        }
       },
       "KycPayload": {
+        "title": "KycPayload",
+        "type": "object",
         "description": "KYC provider result payload.",
         "properties": {
           "provider": {
-            "example": "onfido",
-            "type": "string"
+            "type": "string",
+            "example": "onfido"
           },
           "documentType": {
-            "description": "The document type used for verification.",
+            "type": "string",
             "enum": [
               "passport",
               "national_id",
@@ -1716,16 +1183,16 @@
               "other"
             ],
             "example": "national_id",
-            "type": "string"
+            "description": "The document type used for verification."
           },
           "country": {
-            "example": "US",
-            "maxLength": 2,
+            "type": "string",
             "minLength": 2,
-            "type": "string"
+            "maxLength": 2,
+            "example": "US"
           },
           "result": {
-            "description": "The result of the KYC check.",
+            "type": "string",
             "enum": [
               "passed",
               "failed",
@@ -1734,27 +1201,30 @@
               "error"
             ],
             "example": "passed",
-            "type": "string"
+            "description": "The result of the KYC check."
           },
           "reasonCodes": {
+            "type": "array",
             "description": "Array of reason codes for the KYC check.",
             "items": {
-              "example": "HIGH_VALUE",
-              "type": "string"
-            },
-            "type": "array"
+              "type": "string",
+              "example": "HIGH_VALUE"
+            }
           },
           "metadata": {
             "$ref": "#/components/schemas/MetaData"
           }
-        },
-        "title": "KycPayload",
-        "type": "object"
+        }
       },
       "KycCheckRequest": {
+        "type": "object",
+        "required": [
+          "eventSubtype",
+          "account"
+        ],
         "properties": {
           "eventSubtype": {
-            "description": "The specific subtype of the KYC event.",
+            "type": "string",
             "enum": [
               "pre_kyc_check",
               "doc_scan",
@@ -1762,7 +1232,7 @@
               "address_check",
               "sanctions_pep"
             ],
-            "type": "string"
+            "description": "The specific subtype of the KYC event."
           },
           "entities": {
             "$ref": "#/components/schemas/EntityIds"
@@ -1773,14 +1243,10 @@
           "kyc": {
             "$ref": "#/components/schemas/KycPayload"
           }
-        },
-        "required": [
-          "account",
-          "eventSubtype"
-        ],
-        "type": "object"
+        }
       },
       "EntityIds": {
+        "type": "object",
         "description": "Canonical entity identifiers (tenant/client/user/device/session). Do not send raw PII. Hash emails/phones/addresses as sha256 and prefix with 'sha256_'.\nTiered support:\n  - tenantId is the top-level SaaS customer (required for all flows).\n  - clientId is the tenant's downstream business customer (e.g. merchant/partner) and MAY be omitted for\n    processor / bank / PSP-style integrations.\n  - endCustomerId is the tenant/client's consumer or business account (cardholder, shopper, etc.) and\n    MAY be omitted for purely device- or instrument-level checks.\n",
         "properties": {
           "tenantId": {
@@ -1792,47 +1258,48 @@
           "endCustomerId": {
             "$ref": "#/components/schemas/EndCustomerId"
           },
-          "memberId": {
-            "$ref": "#/components/schemas/MemberId"
+          "operatorId": {
+            "$ref": "#/components/schemas/OperatorId"
+          },
+          "auth": {
+            "$ref": "#/components/schemas/AuthContext"
+          },
+          "skuId": {
+            "$ref": "#/components/schemas/SkuId"
+          },
+          "skuHandle": {
+            "$ref": "#/components/schemas/SkuHandle"
           },
           "paymentInstrumentId": {
-            "description": "Tokenized instrument ID (non-PCI).",
-            "example": "tok_abcdef1234567890",
-            "maxLength": 100,
-            "pattern": "^[a-zA-Z0-9\\-_:]{2,96}$",
             "type": "string",
-            "x-alogram-origin": "server",
-            "x-alogram-importance": "recommended"
+            "description": "Tokenized instrument ID (non-PCI).",
+            "pattern": "^[a-zA-Z0-9\\-_:]{2,96}$",
+            "maxLength": 100,
+            "example": "tok_abcdef1234567890"
           },
           "deviceId": {
-            "description": "Server-issued stable device token (device-level identifier).\nShould persist across sessions and logins on the same browser/device.\n",
-            "example": "did_a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6",
-            "maxLength": 100,
-            "pattern": "^did_[a-zA-Z0-9\\-_:]{2,96}$",
             "type": "string",
-            "x-alogram-origin": "client",
-            "x-alogram-importance": "critical",
-            "x-alogram-generator": "uuid-v4-prefix"
+            "description": "Server-issued stable device token (device-level identifier).\nShould persist across sessions and logins on the same browser/device.\n",
+            "pattern": "^did_[a-zA-Z0-9\\-_:]{2,96}$",
+            "maxLength": 100,
+            "example": "did_a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6"
           },
           "sessionId": {
-            "description": "Application/user session identifier (login or checkout session).\nTypically rotates more frequently than deviceId and may be tied to authentication.\n",
-            "example": "sid_a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6",
-            "maxLength": 100,
-            "pattern": "^sid_[a-zA-Z0-9\\-_:]{2,96}$",
             "type": "string",
-            "x-alogram-origin": "client",
-            "x-alogram-importance": "critical",
-            "x-alogram-generator": "uuid-v4-prefix"
+            "description": "Application/user session identifier (login or checkout session).\nTypically rotates more frequently than deviceId and may be tied to authentication.\n",
+            "pattern": "^sid_[a-zA-Z0-9\\-_:]{2,96}$",
+            "maxLength": 100,
+            "example": "sid_a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6"
+          },
+          "agent": {
+            "$ref": "#/components/schemas/AgentManifest"
           },
           "emailHash": {
-            "description": "Normalized+lowercased email hash (e.g., sha256).",
-            "example": "sha256_abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890",
-            "maxLength": 71,
-            "pattern": "^sha256_[0-9a-f]{64}$",
             "type": "string",
-            "x-alogram-origin": "server",
-            "x-alogram-importance": "recommended",
-            "x-alogram-generator": "sha256-prefix"
+            "pattern": "^sha256_[0-9a-f]{64}$",
+            "maxLength": 71,
+            "description": "Normalized+lowercased email hash (e.g., sha256).",
+            "example": "sha256_abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890"
           },
           "emailDomainHash": {
             "description": "Normalized+lowercased email *domain* hash (e.g., sha256).",
@@ -1842,39 +1309,39 @@
             "type": "string"
           },
           "phoneHash": {
-            "description": "Normalized+lowercased phone hash (e.g., sha256).",
-            "example": "sha256_e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-            "maxLength": 71,
+            "type": "string",
             "pattern": "^sha256_[0-9a-f]{64}$",
-            "type": "string"
+            "maxLength": 71,
+            "description": "Normalized+lowercased phone hash (e.g., sha256).",
+            "example": "sha256_e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
           },
           "shippingAddressHash": {
-            "description": "Normalized+lowercased shipping address hash (e.g., sha256).",
-            "example": "sha256_e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-            "maxLength": 71,
+            "type": "string",
             "pattern": "^sha256_[0-9a-f]{64}$",
-            "type": "string"
+            "maxLength": 71,
+            "description": "Normalized+lowercased shipping address hash (e.g., sha256).",
+            "example": "sha256_e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
           },
           "billingAddressHash": {
-            "description": "Normalized+lowercased billing address hash (e.g., sha256).",
-            "example": "sha256_e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-            "maxLength": 71,
+            "type": "string",
             "pattern": "^sha256_[0-9a-f]{64}$",
-            "type": "string"
+            "maxLength": 71,
+            "description": "Normalized+lowercased billing address hash (e.g., sha256).",
+            "example": "sha256_e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
           }
-        },
-        "type": "object"
+        }
       },
       "PaymentIntentId": {
-        "description": "Server-minted unique payment identifier.",
-        "example": "pi_0123456789abcdef0123456789abcdef",
-        "maxLength": 35,
-        "minLength": 35,
-        "pattern": "^pi_[a-f0-9]{32}$",
+        "type": "string",
         "title": "PaymentIntentId",
-        "type": "string"
+        "minLength": 35,
+        "maxLength": 35,
+        "pattern": "^pi_[a-f0-9]{32}$",
+        "description": "Server-minted unique payment identifier.",
+        "example": "pi_0123456789abcdef0123456789abcdef"
       },
       "Account": {
+        "type": "object",
         "description": "The application-layer Account object.",
         "example": {
           "email": "someemail@example-emails.com",
@@ -1906,11 +1373,10 @@
           "metadata": {
             "$ref": "#/components/schemas/MetaData"
           }
-        },
-        "type": "object"
+        }
       },
       "InteractionTypeEnum": {
-        "description": "The type of interaction being recorded.",
+        "type": "string",
         "enum": [
           "login",
           "feature_use",
@@ -1919,10 +1385,14 @@
           "3rd_party_event",
           "custom_event"
         ],
-        "example": "login",
-        "type": "string"
+        "description": "The type of interaction being recorded.",
+        "example": "login"
       },
       "Interaction": {
+        "type": "object",
+        "required": [
+          "interactionType"
+        ],
         "description": "The application-layer Interaction object.",
         "example": {
           "locationId": "loc_1234",
@@ -1953,34 +1423,11 @@
           "metadata": {
             "$ref": "#/components/schemas/MetaData"
           }
-        },
-        "required": [
-          "interactionType"
-        ],
-        "type": "object"
+        }
       },
       "PaymentMethod": {
+        "title": "PaymentMethod",
         "description": "Union of instrument-specific payment details.",
-        "discriminator": {
-          "mapping": {
-            "card": "#/components/schemas/Card",
-            "wallet": "#/components/schemas/Wallet",
-            "realtime": "#/components/schemas/Realtime",
-            "bank_transfer": "#/components/schemas/BankTransfer",
-            "crypto": "#/components/schemas/Crypto",
-            "invoice": "#/components/schemas/Invoice"
-          },
-          "propertyName": "type"
-        },
-        "example": {
-          "type": "card",
-          "cardNetwork": "visa",
-          "cardType": "credit",
-          "bin": "411111",
-          "issuerCountry": "US",
-          "avsResult": "Y",
-          "cvvResult": "M"
-        },
         "oneOf": [
           {
             "$ref": "#/components/schemas/Card"
@@ -2001,9 +1448,34 @@
             "$ref": "#/components/schemas/Invoice"
           }
         ],
-        "title": "PaymentMethod"
+        "discriminator": {
+          "propertyName": "type",
+          "mapping": {
+            "card": "#/components/schemas/Card",
+            "wallet": "#/components/schemas/Wallet",
+            "realtime": "#/components/schemas/Realtime",
+            "bank_transfer": "#/components/schemas/BankTransfer",
+            "crypto": "#/components/schemas/Crypto",
+            "invoice": "#/components/schemas/Invoice"
+          }
+        },
+        "example": {
+          "type": "card",
+          "cardNetwork": "visa",
+          "cardType": "credit",
+          "bin": "411111",
+          "issuerCountry": "US",
+          "avsResult": "Y",
+          "cvvResult": "M"
+        }
       },
       "Purchase": {
+        "type": "object",
+        "required": [
+          "amount",
+          "currency",
+          "paymentMethod"
+        ],
         "description": "Purchase details for fraud checks; core fields are common, instrument specifics live in `paymentMethod`.\n",
         "example": {
           "locationId": "loc_1234",
@@ -2061,11 +1533,11 @@
             "$ref": "#/components/schemas/OrderContext"
           },
           "discounts": {
-            "description": "List of discount codes applied to the purchase.",
+            "type": "array",
             "items": {
               "$ref": "#/components/schemas/DiscountCode"
             },
-            "type": "array"
+            "description": "List of discount codes applied to the purchase."
           },
           "payerType": {
             "$ref": "#/components/schemas/PayerTypeEnum"
@@ -2079,59 +1551,58 @@
           "metadata": {
             "$ref": "#/components/schemas/MetaData"
           }
-        },
-        "required": [
-          "amount",
-          "currency",
-          "paymentMethod"
-        ],
-        "type": "object"
+        }
       },
       "DiscountCode": {
+        "type": "object",
+        "title": "DiscountCode",
+        "required": [
+          "code"
+        ],
         "properties": {
           "code": {
+            "type": "string",
             "description": "The discount code string (e.g., 'SUMMER20').",
-            "example": "SAVE20",
-            "type": "string"
+            "example": "SAVE20"
           },
           "amount": {
-            "description": "The monetary value saved by this discount.",
-            "example": 10.0,
+            "type": "number",
             "format": "float",
-            "type": "number"
+            "description": "The monetary value saved by this discount.",
+            "example": 10
           },
           "type": {
-            "description": "The type of discount applied.",
+            "type": "string",
             "enum": [
               "percentage",
               "fixed_amount",
               "free_shipping",
               "buy_x_get_y"
             ],
-            "example": "percentage",
-            "type": "string"
+            "description": "The type of discount applied.",
+            "example": "percentage"
           },
           "usageLimitPerUser": {
+            "type": "integer",
             "description": "Optional: The number of times a single user/device is allowed to use this specific code.",
-            "example": 1,
-            "type": "integer"
+            "example": 1
           }
-        },
-        "required": [
-          "code"
-        ],
-        "title": "DiscountCode",
-        "type": "object"
+        }
       },
       "Card": {
+        "type": "object",
+        "title": "Card",
+        "required": [
+          "type"
+        ],
         "description": "Card attributes (network, BIN/IIN, issuer country, AVS/CVV, SCA, optional 3DS).",
         "properties": {
           "type": {
+            "type": "string",
             "description": "Fixed to `card` for this schema.",
             "enum": [
               "card"
-            ],
-            "type": "string"
+            ]
           },
           "cardNetwork": {
             "$ref": "#/components/schemas/CardNetworkEnum"
@@ -2140,12 +1611,12 @@
             "$ref": "#/components/schemas/PaymentCardTypeEnum"
           },
           "bin": {
+            "type": "string",
             "description": "Bank Identification Number (IIN). First 6-8 digits of the PAN; do not send full PAN.",
-            "example": "411111",
-            "maxLength": 8,
-            "minLength": 6,
             "pattern": "^[0-9]{6,8}$",
-            "type": "string"
+            "minLength": 6,
+            "maxLength": 8,
+            "example": "411111"
           },
           "issuerCountry": {
             "$ref": "#/components/schemas/CountryCode"
@@ -2162,152 +1633,152 @@
           "threeDS": {
             "$ref": "#/components/schemas/ThreeDSData"
           }
-        },
+        }
+      },
+      "Wallet": {
+        "type": "object",
+        "title": "Wallet",
         "required": [
           "type"
         ],
-        "title": "Card",
-        "type": "object"
-      },
-      "Wallet": {
         "description": "Digital wallet attributes (e.g., PayPal, Apple Pay, Google Pay).",
         "properties": {
           "type": {
+            "type": "string",
             "description": "Fixed to `wallet` for this schema.",
             "enum": [
               "wallet"
-            ],
-            "type": "string"
+            ]
           },
           "walletType": {
             "$ref": "#/components/schemas/PaymentWalletTypeEnum"
           }
-        },
+        }
+      },
+      "Realtime": {
+        "type": "object",
+        "title": "Realtime",
         "required": [
           "type"
         ],
-        "title": "Wallet",
-        "type": "object"
-      },
-      "Realtime": {
         "description": "Real-time account-to-account rails (e.g., Zelle, RTP, FedNow, Faster Payments, UPI).",
         "properties": {
           "type": {
+            "type": "string",
             "description": "Fixed to `realtime` for this schema.",
             "enum": [
               "realtime"
-            ],
-            "type": "string"
+            ]
           },
           "realtimeType": {
             "$ref": "#/components/schemas/PaymentRealtimeTypeEnum"
           }
-        },
+        }
+      },
+      "BankTransfer": {
+        "type": "object",
+        "title": "BankTransfer",
         "required": [
           "type"
         ],
-        "title": "Realtime",
-        "type": "object"
-      },
-      "BankTransfer": {
         "description": "Traditional bank transfer (e.g., ACH, SEPA Credit Transfer); keep payload minimal.",
         "properties": {
           "type": {
+            "type": "string",
             "description": "Fixed to `bank_transfer` for this schema.",
             "enum": [
               "bank_transfer"
-            ],
-            "type": "string"
+            ]
           }
-        },
+        }
+      },
+      "Crypto": {
+        "type": "object",
+        "title": "Crypto",
         "required": [
           "type"
         ],
-        "title": "BankTransfer",
-        "type": "object"
-      },
-      "Crypto": {
         "description": "Cryptocurrency/stablecoin settlement details; include only non-secret identifiers.",
         "properties": {
           "type": {
+            "type": "string",
             "description": "Fixed to `crypto` for this schema.",
             "enum": [
               "crypto"
-            ],
-            "type": "string"
+            ]
           }
-        },
+        }
+      },
+      "Invoice": {
+        "type": "object",
+        "title": "Invoice",
         "required": [
           "type"
         ],
-        "title": "Crypto",
-        "type": "object"
-      },
-      "Invoice": {
         "description": "Invoice/pay-later workflows where settlement is asynchronous.",
         "properties": {
           "type": {
+            "type": "string",
             "description": "Fixed to `invoice` for this schema.",
             "enum": [
               "invoice"
-            ],
-            "type": "string"
+            ]
           }
-        },
-        "required": [
-          "type"
-        ],
-        "title": "Invoice",
-        "type": "object"
+        }
       },
       "TransactionId": {
-        "description": "A unique identifier for the transaction. Must be between 3 and 50 characters and only contain alphanumeric characters, underscores, or hyphens.\n",
-        "example": "tx_123",
-        "maxLength": 50,
+        "type": "string",
         "minLength": 3,
+        "maxLength": 50,
         "pattern": "^[a-zA-Z0-9\\-_]+$",
-        "type": "string"
+        "description": "A unique identifier for the transaction. Must be between 3 and 50 characters and only contain alphanumeric characters, underscores, or hyphens.\n",
+        "example": "tx_123"
       },
       "CurrencyCode": {
-        "description": "ISO 4217 currency code (e.g., 'USD').",
-        "example": "USD",
-        "maxLength": 3,
-        "minLength": 3,
+        "type": "string",
         "pattern": "^[A-Z]{3}$",
-        "type": "string"
+        "minLength": 3,
+        "maxLength": 3,
+        "example": "USD",
+        "description": "ISO 4217 currency code (e.g., 'USD')."
       },
       "PurchaseAmount": {
-        "description": "Value of the purchase in the specified currency. Must be a positive number with up to two decimal places.\n",
-        "example": 23.0,
+        "type": "number",
         "format": "float",
-        "maximum": 10000000,
         "minimum": 0.01,
-        "type": "number"
+        "maximum": 10000000,
+        "example": 23,
+        "description": "Value of the purchase in the specified currency. Must be a positive number with up to two decimal places.\n"
       },
       "PaymentCardTypeEnum": {
-        "description": "The type of card used for the payment.",
+        "type": "string",
         "enum": [
           "credit",
           "debit",
           "prepaid"
         ],
         "example": "credit",
-        "type": "string"
+        "description": "The type of card used for the payment."
       },
       "PaymentWalletTypeEnum": {
-        "description": "The type of digital wallet used for the payment.",
+        "type": "string",
         "enum": [
           "paypal",
           "apple_pay",
           "google_pay",
           "cash_app",
-          "venmo"
+          "venmo",
+          "link",
+          "shop_pay",
+          "amazon_pay",
+          "samsung_pay",
+          "other"
         ],
         "example": "paypal",
-        "type": "string"
+        "description": "The type of digital wallet used for the payment."
       },
       "PaymentRealtimeTypeEnum": {
-        "description": "The type of real-time payment network used.",
+        "type": "string",
         "enum": [
           "zelle",
           "rtp",
@@ -2316,19 +1787,20 @@
           "upi"
         ],
         "example": "zelle",
-        "type": "string"
+        "description": "The type of real-time payment network used."
       },
       "PayerTypeEnum": {
-        "default": "consumer",
-        "description": "The type of payer (consumer or business).",
+        "type": "string",
         "enum": [
           "consumer",
           "business"
         ],
         "example": "consumer",
-        "type": "string"
+        "description": "The type of payer (consumer or business).",
+        "default": "consumer"
       },
       "StoredCredentialContext": {
+        "type": "object",
         "description": "Minimal stored-credential / recurrence context.",
         "properties": {
           "usage": {
@@ -2340,31 +1812,30 @@
           "initiator": {
             "$ref": "#/components/schemas/PurchaseInitiatorEnum"
           }
-        },
-        "type": "object"
+        }
       },
       "RiskLevelEnum": {
-        "description": "The risk level of the entity.",
+        "type": "string",
         "enum": [
           "low",
           "medium",
           "high"
         ],
-        "example": "medium",
-        "type": "string"
+        "description": "The risk level of the entity.",
+        "example": "medium"
       },
       "ConfidenceEnum": {
-        "description": "The confidence level of the risk assessment.",
+        "type": "string",
         "enum": [
           "low",
           "medium",
           "high"
         ],
-        "example": "medium",
-        "type": "string"
+        "description": "The confidence level of the risk assessment.",
+        "example": "medium"
       },
       "FraudScore": {
-        "description": "Fraud score for a specific transaction or entity.",
+        "type": "object",
         "properties": {
           "riskLevel": {
             "$ref": "#/components/schemas/RiskLevelEnum"
@@ -2373,27 +1844,27 @@
             "$ref": "#/components/schemas/ConfidenceEnum"
           },
           "score": {
-            "description": "Fraud risk score (0.00 - 1.00).",
-            "example": 0.98,
+            "type": "number",
             "format": "float",
-            "maximum": 1.0,
-            "minimum": 0.0,
-            "type": "number"
+            "minimum": 0,
+            "maximum": 1,
+            "description": "Fraud risk score (0.00 - 1.00).",
+            "example": 0.98
           },
           "explanation": {
-            "description": "A human-readable explanation of the fraud score, if available.",
-            "example": "Sleeper account",
+            "type": "string",
             "maxLength": 512,
-            "type": "string"
+            "description": "A human-readable explanation of the fraud score, if available.",
+            "example": "Sleeper account"
           }
         },
         "required": [
           "riskLevel"
         ],
-        "type": "object"
+        "description": "Fraud score for a specific transaction or entity."
       },
       "RiskCategoryEnum": {
-        "description": "High-level business category for risk signals.",
+        "type": "string",
         "enum": [
           "geography",
           "identity",
@@ -2401,74 +1872,75 @@
           "transaction",
           "network"
         ],
-        "type": "string"
+        "description": "High-level business category for risk signals."
       },
       "ReasonDetail": {
+        "type": "object",
         "description": "Merchant-friendly detail for a specific risk reason.",
+        "required": [
+          "code",
+          "category",
+          "displayName"
+        ],
         "properties": {
           "code": {
-            "description": "Technical reason code (e.g., GEO_COUNTRY_SANCTIONED).",
-            "type": "string"
+            "type": "string",
+            "description": "Technical reason code (e.g., GEO_COUNTRY_SANCTIONED)."
           },
           "category": {
             "$ref": "#/components/schemas/RiskCategoryEnum"
           },
           "displayName": {
-            "description": "Merchant-friendly name for the risk reason.",
-            "type": "string"
+            "type": "string",
+            "description": "Merchant-friendly name for the risk reason."
           },
           "description": {
-            "description": "Detailed explanation of the risk signal.",
-            "type": "string"
+            "type": "string",
+            "description": "Detailed explanation of the risk signal."
           },
           "recommendedAction": {
-            "description": "Suggested action for the merchant to mitigate this specific risk.",
-            "type": "string"
+            "type": "string",
+            "description": "Suggested action for the merchant to mitigate this specific risk."
           }
-        },
-        "required": [
-          "category",
-          "code",
-          "displayName"
-        ],
-        "type": "object"
+        }
       },
       "CategorySignal": {
+        "type": "object",
         "description": "Risk analysis for a specific business category.",
         "properties": {
           "level": {
             "$ref": "#/components/schemas/RiskLevelEnum"
           },
           "score": {
-            "description": "Category-specific risk score (0.00 - 1.00).",
+            "type": "number",
             "format": "float",
-            "maximum": 1.0,
-            "minimum": 0.0,
-            "type": "number"
+            "minimum": 0,
+            "maximum": 1,
+            "description": "Category-specific risk score (0.00 - 1.00)."
           },
           "reasons": {
-            "description": "Specific reason codes for this category.",
+            "type": "array",
             "items": {
               "type": "string"
             },
-            "type": "array"
+            "description": "Specific reason codes for this category."
           },
           "metadata": {
+            "type": "object",
             "description": "Derived evidence and enrichment data for this category.",
             "example": {
               "ip_country": "GB",
               "ip_city": "London",
               "is_proxy": true
-            },
-            "type": "object"
+            }
           }
         },
         "required": [
           "level"
-        ],
-        "type": "object"
+        ]
       },
       "RiskBreakdown": {
+        "type": "object",
         "description": "Breakdown of risk signals by business category.",
         "properties": {
           "geography": {
@@ -2486,22 +1958,21 @@
           "network": {
             "$ref": "#/components/schemas/CategorySignal"
           }
-        },
-        "type": "object"
+        }
       },
       "ChannelEnum": {
-        "description": "pos: 'Point of Sale', ecom: 'E-commerce', in_app: 'In-App Purchase', ivr: 'Interactive Voice Response'.\n",
+        "type": "string",
         "enum": [
           "pos",
           "ecom",
           "in_app",
           "ivr"
         ],
-        "example": "pos",
-        "type": "string"
+        "description": "pos: 'Point of Sale', ecom: 'E-commerce', in_app: 'In-App Purchase', ivr: 'Interactive Voice Response'.\n",
+        "example": "pos"
       },
       "EntryMethodEnum": {
-        "description": "The method used to capture card data.",
+        "type": "string",
         "enum": [
           "chip",
           "contactless",
@@ -2511,11 +1982,11 @@
           "wallet_token",
           "network_token"
         ],
-        "example": "chip",
-        "type": "string"
+        "description": "The method used to capture card data.",
+        "example": "chip"
       },
       "CardNetworkEnum": {
-        "description": "The type of card network.",
+        "type": "string",
         "enum": [
           "visa",
           "mastercard",
@@ -2525,11 +1996,11 @@
           "unionpay",
           "other"
         ],
-        "example": "mastercard",
-        "type": "string"
+        "description": "The type of card network.",
+        "example": "mastercard"
       },
       "AvsResultEnum": {
-        "description": "AVS response codes:\nY: Address and 5-digit ZIP match\nN: Address and 5-digit ZIP do not match\nA: Address matches, ZIP does not\nZ: ZIP matches, address does not\nU: Address unavailable\nR: System unavailable\nS: Not supported\nG: Global non-AVS\nB: International AVS\nC: Street address and postal code not verified due to incompatible formats\nD: Street address and postal code not verified due to incompatible formats\nM: Street address and postal code match\nP: Street address not verified. Postal code matches.\nX: Street address and 9-digit ZIP match\nW: Street address not verified. 9-digit ZIP matches.\n",
+        "type": "string",
         "enum": [
           "Y",
           "N",
@@ -2547,11 +2018,11 @@
           "X",
           "W"
         ],
-        "example": "Y",
-        "type": "string"
+        "description": "AVS response codes:\nY: Address and 5-digit ZIP match\nN: Address and 5-digit ZIP do not match\nA: Address matches, ZIP does not\nZ: ZIP matches, address does not\nU: Address unavailable\nR: System unavailable\nS: Not supported\nG: Global non-AVS\nB: International AVS\nC: Street address and postal code not verified due to incompatible formats\nD: Street address and postal code not verified due to incompatible formats\nM: Street address and postal code match\nP: Street address not verified. Postal code matches.\nX: Street address and 9-digit ZIP match\nW: Street address not verified. 9-digit ZIP matches.\n",
+        "example": "Y"
       },
       "CvvResultEnum": {
-        "description": "M: CVV match\nN: CVV no match\nP: Not processed\nS: Should have been present\nU: Unavailable\n",
+        "type": "string",
         "enum": [
           "M",
           "N",
@@ -2559,11 +2030,11 @@
           "S",
           "U"
         ],
-        "example": "U",
-        "type": "string"
+        "description": "M: CVV match\nN: CVV no match\nP: Not processed\nS: Should have been present\nU: Unavailable\n",
+        "example": "U"
       },
       "ScaMethodEnum": {
-        "description": "The method used for Strong Customer Authentication (SCA).",
+        "type": "string",
         "enum": [
           "none",
           "3ds_v1",
@@ -2573,63 +2044,63 @@
           "fido2",
           "other"
         ],
-        "example": "biometric",
-        "type": "string"
+        "description": "The method used for Strong Customer Authentication (SCA).",
+        "example": "biometric"
       },
       "ThreeDSData": {
+        "type": "object",
         "description": "3D Secure (3DS) data for card transactions.",
         "properties": {
           "version": {
-            "description": "The version of the 3D Secure protocol used (e.g., '2.2.0').",
+            "type": "string",
             "example": "2.2.0",
-            "type": "string"
+            "description": "The version of the 3D Secure protocol used (e.g., '2.2.0')."
           },
           "eci": {
-            "description": "Electronic Commerce Indicator. Values indicate the outcome of 3D Secure authentication.\n",
+            "type": "string",
             "example": "05",
-            "type": "string"
+            "description": "Electronic Commerce Indicator. Values indicate the outcome of 3D Secure authentication.\n"
           },
           "flow": {
-            "description": "The flow of the 3D Secure authentication. 'frictionless' means no challenge was presented to the cardholder, 'challenge' means the cardholder was challenged.\n",
+            "type": "string",
             "enum": [
               "frictionless",
               "challenge"
             ],
             "example": "frictionless",
-            "type": "string"
+            "description": "The flow of the 3D Secure authentication. 'frictionless' means no challenge was presented to the cardholder, 'challenge' means the cardholder was challenged.\n"
           },
           "liabilityShift": {
+            "type": "boolean",
             "description": "Indicates whether liability for chargebacks has shifted to the issuer (true) or remains with the merchant (false).\n",
-            "example": true,
-            "type": "boolean"
+            "example": true
           },
           "cavvPresent": {
+            "type": "boolean",
             "description": "Indicates whether the Cardholder Authentication Verification Value (CAVV) was present in the 3DS message.\n",
-            "example": true,
-            "type": "boolean"
+            "example": true
           }
-        },
-        "type": "object"
+        }
       },
       "MerchantContext": {
+        "type": "object",
         "description": "Merchant context for the purchase.",
         "properties": {
           "mcc": {
-            "description": "Merchant Category Code (MCC) for the merchant.",
-            "example": "5942",
-            "maxLength": 4,
-            "minLength": 4,
+            "type": "string",
             "pattern": "^[0-9]{4}$",
-            "type": "string"
+            "minLength": 4,
+            "maxLength": 4,
+            "description": "Merchant Category Code (MCC) for the merchant.",
+            "example": "5942"
           },
           "merchantCountry": {
             "$ref": "#/components/schemas/CountryCode"
           }
-        },
-        "type": "object"
+        }
       },
       "Identity": {
-        "description": "Optional raw identity details for the account associated with the purchase.\nThese fields (email, phone, addresses) are used for normalization, hashing,\nand risk feature extraction (e.g., email/phone/domain scoring, address risk),\nand are not stored in raw form by Alogram.\n\nWhen provided, Alogram will derive and/or cross-check:\n- emailHash / phoneHash / shippingAddressHash / billingAddressHash\n  in the internal entity model\n- email/phone/domain risk signals\n- address consistency and geo-distance checks\n",
+        "description": "Optional raw identity details for the account associated with the purchase.\nThese fields (email, phone, addresses) are used for normalization, hashing,\nand risk feature extraction (e.g., email/phone/domain scoring, address risk),\nand are not stored in raw form by Alogram.\n\nWhen provided, Alogram will derive and/or cross-check:\n- emailHash / phoneHash / shippingAddressHash / billingAddressHash\n  in the Alogram entity model\n- email/phone/domain risk signals\n- address consistency and geo-distance checks\n",
         "properties": {
           "email": {
             "$ref": "#/components/schemas/EmailAddress"
@@ -2651,24 +2122,25 @@
             "$ref": "#/components/schemas/PostalAddress"
           },
           "isBot": {
+            "type": "boolean",
             "description": "Optional: Set to true if client-side bot detection (e.g. reCAPTCHA) triggered.",
-            "example": false,
-            "type": "boolean"
+            "example": false
           },
           "emailReputation": {
-            "description": "Optional: Client-side assessment of email reputation.",
+            "type": "string",
             "enum": [
               "low",
               "medium",
               "high"
             ],
-            "example": "high",
-            "type": "string"
+            "description": "Optional: Client-side assessment of email reputation.",
+            "example": "high"
           }
         },
         "type": "object"
       },
       "OrderContext": {
+        "type": "object",
         "description": "Order context for the purchase.",
         "example": {
           "orderId": "ORD-789012",
@@ -2678,65 +2150,64 @@
         },
         "properties": {
           "orderId": {
+            "type": "string",
             "description": "Unique identifier for the order.",
-            "example": "ORD-789012",
-            "type": "string"
+            "example": "ORD-789012"
           },
           "orderTotal": {
             "$ref": "#/components/schemas/PurchaseAmount"
           },
           "shippingMethod": {
-            "description": "Shipping method for the order.",
+            "type": "string",
             "enum": [
               "digital",
               "ship",
               "bopis"
             ],
-            "example": "ship",
-            "type": "string"
+            "description": "Shipping method for the order.",
+            "example": "ship"
           },
           "lineItemCount": {
-            "description": "Number of items in the order.",
-            "example": 2,
-            "maximum": 100,
+            "type": "integer",
             "minimum": 0,
-            "type": "integer"
+            "maximum": 100,
+            "description": "Number of items in the order.",
+            "example": 2
           }
-        },
-        "type": "object"
+        }
       },
       "PurchaseUsageEnum": {
-        "default": "one_time",
-        "description": "Payment use case.",
+        "type": "string",
         "enum": [
           "one_time",
           "recurring",
           "installment",
           "unscheduled"
         ],
+        "description": "Payment use case.",
         "example": "recurring",
-        "type": "string"
+        "default": "one_time"
       },
       "PurchaseSequenceEnum": {
-        "description": "First transaction in the series vs a subsequent one.",
+        "type": "string",
         "enum": [
           "first",
           "subsequent"
         ],
-        "example": "first",
-        "type": "string"
+        "description": "First transaction in the series vs a subsequent one.",
+        "example": "first"
       },
       "PurchaseInitiatorEnum": {
-        "description": "Who initiated the transaction (CIT vs MIT).",
+        "type": "string",
         "enum": [
           "cardholder",
           "merchant"
         ],
-        "example": "merchant",
-        "type": "string"
+        "description": "Who initiated the transaction (CIT vs MIT).",
+        "example": "merchant"
       },
       "PaymentEventType": {
-        "description": "The type of payment lifecycle event.",
+        "type": "string",
         "enum": [
           "authorization",
           "capture",
@@ -2746,72 +2217,75 @@
           "chargeback",
           "chargeback_outcome"
         ],
-        "example": "authorization",
-        "type": "string"
+        "description": "The type of payment lifecycle event.",
+        "example": "authorization"
       },
       "ExternalAssessment": {
+        "type": "object",
+        "required": [
+          "source",
+          "level"
+        ],
         "properties": {
           "source": {
+            "type": "string",
             "description": "The provider of the assessment (e.g., 'shopify', 'signifyd').",
-            "example": "shopify",
-            "type": "string"
+            "example": "shopify"
           },
           "level": {
             "$ref": "#/components/schemas/RiskLevelEnum"
           },
           "score": {
-            "description": "The raw score provided by the 3rd party (if applicable).",
+            "type": "number",
             "format": "float",
-            "type": "number"
+            "description": "The raw score provided by the 3rd party (if applicable)."
           },
           "recommendation": {
+            "type": "string",
             "description": "The specific action recommended by the 3rd party.",
-            "example": "decline",
-            "type": "string"
+            "example": "decline"
           },
           "reasonCodes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
             "description": "Raw reason codes provided by the 3rd party vendor.",
             "example": [
               "address_mismatch",
               "high_risk_country"
-            ],
-            "items": {
-              "type": "string"
-            },
-            "type": "array"
+            ]
           },
           "metadata": {
             "$ref": "#/components/schemas/MetaData"
           }
-        },
-        "required": [
-          "level",
-          "source"
-        ],
-        "type": "object"
+        }
       },
       "PaymentAuthorizationOutcome": {
+        "title": "PaymentAuthorizationOutcome",
+        "type": "object",
         "description": "Authorization outcome details.",
         "properties": {
           "approved": {
+            "type": "boolean",
             "description": "Indicates whether authorization was approved.",
-            "example": true,
-            "type": "boolean"
+            "example": true
           },
           "responseCode": {
+            "type": "string",
             "description": "Authorization response code.",
-            "example": "00",
             "maxLength": 16,
-            "type": "string"
+            "example": "00"
           }
-        },
-        "title": "PaymentAuthorizationOutcome",
-        "type": "object"
+        }
       },
       "PaymentCaptureOutcome": {
+        "title": "PaymentCaptureOutcome",
+        "type": "object",
         "description": "Capture outcome details.",
         "properties": {
           "status": {
+            "type": "string",
             "description": "Capture status.",
             "enum": [
               "none",
@@ -2819,34 +2293,34 @@
               "full",
               "failed"
             ],
-            "example": "full",
-            "type": "string"
+            "example": "full"
           }
-        },
-        "title": "PaymentCaptureOutcome",
-        "type": "object"
+        }
       },
       "PaymentRefundOutcome": {
+        "title": "PaymentRefundOutcome",
+        "type": "object",
         "description": "Refund outcome details.",
         "properties": {
           "status": {
+            "type": "string",
             "description": "Refund status.",
             "enum": [
               "none",
               "partial",
               "full"
             ],
-            "example": "none",
-            "type": "string"
+            "example": "none"
           }
-        },
-        "title": "PaymentRefundOutcome",
-        "type": "object"
+        }
       },
       "PaymentDisputeOutcome": {
+        "title": "PaymentDisputeOutcome",
+        "type": "object",
         "description": "Dispute lifecycle status for the transaction.",
         "properties": {
           "status": {
+            "type": "string",
             "description": "Dispute status.",
             "enum": [
               "none",
@@ -2855,30 +2329,30 @@
               "lost",
               "canceled"
             ],
-            "example": "open",
-            "type": "string"
+            "example": "open"
           }
-        },
-        "title": "PaymentDisputeOutcome",
-        "type": "object"
+        }
       },
       "PaymentChargeback": {
+        "title": "PaymentChargeback",
+        "type": "object",
         "description": "Chargeback details, including reason code.",
         "properties": {
           "reason": {
+            "type": "string",
             "description": "Chargeback reason code.",
-            "example": "10.4",
             "maxLength": 32,
-            "type": "string"
+            "example": "10.4"
           }
-        },
-        "title": "PaymentChargeback",
-        "type": "object"
+        }
       },
       "PaymentChargebackOutcome": {
+        "title": "PaymentChargebackOutcome",
+        "type": "object",
         "description": "Final disposition of the chargeback after investigation/representment.",
         "properties": {
           "status": {
+            "type": "string",
             "description": "Outcome of the chargeback case.",
             "enum": [
               "won",
@@ -2886,14 +2360,12 @@
               "representment",
               "reversed"
             ],
-            "example": "won",
-            "type": "string"
+            "example": "won"
           }
-        },
-        "title": "PaymentChargebackOutcome",
-        "type": "object"
+        }
       },
       "PaymentOutcome": {
+        "type": "object",
         "description": "Payment outcome details. Structured by lifecycle stage for clarity and validation. Stages include authorization, capture, refund, dispute, chargeback, and chargebackOutcome.\n",
         "example": {
           "authorization": {
@@ -2935,10 +2407,15 @@
           "chargebackOutcome": {
             "$ref": "#/components/schemas/PaymentChargebackOutcome"
           }
-        },
-        "type": "object"
+        }
       },
       "PaymentEvent": {
+        "type": "object",
+        "required": [
+          "paymentIntentId",
+          "eventType",
+          "timestamp"
+        ],
         "description": "Payment lifecycle event.",
         "example": {
           "paymentIntentId": "pi_0123456789abcdef0123456789abcdef",
@@ -2967,145 +2444,315 @@
           "metadata": {
             "$ref": "#/components/schemas/MetaData"
           }
-        },
-        "required": [
-          "eventType",
-          "paymentIntentId",
-          "timestamp"
-        ],
-        "type": "object"
+        }
       },
       "TraceId": {
-        "description": "A unique identifier for tracing requests. Must start with \"trc_\" and be followed by a 32-character  lowercase hexadecimal string (no dashes). Total length is 36 characters.\n",
-        "example": "trc_123e4567e89b12d3a456426614174000",
-        "maxLength": 36,
-        "minLength": 36,
-        "pattern": "^trc_[a-f0-9]{32}$",
+        "type": "string",
         "title": "TraceId",
-        "type": "string"
+        "minLength": 36,
+        "maxLength": 36,
+        "pattern": "^trc_[a-f0-9]{32}$",
+        "example": "trc_123e4567e89b12d3a456426614174000",
+        "description": "A unique identifier for tracing requests. Must start with \"trc_\" and be followed by a 32-character  lowercase hexadecimal string (no dashes). Total length is 36 characters.\n"
       },
       "IdempotencyKey": {
-        "description": "Unique Idempotency Key for the request.\nMust begin with `idk_` followed by a 32-character UUID4 hex string.\n",
-        "example": "idk_4f9d27e2b8f64b9e9a9cf5e9e4727d0c",
-        "maxLength": 36,
-        "minLength": 36,
-        "pattern": "^idk_[a-f0-9]{32}$",
+        "type": "string",
         "title": "IdempotencyKey",
-        "type": "string"
+        "description": "Unique Idempotency Key for the request.\nMust begin with `idk_` followed by a 32-character UUID4 hex string.\n",
+        "minLength": 36,
+        "maxLength": 36,
+        "pattern": "^idk_[a-f0-9]{32}$",
+        "example": "idk_4f9d27e2b8f64b9e9a9cf5e9e4727d0c"
       },
-      "Problem": {
-        "description": "RFC 7807 Problem Details",
-        "properties": {
-          "type": {
-            "default": "about:blank",
-            "description": "A URI reference that identifies the problem type.",
-            "example": "https://example.com/probs/validation",
-            "format": "uri",
-            "type": "string"
-          },
-          "title": {
-            "description": "A short, human-readable summary of the problem type.",
-            "example": "Validation Error",
-            "maxLength": 100,
-            "minLength": 3,
-            "type": "string"
-          },
-          "status": {
-            "description": "The HTTP status code applicable to this problem.",
-            "example": 404,
-            "maximum": 599,
-            "minimum": 100,
-            "type": "integer"
-          },
-          "detail": {
-            "description": "Human-readable explanation specific to this occurrence.",
-            "example": "The 'amount' field is required.",
-            "maxLength": 1024,
-            "minLength": 3,
-            "type": "string"
-          },
-          "instance": {
-            "description": "A URI reference that identifies the specific occurrence.",
-            "example": "https://api.alogram.ai/v1/risk/check",
-            "format": "uri",
-            "maxLength": 1024,
-            "minLength": 1,
-            "type": "string"
-          },
-          "errorCode": {
-            "description": "Application-specific error code.",
-            "example": "AUTH_001",
-            "maxLength": 50,
-            "minLength": 3,
-            "type": "string"
-          },
-          "traceId": {
-            "description": "Server-generated trace ID for debugging.",
-            "example": "trc_123e4567e89b12d3a456426614174000",
-            "type": "string"
-          }
-        },
-        "title": "Problem",
-        "type": "object"
-      },
-      "TenantId": {
-        "description": "Canonical ID for the paying organization (Tenant). Opaque, immutable, lowercase.  Must start with \"tid_\". Do not use domains or emails here. For a tenant's domain,  use a separate field (e.g., tenantDomain).\n",
-        "example": "tid_acme_01",
-        "maxLength": 64,
-        "minLength": 5,
-        "pattern": "^tid_[a-z0-9\\-_]{2,60}$",
-        "title": "TenantId",
+      "AgentProvider": {
         "type": "string",
-        "x-alogram-origin": "server",
-        "x-alogram-importance": "system"
-      },
-      "Timestamp": {
-        "description": "RFC 3339 timestamp with timezone.",
-        "example": "2023-12-14T15:45:30.123456Z",
-        "format": "timestamp with timezone",
-        "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,9})?(Z|[+-]\\d{2}:\\d{2})$",
-        "type": "string"
-      },
-      "MetaData": {
-        "description": "Optional key-value pairs providing additional context for the request.  Each key should be descriptive, and values should not exceed 2048 characters.  Each key should be descriptive.\n",
-        "example": "{\"key1\": \"value1\", \"key2\": \"value2\"}",
-        "maxLength": 2048,
-        "minLength": 1,
-        "title": "MetaData",
-        "type": "string"
-      },
-      "ClientId": {
-        "description": "Canonical ID for the Tenant\u2019s business customer (e.g., merchant/partner).  Opaque, immutable, lowercase. Must start with 'cid_'.\n",
-        "example": "cid_merchant_42",
-        "maxLength": 100,
-        "minLength": 5,
-        "pattern": "^cid_[a-z0-9\\-_]{2,96}$",
-        "title": "ClientId",
-        "type": "string",
-        "x-alogram-origin": "server",
-        "x-alogram-importance": "recommended"
+        "title": "AgentProvider",
+        "enum": [
+          "google",
+          "openai",
+          "anthropic",
+          "alogram",
+          "other"
+        ],
+        "description": "The AI system provider that issued the agent manifest."
       },
       "EndCustomerId": {
-        "description": "Canonical ID for the client\u2019s end user / consumer (account holder).  Opaque, immutable, lowercase. Must start with \"ecid_\".  Do not put PII (like emails or phone numbers) in this field.\n",
-        "example": "ecid_shopper_9f",
-        "maxLength": 100,
-        "minLength": 6,
-        "pattern": "^ecid_[a-z0-9\\-_]{2,96}$",
-        "title": "EndCustomerId",
         "type": "string",
-        "x-alogram-origin": "server",
-        "x-alogram-importance": "recommended"
-      },
-      "MemberId": {
-        "description": "Canonical ID for a Tenant member/operator (employee/contractor) using the platform.  Opaque, immutable, lowercase. Must start with 'mid_'.\n",
-        "example": "mid_ops_27",
+        "title": "EndCustomerId",
+        "pattern": "^(ecid_[a-z0-9\\-_]{2,96}|cus_[a-f0-9]{32})$",
+        "minLength": 6,
         "maxLength": 100,
+        "example": "cus_4f9d27e2b8f64b9e9a9cf5e9e4727d0c",
+        "description": "Canonical ID for the client\u2019s end user / consumer (account holder).  Opaque, immutable, lowercase. Supports \"ecid_\" slugs (Legacy) or \"cus_\" hex (Preferred).\n"
+      },
+      "AgentManifest": {
+        "type": "object",
+        "title": "AgentManifest",
+        "description": "Proof of delegation for an autonomous shopping agent (UCP/MCP compatible).  Allows PayRisk to verify the \"Who\" and \"Trust\" behind a machine-driven transaction.\n",
+        "required": [
+          "provider",
+          "model",
+          "principalId",
+          "trustTier"
+        ],
+        "properties": {
+          "provider": {
+            "$ref": "#/components/schemas/AgentProvider"
+          },
+          "model": {
+            "type": "string",
+            "example": "gemini-1.5-pro",
+            "description": "Specific model version of the agent."
+          },
+          "principalId": {
+            "$ref": "#/components/schemas/EndCustomerId"
+          },
+          "trustTier": {
+            "type": "number",
+            "format": "float",
+            "minimum": 0,
+            "maximum": 1,
+            "example": 0.95,
+            "description": "Platform-provided reputation score for the agent."
+          },
+          "capabilities": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "purchase",
+              "negotiate"
+            ],
+            "description": "Authorized scope of authority for the agent."
+          }
+        }
+      },
+      "TenantId": {
+        "type": "string",
+        "title": "TenantId",
+        "pattern": "^(tid|ten)_[a-z0-9_-]{2,64}$",
+        "minLength": 6,
+        "maxLength": 68,
+        "example": "ten_acme_01",
+        "description": "Canonical ID for the paying organization (Tenant). Opaque, immutable, lowercase.  Must start with \"tid_\" (Legacy) or \"ten_\" (Preferred).\n"
+      },
+      "ClientId": {
+        "type": "string",
+        "title": "ClientId",
+        "pattern": "^(cid|cli)_[a-z0-9_-]{2,96}$",
+        "minLength": 6,
+        "maxLength": 100,
+        "example": "cli_merchant_42",
+        "description": "Canonical ID for the Tenant\u2019s business customer (e.g., merchant/partner).  Opaque, immutable, lowercase. Must start with \"cid_\" (Legacy) or \"cli_\" (Preferred).\n"
+      },
+      "OperatorId": {
+        "type": "string",
+        "title": "OperatorId",
+        "pattern": "^(mid_[a-z0-9_-]{2,96}|op_[a-f0-9]{32})$",
         "minLength": 5,
-        "pattern": "^mid_[a-z0-9\\-_]{2,96}$",
-        "title": "MemberId",
-        "type": "string"
+        "maxLength": 100,
+        "example": "op_4f9d27e2b8f64b9e9a9cf5e9e4727d0c",
+        "description": "Canonical ID for a Tenant Operator (staff/automation) holding membership in the platform.  Opaque, immutable, lowercase. Supports \"mid_\" slugs (Legacy) or \"op_\" hex (Preferred).\n"
+      },
+      "AuthPrincipalUid": {
+        "type": "string",
+        "title": "AuthPrincipalUid",
+        "pattern": "^[a-zA-Z0-9\\-_:|@.]{10,128}$",
+        "minLength": 10,
+        "maxLength": 128,
+        "example": "abc123XYZ789",
+        "description": "Unique identifier for an authenticated principal (e.g., an identity provider UID or Subject).  Unprefixed and case-sensitive. Supports common OIDC characters like \":\", \"|\", \"@\", and \".\".\n"
+      },
+      "AuthContext": {
+        "type": "object",
+        "title": "AuthContext",
+        "description": "Contextual identity information from the authentication layer.",
+        "properties": {
+          "uid": {
+            "$ref": "#/components/schemas/AuthPrincipalUid"
+          },
+          "provider": {
+            "type": "string",
+            "example": "external",
+            "description": "The identity provider type (e.g., \"external\", \"oidc\", \"saml\")."
+          }
+        }
+      },
+      "SkuId": {
+        "type": "string",
+        "title": "SkuId",
+        "pattern": "^sku_[a-f0-9]{32}$",
+        "minLength": 36,
+        "maxLength": 37,
+        "example": "sku_4f9d27e2b8f64b9e9a9cf5e9e4727d0c",
+        "description": "Canonical ID for a marketplace product edition or billing SKU.  Always follows the Fortress-36 (sku_ + 32 hex) format.\n"
+      },
+      "SkuHandle": {
+        "type": "string",
+        "title": "SkuHandle",
+        "pattern": "^[a-z0-9\\-_]{2,64}$",
+        "minLength": 2,
+        "maxLength": 64,
+        "example": "payrisk-enterprise-v1",
+        "description": "Human-readable identifier for a SKU, used for logic and feature checks.\n"
+      },
+      "LocationId": {
+        "type": "string",
+        "title": "LocationId",
+        "pattern": "^[a-zA-Z0-9\\-_]{3,50}$",
+        "minLength": 3,
+        "maxLength": 50,
+        "description": "Unique identifier for the location where the transaction occurred.",
+        "example": "loc_1234"
+      },
+      "Fingerprint": {
+        "type": "string",
+        "title": "Fingerprint",
+        "pattern": "^fp_[a-f0-9]{32,64}$",
+        "minLength": 35,
+        "maxLength": 67,
+        "description": "Unique hash representing the device's fingerprint. Lowercase hex. Prefix \"fp_\".\n",
+        "example": "fp_5f4dcc3b5aa765d61d8327deb882cf99"
+      },
+      "UserAgent": {
+        "type": "string",
+        "title": "UserAgent",
+        "pattern": "^[ -~]{10,512}$",
+        "minLength": 10,
+        "maxLength": 512,
+        "description": "Browser's User-Agent string, useful for identifying OS and browser type.  Must be between 10 and 512 printable ASCII characters.\n",
+        "example": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)"
+      },
+      "Ipv4Address": {
+        "type": "string",
+        "title": "Ipv4Address",
+        "format": "ipv4",
+        "pattern": "^(\\d{1,3}\\.){3}\\d{1,3}$",
+        "minLength": 7,
+        "maxLength": 15,
+        "description": "IP address of the customer, client, or user that initiated the request. Each octet must be between 0 and 255.\n",
+        "example": "192.168.1.100"
+      },
+      "Ipv6Address": {
+        "type": "string",
+        "title": "Ipv6Address",
+        "format": "ipv6",
+        "description": "IPv6 address."
+      },
+      "CountryCode": {
+        "type": "string",
+        "title": "CountryCode",
+        "description": "ISO 3166-1 alpha-2 country code.",
+        "pattern": "^[A-Z]{2}$",
+        "minLength": 2,
+        "maxLength": 2,
+        "example": "FR"
+      },
+      "IpInfo": {
+        "type": "object",
+        "properties": {
+          "ipAddress": {
+            "$ref": "#/components/schemas/Ipv4Address"
+          },
+          "ipv6": {
+            "$ref": "#/components/schemas/Ipv6Address"
+          },
+          "ipVersion": {
+            "type": "string",
+            "enum": [
+              "ipv4",
+              "ipv6"
+            ],
+            "description": "IP protocol version.",
+            "default": "ipv4",
+            "example": "ipv4"
+          },
+          "ipPrefix": {
+            "type": "string",
+            "description": "CIDR, e.g., 198.51.100.0/24 or 2001:db8::/48",
+            "example": "198.51.100.0/24"
+          },
+          "asn": {
+            "type": "string",
+            "pattern": "^AS\\d+$",
+            "description": "Autonomous System Number (ASN) of the IP address.",
+            "example": "AS65536"
+          },
+          "org": {
+            "type": "string",
+            "description": "Organization associated with the IP address.",
+            "example": "Example ISP"
+          },
+          "company": {
+            "type": "string",
+            "description": "Company associated with the IP address.",
+            "example": "Example Corp"
+          },
+          "country": {
+            "$ref": "#/components/schemas/CountryCode"
+          },
+          "region": {
+            "type": "string",
+            "description": "Region associated with the IP address.",
+            "minLength": 2,
+            "maxLength": 60,
+            "example": "California"
+          },
+          "city": {
+            "type": "string",
+            "description": "City associated with the IP address.",
+            "minLength": 2,
+            "maxLength": 60,
+            "example": "Los Angeles"
+          },
+          "postalCode": {
+            "type": "string",
+            "description": "Postal code associated with the IP address.",
+            "minLength": 2,
+            "maxLength": 10,
+            "example": "90001"
+          }
+        }
+      },
+      "Integrity": {
+        "type": "object",
+        "properties": {
+          "isProxyVpnTor": {
+            "type": "boolean",
+            "description": "Indicates whether the IP address is associated with a proxy, VPN, or Tor exit node.\n",
+            "example": true
+          },
+          "isHostingProvider": {
+            "type": "boolean",
+            "description": "Indicates whether the IP address belongs to a hosting provider (e.g., data center, cloud provider).\n",
+            "example": false
+          },
+          "isHeadless": {
+            "type": "boolean",
+            "description": "Indicates whether the browser is running in headless mode (e.g., automated testing, scraping).\n",
+            "example": false
+          },
+          "isAutomation": {
+            "type": "boolean",
+            "description": "Indicates whether the request originated from an automated script or bot.\n",
+            "example": false
+          },
+          "isEmulator": {
+            "type": "boolean",
+            "description": "Indicates whether the request originated from an emulator (e.g., Android Emulator, iOS Simulator).\n",
+            "example": false
+          },
+          "isRootedJailbroken": {
+            "type": "boolean",
+            "description": "Indicates whether the device is rooted (Android) or jailbroken (iOS).\n",
+            "example": false
+          }
+        }
       },
       "DeviceInfo": {
+        "type": "object",
+        "title": "DeviceInfo",
         "description": "Aggregated device fingerprinting and behavioral patterns used for fraud detection.",
         "example": {
           "fingerprint": "fp_5f4dcc3b5aa765d61d8327deb882cf99",
@@ -3136,182 +2783,42 @@
           "integrity": {
             "$ref": "#/components/schemas/Integrity"
           }
-        },
-        "title": "DeviceInfo",
-        "type": "object"
+        }
       },
-      "Fingerprint": {
-        "description": "Unique hash representing the device's fingerprint. Lowercase hex. Prefix \"fp_\".\n",
-        "example": "fp_5f4dcc3b5aa765d61d8327deb882cf99",
-        "maxLength": 67,
-        "minLength": 35,
-        "pattern": "^fp_[a-f0-9]{32,64}$",
-        "title": "Fingerprint",
-        "type": "string"
+      "Timestamp": {
+        "type": "string",
+        "format": "timestamp with timezone",
+        "description": "RFC 3339 timestamp with timezone.",
+        "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,9})?(Z|[+-]\\d{2}:\\d{2})$",
+        "example": "2023-12-14T15:45:30.123456Z"
       },
-      "UserAgent": {
-        "description": "Browser's User-Agent string, useful for identifying OS and browser type.  Must be between 10 and 512 printable ASCII characters.\n",
-        "example": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)",
-        "maxLength": 512,
-        "minLength": 10,
-        "pattern": "^[ -~]{10,512}$",
-        "title": "UserAgent",
-        "type": "string"
-      },
-      "IpInfo": {
-        "properties": {
-          "ipAddress": {
-            "$ref": "#/components/schemas/Ipv4Address"
-          },
-          "ipv6": {
-            "$ref": "#/components/schemas/Ipv6Address"
-          },
-          "ipVersion": {
-            "default": "ipv4",
-            "description": "IP protocol version.",
-            "enum": [
-              "ipv4",
-              "ipv6"
-            ],
-            "example": "ipv4",
-            "type": "string"
-          },
-          "ipPrefix": {
-            "description": "CIDR, e.g., 198.51.100.0/24 or 2001:db8::/48",
-            "example": "198.51.100.0/24",
-            "type": "string"
-          },
-          "asn": {
-            "description": "Autonomous System Number (ASN) of the IP address.",
-            "example": "AS15169",
-            "pattern": "^AS\\d+$",
-            "type": "string"
-          },
-          "org": {
-            "description": "Organization associated with the IP address.",
-            "example": "Google LLC",
-            "type": "string"
-          },
-          "company": {
-            "description": "Company associated with the IP address.",
-            "example": "Google LLC",
-            "type": "string"
-          },
-          "country": {
-            "$ref": "#/components/schemas/CountryCode"
-          },
-          "region": {
-            "description": "Region associated with the IP address.",
-            "example": "California",
-            "maxLength": 60,
-            "minLength": 2,
-            "type": "string"
-          },
-          "city": {
-            "description": "City associated with the IP address.",
-            "example": "Los Angeles",
-            "maxLength": 60,
-            "minLength": 2,
-            "type": "string"
-          },
-          "postalCode": {
-            "description": "Postal code associated with the IP address.",
-            "example": "90001",
-            "maxLength": 10,
-            "minLength": 2,
-            "type": "string"
-          }
-        },
-        "type": "object"
-      },
-      "Ipv4Address": {
-        "description": "IP address of the customer, client, or user that initiated the request. Each octet must be between 0 and 255.\n",
-        "example": "192.168.1.100",
-        "format": "ipv4",
-        "maxLength": 15,
-        "minLength": 7,
-        "pattern": "^(\\d{1,3}\\.){3}\\d{1,3}$",
-        "title": "Ipv4Address",
-        "type": "string"
-      },
-      "Ipv6Address": {
-        "description": "IPv6 address.",
-        "format": "ipv6",
-        "title": "Ipv6Address",
-        "type": "string"
-      },
-      "CountryCode": {
-        "description": "ISO 3166-1 alpha-2 country code.",
-        "example": "FR",
-        "maxLength": 2,
-        "minLength": 2,
-        "pattern": "^[A-Z]{2}$",
-        "title": "CountryCode",
-        "type": "string"
-      },
-      "Integrity": {
-        "properties": {
-          "isProxyVpnTor": {
-            "description": "Indicates whether the IP address is associated with a proxy, VPN, or Tor exit node.\n",
-            "example": true,
-            "type": "boolean"
-          },
-          "isHostingProvider": {
-            "description": "Indicates whether the IP address belongs to a hosting provider (e.g., data center, cloud provider).\n",
-            "example": false,
-            "type": "boolean"
-          },
-          "isHeadless": {
-            "description": "Indicates whether the browser is running in headless mode (e.g., automated testing, scraping).\n",
-            "example": false,
-            "type": "boolean"
-          },
-          "isAutomation": {
-            "description": "Indicates whether the request originated from an automated script or bot.\n",
-            "example": false,
-            "type": "boolean"
-          },
-          "isEmulator": {
-            "description": "Indicates whether the request originated from an emulator (e.g., Android Emulator, iOS Simulator).\n",
-            "example": false,
-            "type": "boolean"
-          },
-          "isRootedJailbroken": {
-            "description": "Indicates whether the device is rooted (Android) or jailbroken (iOS).\n",
-            "example": false,
-            "type": "boolean"
-          }
-        },
-        "type": "object"
-      },
-      "PhoneNumber": {
-        "description": "Phone number that supports international E.164 format, as well as spaces, dashes, and parentheses.  Examples: \"+1 (415) 555-2671\", \"415-555-2671\", \"+14155552671\"\n",
-        "example": "+1 (415) 555-2671",
-        "format": "phone",
-        "maxLength": 20,
-        "minLength": 7,
-        "pattern": "^\\+?[1-9][0-9 .\\-()]{6,14}[0-9]$",
-        "title": "PhoneNumber",
-        "type": "string"
+      "MetaData": {
+        "type": "string",
+        "title": "MetaData",
+        "minLength": 1,
+        "maxLength": 2048,
+        "example": "{\"key1\": \"value1\", \"key2\": \"value2\"}",
+        "description": "Optional key-value pairs providing additional context for the request.  Each key should be descriptive, and values should not exceed 2048 characters.  Each key should be descriptive.\n"
       },
       "EmailAddress": {
-        "description": "Email address of the customer.",
-        "example": "someemail@example-emails.com",
-        "format": "email",
-        "maxLength": 320,
-        "minLength": 3,
-        "pattern": "^[a-zA-Z0-9._%+\\-]+@[a-zA-Z0-9.\\-]+\\.[a-zA-Z]{2,}$",
+        "type": "string",
         "title": "EmailAddress",
-        "type": "string"
-      },
-      "LocationId": {
-        "description": "Unique identifier for the location where the transaction occurred.",
-        "example": "loc_1234",
-        "maxLength": 50,
+        "format": "email",
+        "pattern": "^[a-zA-Z0-9._%+\\-]+@[a-zA-Z0-9.\\-]+\\.[a-zA-Z]{2,}$",
         "minLength": 3,
-        "pattern": "^[a-zA-Z0-9\\-_]{3,50}$",
-        "title": "LocationId",
-        "type": "string"
+        "maxLength": 320,
+        "description": "Email address of the customer.",
+        "example": "someemail@example-emails.com"
+      },
+      "PhoneNumber": {
+        "type": "string",
+        "title": "PhoneNumber",
+        "format": "phone",
+        "pattern": "^\\+?[1-9][0-9 .\\-()]{6,14}[0-9]$",
+        "minLength": 7,
+        "maxLength": 20,
+        "description": "Phone number that supports international E.164 format, as well as spaces, dashes, and parentheses.  Examples: \"+1 (415) 555-2671\", \"415-555-2671\", \"+14155552671\"\n",
+        "example": "+1 (415) 555-2671"
       },
       "PostalAddress": {
         "description": "Postal address used for shipping or billing. Raw values are used only\nfor normalization and risk signals; Alogram will not persist raw address\nfields in long-term storage.\n",
@@ -3351,28 +2858,137 @@
           }
         },
         "type": "object"
+      },
+      "Problem": {
+        "type": "object",
+        "title": "Problem",
+        "description": "RFC 7807 Problem Details",
+        "properties": {
+          "type": {
+            "type": "string",
+            "format": "uri",
+            "default": "about:blank",
+            "example": "https://example.com/probs/validation",
+            "description": "A URI reference that identifies the problem type."
+          },
+          "title": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 100,
+            "example": "Validation Error",
+            "description": "A short, human-readable summary of the problem type."
+          },
+          "status": {
+            "type": "integer",
+            "minimum": 100,
+            "maximum": 599,
+            "example": 404,
+            "description": "The HTTP status code applicable to this problem."
+          },
+          "detail": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 1024,
+            "example": "The 'amount' field is required.",
+            "description": "Human-readable explanation specific to this occurrence."
+          },
+          "instance": {
+            "type": "string",
+            "format": "uri",
+            "minLength": 1,
+            "maxLength": 1024,
+            "example": "https://api.alogram.ai/v1/risk/check",
+            "description": "A URI reference that identifies the specific occurrence."
+          },
+          "errorCode": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 50,
+            "example": "AUTH_001",
+            "description": "Application-specific error code."
+          },
+          "traceId": {
+            "type": "string",
+            "description": "Server-generated trace ID for debugging.",
+            "example": "trc_123e4567e89b12d3a456426614174000"
+          }
+        }
       }
     },
     "securitySchemes": {
       "ApiKey": {
-        "description": "Your Alogram API Key. To obtain a key, log in to the Alogram  Developer Portal (https://developer.alogram.ai) and create  a new Project. In production, this key is used to authenticate  backend-to-backend requests and resolve your tenant identity.\n",
+        "type": "apiKey",
         "in": "header",
         "name": "x-api-key",
-        "type": "apiKey"
+        "description": "Your Alogram API Key. To obtain a key, log in to the Alogram  Developer Portal (https://developer.alogram.ai) and create  a new Project. In production, this key is used to authenticate  backend-to-backend requests and resolve your tenant identity.\n"
       },
       "oAuth2": {
+        "type": "oauth2",
         "description": "OAuth 2.0 Authorization Code. The client obtains an access token and sends it as 'Authorization: Bearer <token>'. Apigee validates the token and injects trusted headers to the backend.\n",
         "flows": {
           "authorizationCode": {
             "authorizationUrl": "https://api.alogram.ai/oauth2/authorize",
+            "tokenUrl": "https://api.alogram.ai/oauth2/token",
             "scopes": {
               "payrisk.read": "Read fraud scores and decisions.",
               "payrisk.write": "Submit fraud checks, events, and signals."
-            },
-            "tokenUrl": "https://api.alogram.ai/oauth2/token"
+            }
           }
-        },
-        "type": "oauth2"
+        }
+      }
+    },
+    "parameters": {
+      "TraceIdHeader": {
+        "name": "x-trace-id",
+        "description": "Echoed or generated trace ID for tracking requests.",
+        "in": "header",
+        "required": false,
+        "explode": false,
+        "style": "simple",
+        "schema": {
+          "$ref": "#/components/schemas/TraceId"
+        }
+      },
+      "IdempotencyKeyHeaderRequired": {
+        "name": "x-idempotency-key",
+        "description": "Unique Idempotency-Key sent in the POST request etc.",
+        "in": "header",
+        "required": true,
+        "schema": {
+          "$ref": "#/components/schemas/IdempotencyKey"
+        }
+      },
+      "AgentManifestHeader": {
+        "name": "x-alogram-agent-manifest",
+        "description": "JSON-encoded AgentManifest for autonomous shopping agents.  Required for machine-to-machine trust validation (UCP/MCP).\n",
+        "in": "header",
+        "required": false,
+        "schema": {
+          "$ref": "#/components/schemas/AgentManifest"
+        }
+      },
+      "IdempotencyKeyHeaderOptional": {
+        "name": "x-idempotency-key",
+        "description": "Unique Idempotency-Key sent in the GET request etc.",
+        "in": "header",
+        "required": false,
+        "schema": {
+          "$ref": "#/components/schemas/IdempotencyKey"
+        }
+      }
+    },
+    "headers": {
+      "TraceIdHeader": {
+        "description": "Echoed or generated trace ID for tracking requests, returned in the response headers.",
+        "schema": {
+          "$ref": "#/components/schemas/TraceId"
+        }
+      },
+      "XIdempotencyKeyHeader": {
+        "description": "Echo of the request's x-idempotency-key header.",
+        "schema": {
+          "$ref": "#/components/schemas/IdempotencyKey"
+        }
       }
     }
   }

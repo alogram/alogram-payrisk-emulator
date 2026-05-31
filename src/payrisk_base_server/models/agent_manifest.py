@@ -17,9 +17,10 @@ from __future__ import annotations
 import json
 import pprint
 import re  # noqa: F401
-from typing import Any, ClassVar, Dict, List, Optional
+from typing import Any, ClassVar, Dict, List, Optional, Union
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from payrisk_base_server.models.agent_provider import AgentProvider
+from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from typing_extensions import Annotated
 
 try:
@@ -28,41 +29,41 @@ except ImportError:
     from typing_extensions import Self
 
 
-class MerchantContext(BaseModel):
+class AgentManifest(BaseModel):
     """
-    Merchant context for the purchase.
+    Proof of delegation for an autonomous shopping agent (UCP/MCP compatible).  Allows PayRisk to verify the \"Who\" and \"Trust\" behind a machine-driven transaction.
     """  # noqa: E501
 
-    mcc: Optional[Annotated[str, Field(min_length=4, max_length=4)]] = Field(
-        default=None, description="Merchant Category Code (MCC) for the merchant."
+    provider: AgentProvider
+    model: StrictStr = Field(description="Specific model version of the agent.")
+    principal_id: Annotated[str, Field(min_length=6, max_length=100)] = Field(
+        description='Canonical ID for the client’s end user / consumer (account holder).  Opaque, immutable, lowercase. Supports "ecid_" slugs (Legacy) or "cus_" hex (Preferred). ',
+        alias="principalId",
     )
-    merchant_country: Optional[Annotated[str, Field(min_length=2, max_length=2)]] = (
-        Field(
-            default=None,
-            description="ISO 3166-1 alpha-2 country code.",
-            alias="merchantCountry",
-        )
+    trust_tier: Union[
+        Annotated[float, Field(le=1.0, ge=0.0)], Annotated[int, Field(le=1, ge=0)]
+    ] = Field(
+        description="Platform-provided reputation score for the agent.",
+        alias="trustTier",
     )
-    __properties: ClassVar[List[str]] = ["mcc", "merchantCountry"]
+    capabilities: Optional[List[StrictStr]] = Field(
+        default=None, description="Authorized scope of authority for the agent."
+    )
+    __properties: ClassVar[List[str]] = [
+        "provider",
+        "model",
+        "principalId",
+        "trustTier",
+        "capabilities",
+    ]
 
-    @field_validator("mcc")
-    def mcc_validate_regular_expression(cls, value):
+    @field_validator("principal_id")
+    def principal_id_validate_regular_expression(cls, value):
         """Validates the regular expression"""
-        if value is None:
-            return value
-
-        if not re.match(r"^[0-9]{4}$", value):
-            raise ValueError(r"must validate the regular expression /^[0-9]{4}$/")
-        return value
-
-    @field_validator("merchant_country")
-    def merchant_country_validate_regular_expression(cls, value):
-        """Validates the regular expression"""
-        if value is None:
-            return value
-
-        if not re.match(r"^[A-Z]{2}$", value):
-            raise ValueError(r"must validate the regular expression /^[A-Z]{2}$/")
+        if not re.match(r"^(ecid_[a-z0-9\-_]{2,96}|cus_[a-f0-9]{32})$", value):
+            raise ValueError(
+                r"must validate the regular expression /^(ecid_[a-z0-9\-_]{2,96}|cus_[a-f0-9]{32})$/"
+            )
         return value
 
     model_config = {
@@ -82,7 +83,7 @@ class MerchantContext(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:
-        """Create an instance of MerchantContext from a JSON string"""
+        """Create an instance of AgentManifest from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -104,7 +105,7 @@ class MerchantContext(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Dict) -> Self:
-        """Create an instance of MerchantContext from a dict"""
+        """Create an instance of AgentManifest from a dict"""
         if obj is None:
             return None
 
@@ -112,6 +113,12 @@ class MerchantContext(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate(
-            {"mcc": obj.get("mcc"), "merchantCountry": obj.get("merchantCountry")}
+            {
+                "provider": obj.get("provider"),
+                "model": obj.get("model"),
+                "principalId": obj.get("principalId"),
+                "trustTier": obj.get("trustTier"),
+                "capabilities": obj.get("capabilities"),
+            }
         )
         return _obj
