@@ -13,7 +13,7 @@
       "name": "Apache-2.0",
       "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
     },
-    "version": "0.2.21",
+    "version": "0.2.23",
     "x-logo": {
       "url": "logo.png",
       "altText": "Alogram PayRisk Logo",
@@ -635,6 +635,138 @@
             "$ref": "#/components/responses/SharedErrorResponse"
           },
           "429": {
+            "$ref": "#/components/responses/SharedErrorResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/SharedErrorResponse"
+          }
+        }
+      }
+    },
+    "/v1/decisions": {
+      "post": {
+        "summary": "Resolve Review (Assisted Decisioning & ML Feedback)",
+        "description": "> **Coming Soon**: This endpoint is currently in active development.\nSubmits an administrative, human-in-the-loop, or autonomous agent decision to resolve a pending fraud review, trigger downstream payment capture/voids, and supply ground-truth feedback labels for ML model retraining.\n",
+        "x-badges": [
+          {
+            "name": "Coming Soon",
+            "color": "grey"
+          }
+        ],
+        "security": [
+          {
+            "ApiKey": []
+          },
+          {
+            "oAuth2": [
+              "payrisk.write"
+            ]
+          }
+        ],
+        "operationId": "resolveDecision",
+        "tags": [
+          "Roadmap & Preview"
+        ],
+        "parameters": [
+          {
+            "name": "trace-id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^trc_[a-f0-9]{32}$"
+            },
+            "description": "Lowercase, prefix-free standard distributed trace identifier."
+          },
+          {
+            "name": "idempotency-key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 3,
+              "maxLength": 128
+            },
+            "description": "Lowercase, prefix-free standard idempotency key to prevent duplicate capture/void."
+          },
+          {
+            "name": "tenant-id",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The targeted Alogram Tenant ID partition."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DecisionResolutionRequest"
+              },
+              "examples": {
+                "AgentApproveLegitCheckout": {
+                  "summary": "Autonomous SRE Agent approves a legitimate buyer agent checkout",
+                  "value": {
+                    "targetType": "payment_intent",
+                    "targetId": "pi_165e185013a14de3",
+                    "decision": "approve",
+                    "analyst": {
+                      "id": "op_9f4247a43d55cb9a",
+                      "type": "autonomous_agent"
+                    },
+                    "resolutionReason": "legit_agent_authorized",
+                    "notes": "Verified delegated buyer agent cryptographic wallet signatures."
+                  }
+                },
+                "SREBlockCardTesting": {
+                  "summary": "Human SRE Analyst blocks a malicious card testing bot attack",
+                  "value": {
+                    "targetType": "payment_intent",
+                    "targetId": "pi_4fa562e77d0345f9b71a8b56e3c25dea",
+                    "decision": "block",
+                    "analyst": {
+                      "id": "op_22d34ba75ef360d8",
+                      "type": "human_merchant"
+                    },
+                    "resolutionReason": "card_testing",
+                    "notes": "Identified automated high-frequency card testing from residential proxy range."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Decision successfully resolved and persisted to state ledger.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DecisionResolutionResponse"
+                },
+                "examples": {
+                  "ResolutionSuccess": {
+                    "summary": "Successful resolution response",
+                    "value": {
+                      "ok": true,
+                      "message": "Decision successfully resolved to [approve]",
+                      "resolvedAt": "2026-06-04T05:22:15.112Z"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/SharedErrorResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/SharedErrorResponse"
+          },
+          "422": {
             "$ref": "#/components/responses/SharedErrorResponse"
           },
           "500": {
@@ -2443,6 +2575,114 @@
           },
           "metadata": {
             "$ref": "#/components/schemas/MetaData"
+          }
+        }
+      },
+      "DecisionResolutionRequest": {
+        "type": "object",
+        "title": "DecisionResolutionRequest",
+        "required": [
+          "targetType",
+          "targetId",
+          "decision",
+          "analyst",
+          "resolutionReason"
+        ],
+        "properties": {
+          "targetType": {
+            "type": "string",
+            "description": "The business entity type being resolved.",
+            "enum": [
+              "payment_intent",
+              "account_event",
+              "agent_delegation"
+            ],
+            "example": "payment_intent"
+          },
+          "targetId": {
+            "type": "string",
+            "description": "The unique identifier of the target entity under review (e.g. pi_*).",
+            "example": "pi_165e185013a14de3"
+          },
+          "decision": {
+            "type": "string",
+            "description": "The resolution action to apply to the target.",
+            "enum": [
+              "approve",
+              "block",
+              "challenge",
+              "escalate"
+            ],
+            "example": "approve"
+          },
+          "analyst": {
+            "type": "object",
+            "required": [
+              "id",
+              "type"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "The unique ID of the operator, SRE, or autonomous agent.",
+                "example": "op_9f4247a43d55cb9a"
+              },
+              "type": {
+                "type": "string",
+                "description": "The system role of the decision maker.",
+                "enum": [
+                  "human_merchant",
+                  "automated_consensus",
+                  "autonomous_agent"
+                ],
+                "example": "autonomous_agent"
+              }
+            }
+          },
+          "resolutionReason": {
+            "type": "string",
+            "description": "The ML-feedback ground-truth reason classification.",
+            "enum": [
+              "legit_human",
+              "legit_agent_authorized",
+              "unauthorized_agent",
+              "card_testing",
+              "account_takeover",
+              "friendly_fraud"
+            ],
+            "example": "legit_agent_authorized"
+          },
+          "notes": {
+            "type": "string",
+            "description": "Additional operational notes or reasoning for this resolution.",
+            "example": "Verified buyer agent delegated wallet threshold."
+          }
+        }
+      },
+      "DecisionResolutionResponse": {
+        "type": "object",
+        "title": "DecisionResolutionResponse",
+        "required": [
+          "ok",
+          "message",
+          "resolvedAt"
+        ],
+        "properties": {
+          "ok": {
+            "type": "boolean",
+            "description": "Indicates if the decision was successfully resolved and persisted.",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "description": "Operational summary message.",
+            "example": "Decision successfully resolved to [approve]"
+          },
+          "resolvedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "ISO-8601 timestamp of resolution completion.",
+            "example": "2026-06-04T05:22:15.112Z"
           }
         }
       },

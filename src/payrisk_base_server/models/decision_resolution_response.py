@@ -17,12 +17,10 @@ from __future__ import annotations
 import json
 import pprint
 import re  # noqa: F401
+from datetime import datetime
 from typing import Any, ClassVar, Dict, List
 
-from payrisk_base_server.models.entity_ids import EntityIds
-from payrisk_base_server.models.interaction import Interaction
-from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
-from typing_extensions import Annotated
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr
 
 try:
     from typing import Self
@@ -30,26 +28,19 @@ except ImportError:
     from typing_extensions import Self
 
 
-class SignalsInteractionVariant(BaseModel):
+class DecisionResolutionResponse(BaseModel):
     """
-    Interaction batch signal variant (one or more user interactions).
+    DecisionResolutionResponse
     """  # noqa: E501
 
-    signal_type: StrictStr = Field(
-        description="Value for interaction signals.", alias="signalType"
+    ok: StrictBool = Field(
+        description="Indicates if the decision was successfully resolved and persisted."
     )
-    entities: EntityIds
-    interactions: Annotated[List[Interaction], Field(min_length=1, max_length=1000)] = (
-        Field(description="One or more interactions associated with the signal.")
+    message: StrictStr = Field(description="Operational summary message.")
+    resolved_at: datetime = Field(
+        description="ISO-8601 timestamp of resolution completion.", alias="resolvedAt"
     )
-    __properties: ClassVar[List[str]] = ["signalType", "entities", "interactions"]
-
-    @field_validator("signal_type")
-    def signal_type_validate_enum(cls, value):
-        """Validates the enum"""
-        if value not in ("interaction",):
-            raise ValueError("must be one of enum values ('interaction')")
-        return value
+    __properties: ClassVar[List[str]] = ["ok", "message", "resolvedAt"]
 
     model_config = {
         "populate_by_name": True,
@@ -68,7 +59,7 @@ class SignalsInteractionVariant(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:
-        """Create an instance of SignalsInteractionVariant from a JSON string"""
+        """Create an instance of DecisionResolutionResponse from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -86,21 +77,11 @@ class SignalsInteractionVariant(BaseModel):
             exclude={},
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of entities
-        if self.entities:
-            _dict["entities"] = self.entities.to_dict()
-        # override the default output from pydantic by calling `to_dict()` of each item in interactions (list)
-        _items = []
-        if self.interactions:
-            for _item in self.interactions:
-                if _item:
-                    _items.append(_item.to_dict())
-            _dict["interactions"] = _items
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Dict) -> Self:
-        """Create an instance of SignalsInteractionVariant from a dict"""
+        """Create an instance of DecisionResolutionResponse from a dict"""
         if obj is None:
             return None
 
@@ -109,17 +90,9 @@ class SignalsInteractionVariant(BaseModel):
 
         _obj = cls.model_validate(
             {
-                "signalType": obj.get("signalType"),
-                "entities": (
-                    EntityIds.from_dict(obj.get("entities"))
-                    if obj.get("entities") is not None
-                    else None
-                ),
-                "interactions": (
-                    [Interaction.from_dict(_item) for _item in obj.get("interactions")]
-                    if obj.get("interactions") is not None
-                    else None
-                ),
+                "ok": obj.get("ok"),
+                "message": obj.get("message"),
+                "resolvedAt": obj.get("resolvedAt"),
             }
         )
         return _obj

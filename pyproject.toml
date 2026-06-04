@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "alogram-payrisk-emulator"
-version = "0.2.21"
+version = "0.2.23"
 description = "The official Alogram PayRisk Local Emulator. A spec-compliant mock server for local development and CI/CD."
 readme = "README.md"
 requires-python = ">=3.10"

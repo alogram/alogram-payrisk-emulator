@@ -19,10 +19,7 @@ import pprint
 import re  # noqa: F401
 from typing import Any, ClassVar, Dict, List
 
-from payrisk_base_server.models.entity_ids import EntityIds
-from payrisk_base_server.models.interaction import Interaction
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
-from typing_extensions import Annotated
 
 try:
     from typing import Self
@@ -30,25 +27,28 @@ except ImportError:
     from typing_extensions import Self
 
 
-class SignalsInteractionVariant(BaseModel):
+class DecisionResolutionRequestAnalyst(BaseModel):
     """
-    Interaction batch signal variant (one or more user interactions).
+    DecisionResolutionRequestAnalyst
     """  # noqa: E501
 
-    signal_type: StrictStr = Field(
-        description="Value for interaction signals.", alias="signalType"
+    id: StrictStr = Field(
+        description="The unique ID of the operator, SRE, or autonomous agent."
     )
-    entities: EntityIds
-    interactions: Annotated[List[Interaction], Field(min_length=1, max_length=1000)] = (
-        Field(description="One or more interactions associated with the signal.")
-    )
-    __properties: ClassVar[List[str]] = ["signalType", "entities", "interactions"]
+    type: StrictStr = Field(description="The system role of the decision maker.")
+    __properties: ClassVar[List[str]] = ["id", "type"]
 
-    @field_validator("signal_type")
-    def signal_type_validate_enum(cls, value):
+    @field_validator("type")
+    def type_validate_enum(cls, value):
         """Validates the enum"""
-        if value not in ("interaction",):
-            raise ValueError("must be one of enum values ('interaction')")
+        if value not in (
+            "human_merchant",
+            "automated_consensus",
+            "autonomous_agent",
+        ):
+            raise ValueError(
+                "must be one of enum values ('human_merchant', 'automated_consensus', 'autonomous_agent')"
+            )
         return value
 
     model_config = {
@@ -68,7 +68,7 @@ class SignalsInteractionVariant(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:
-        """Create an instance of SignalsInteractionVariant from a JSON string"""
+        """Create an instance of DecisionResolutionRequestAnalyst from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -86,40 +86,16 @@ class SignalsInteractionVariant(BaseModel):
             exclude={},
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of entities
-        if self.entities:
-            _dict["entities"] = self.entities.to_dict()
-        # override the default output from pydantic by calling `to_dict()` of each item in interactions (list)
-        _items = []
-        if self.interactions:
-            for _item in self.interactions:
-                if _item:
-                    _items.append(_item.to_dict())
-            _dict["interactions"] = _items
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Dict) -> Self:
-        """Create an instance of SignalsInteractionVariant from a dict"""
+        """Create an instance of DecisionResolutionRequestAnalyst from a dict"""
         if obj is None:
             return None
 
         if not isinstance(obj, dict):
             return cls.model_validate(obj)
 
-        _obj = cls.model_validate(
-            {
-                "signalType": obj.get("signalType"),
-                "entities": (
-                    EntityIds.from_dict(obj.get("entities"))
-                    if obj.get("entities") is not None
-                    else None
-                ),
-                "interactions": (
-                    [Interaction.from_dict(_item) for _item in obj.get("interactions")]
-                    if obj.get("interactions") is not None
-                    else None
-                ),
-            }
-        )
+        _obj = cls.model_validate({"id": obj.get("id"), "type": obj.get("type")})
         return _obj

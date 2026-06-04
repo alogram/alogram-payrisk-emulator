@@ -17,12 +17,11 @@ from __future__ import annotations
 import json
 import pprint
 import re  # noqa: F401
-from typing import Any, ClassVar, Dict, List
+from typing import Any, ClassVar, Dict, List, Optional
 
-from payrisk_base_server.models.entity_ids import EntityIds
-from payrisk_base_server.models.interaction import Interaction
+from payrisk_base_server.models.decision_resolution_request_analyst import \
+    DecisionResolutionRequestAnalyst
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
-from typing_extensions import Annotated
 
 try:
     from typing import Self
@@ -30,25 +29,80 @@ except ImportError:
     from typing_extensions import Self
 
 
-class SignalsInteractionVariant(BaseModel):
+class DecisionResolutionRequest(BaseModel):
     """
-    Interaction batch signal variant (one or more user interactions).
+    DecisionResolutionRequest
     """  # noqa: E501
 
-    signal_type: StrictStr = Field(
-        description="Value for interaction signals.", alias="signalType"
+    target_type: StrictStr = Field(
+        description="The business entity type being resolved.", alias="targetType"
     )
-    entities: EntityIds
-    interactions: Annotated[List[Interaction], Field(min_length=1, max_length=1000)] = (
-        Field(description="One or more interactions associated with the signal.")
+    target_id: StrictStr = Field(
+        description="The unique identifier of the target entity under review (e.g. pi_*).",
+        alias="targetId",
     )
-    __properties: ClassVar[List[str]] = ["signalType", "entities", "interactions"]
+    decision: StrictStr = Field(
+        description="The resolution action to apply to the target."
+    )
+    analyst: DecisionResolutionRequestAnalyst
+    resolution_reason: StrictStr = Field(
+        description="The ML-feedback ground-truth reason classification.",
+        alias="resolutionReason",
+    )
+    notes: Optional[StrictStr] = Field(
+        default=None,
+        description="Additional operational notes or reasoning for this resolution.",
+    )
+    __properties: ClassVar[List[str]] = [
+        "targetType",
+        "targetId",
+        "decision",
+        "analyst",
+        "resolutionReason",
+        "notes",
+    ]
 
-    @field_validator("signal_type")
-    def signal_type_validate_enum(cls, value):
+    @field_validator("target_type")
+    def target_type_validate_enum(cls, value):
         """Validates the enum"""
-        if value not in ("interaction",):
-            raise ValueError("must be one of enum values ('interaction')")
+        if value not in (
+            "payment_intent",
+            "account_event",
+            "agent_delegation",
+        ):
+            raise ValueError(
+                "must be one of enum values ('payment_intent', 'account_event', 'agent_delegation')"
+            )
+        return value
+
+    @field_validator("decision")
+    def decision_validate_enum(cls, value):
+        """Validates the enum"""
+        if value not in (
+            "approve",
+            "block",
+            "challenge",
+            "escalate",
+        ):
+            raise ValueError(
+                "must be one of enum values ('approve', 'block', 'challenge', 'escalate')"
+            )
+        return value
+
+    @field_validator("resolution_reason")
+    def resolution_reason_validate_enum(cls, value):
+        """Validates the enum"""
+        if value not in (
+            "legit_human",
+            "legit_agent_authorized",
+            "unauthorized_agent",
+            "card_testing",
+            "account_takeover",
+            "friendly_fraud",
+        ):
+            raise ValueError(
+                "must be one of enum values ('legit_human', 'legit_agent_authorized', 'unauthorized_agent', 'card_testing', 'account_takeover', 'friendly_fraud')"
+            )
         return value
 
     model_config = {
@@ -68,7 +122,7 @@ class SignalsInteractionVariant(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:
-        """Create an instance of SignalsInteractionVariant from a JSON string"""
+        """Create an instance of DecisionResolutionRequest from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -86,21 +140,14 @@ class SignalsInteractionVariant(BaseModel):
             exclude={},
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of entities
-        if self.entities:
-            _dict["entities"] = self.entities.to_dict()
-        # override the default output from pydantic by calling `to_dict()` of each item in interactions (list)
-        _items = []
-        if self.interactions:
-            for _item in self.interactions:
-                if _item:
-                    _items.append(_item.to_dict())
-            _dict["interactions"] = _items
+        # override the default output from pydantic by calling `to_dict()` of analyst
+        if self.analyst:
+            _dict["analyst"] = self.analyst.to_dict()
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Dict) -> Self:
-        """Create an instance of SignalsInteractionVariant from a dict"""
+        """Create an instance of DecisionResolutionRequest from a dict"""
         if obj is None:
             return None
 
@@ -109,17 +156,16 @@ class SignalsInteractionVariant(BaseModel):
 
         _obj = cls.model_validate(
             {
-                "signalType": obj.get("signalType"),
-                "entities": (
-                    EntityIds.from_dict(obj.get("entities"))
-                    if obj.get("entities") is not None
+                "targetType": obj.get("targetType"),
+                "targetId": obj.get("targetId"),
+                "decision": obj.get("decision"),
+                "analyst": (
+                    DecisionResolutionRequestAnalyst.from_dict(obj.get("analyst"))
+                    if obj.get("analyst") is not None
                     else None
                 ),
-                "interactions": (
-                    [Interaction.from_dict(_item) for _item in obj.get("interactions")]
-                    if obj.get("interactions") is not None
-                    else None
-                ),
+                "resolutionReason": obj.get("resolutionReason"),
+                "notes": obj.get("notes"),
             }
         )
         return _obj

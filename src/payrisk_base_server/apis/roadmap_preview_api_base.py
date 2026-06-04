@@ -5,11 +5,15 @@ from typing import ClassVar, Dict, List, Optional, Tuple  # noqa: F401
 from payrisk_base_server.models.account_check_request import \
     AccountCheckRequest
 from payrisk_base_server.models.agent_manifest import AgentManifest
+from payrisk_base_server.models.decision_resolution_request import \
+    DecisionResolutionRequest
+from payrisk_base_server.models.decision_resolution_response import \
+    DecisionResolutionResponse
 from payrisk_base_server.models.decision_response import DecisionResponse
 from payrisk_base_server.models.kyc_check_request import KycCheckRequest
 from payrisk_base_server.models.problem import Problem
 from payrisk_base_server.security_api import get_token_ApiKey, get_token_oAuth2
-from pydantic import Field, field_validator
+from pydantic import Field, StrictStr, field_validator
 from typing_extensions import Annotated
 
 
@@ -68,4 +72,28 @@ class BaseRoadmapPreviewApi:
         ],
     ) -> DecisionResponse:
         """&gt; **Coming Soon**: This endpoint is currently in active development. Assess risk for identity verification and KYC workflows."""
+        ...
+
+    async def resolve_decision(
+        self,
+        idempotency_key: Annotated[
+            str,
+            Field(
+                min_length=3,
+                max_length=128,
+                description="Lowercase, prefix-free standard idempotency key to prevent duplicate capture/void.",
+            ),
+        ],
+        tenant_id: Annotated[
+            StrictStr, Field(description="The targeted Alogram Tenant ID partition.")
+        ],
+        decision_resolution_request: DecisionResolutionRequest,
+        trace_id: Annotated[
+            Optional[Annotated[str, Field()]],
+            Field(
+                description="Lowercase, prefix-free standard distributed trace identifier."
+            ),
+        ],
+    ) -> DecisionResolutionResponse:
+        """&gt; **Coming Soon**: This endpoint is currently in active development. Submits an administrative, human-in-the-loop, or autonomous agent decision to resolve a pending fraud review, trigger downstream payment capture/voids, and supply ground-truth feedback labels for ML model retraining."""
         ...
