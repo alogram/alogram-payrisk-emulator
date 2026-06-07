@@ -20,7 +20,7 @@ class BaseRiskScoringApi:
 
     async def risk_check(
         self,
-        x_idempotency_key: Annotated[
+        idempotency_key: Annotated[
             str,
             Field(
                 min_length=36,
@@ -29,11 +29,11 @@ class BaseRiskScoringApi:
             ),
         ],
         check_request: CheckRequest,
-        x_trace_id: Annotated[
+        trace_id: Annotated[
             Optional[Annotated[str, Field(min_length=36, max_length=36)]],
             Field(description="Echoed or generated trace ID for tracking requests."),
         ],
-        x_alogram_agent_manifest: Annotated[
+        alogram_agent_manifest: Annotated[
             Optional[AgentManifest],
             Field(
                 description="JSON-encoded AgentManifest for autonomous shopping agents.  Required for machine-to-machine trust validation (UCP/MCP). "

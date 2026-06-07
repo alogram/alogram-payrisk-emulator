@@ -13,7 +13,7 @@
       "name": "Apache-2.0",
       "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
     },
-    "version": "0.2.23",
+    "version": "0.3.0",
     "x-logo": {
       "url": "logo.png",
       "altText": "Alogram PayRisk Logo",
@@ -140,11 +140,11 @@
           "200": {
             "description": "Synchronous risk decision.",
             "headers": {
-              "x-trace-id": {
+              "trace-id": {
                 "$ref": "#/components/headers/TraceIdHeader"
               },
-              "x-idempotency-key": {
-                "$ref": "#/components/headers/XIdempotencyKeyHeader"
+              "idempotency-key": {
+                "$ref": "#/components/headers/IdempotencyKeyHeader"
               }
             },
             "content": {
@@ -156,16 +156,10 @@
                   "ApprovedResponse": {
                     "summary": "A successful low-risk decision",
                     "value": {
-                      "assessmentId": "pi_0123456789abcdef0123456789abcdef",
+                      "id": "pi_0123456789abcdef0123456789abcdef",
                       "decision": "approve",
                       "decisionAt": "2026-05-07T15:45:30.123Z",
-                      "riskScore": 0.12,
-                      "decisionScore": 0.12,
-                      "fraudScore": {
-                        "score": 0.12,
-                        "riskLevel": "low",
-                        "confidence": "high"
-                      }
+                      "riskScore": 0.12
                     }
                   }
                 }
@@ -253,11 +247,11 @@
           "202": {
             "description": "Accepted",
             "headers": {
-              "x-trace-id": {
+              "trace-id": {
                 "$ref": "#/components/headers/TraceIdHeader"
               },
-              "x-idempotency-key": {
-                "$ref": "#/components/headers/XIdempotencyKeyHeader"
+              "idempotency-key": {
+                "$ref": "#/components/headers/IdempotencyKeyHeader"
               }
             },
             "content": {
@@ -373,11 +367,11 @@
           "202": {
             "description": "Accepted",
             "headers": {
-              "x-trace-id": {
+              "trace-id": {
                 "$ref": "#/components/headers/TraceIdHeader"
               },
-              "x-idempotency-key": {
-                "$ref": "#/components/headers/XIdempotencyKeyHeader"
+              "idempotency-key": {
+                "$ref": "#/components/headers/IdempotencyKeyHeader"
               }
             },
             "content": {
@@ -781,11 +775,11 @@
       "DecisionResponse": {
         "description": "Synchronous risk decision.",
         "headers": {
-          "x-trace-id": {
+          "trace-id": {
             "$ref": "#/components/headers/TraceIdHeader"
           },
-          "x-idempotency-key": {
-            "$ref": "#/components/headers/XIdempotencyKeyHeader"
+          "idempotency-key": {
+            "$ref": "#/components/headers/IdempotencyKeyHeader"
           }
         },
         "content": {
@@ -799,11 +793,11 @@
       "ScoresSuccessResponse": {
         "description": "List of fraud scores for a customer.",
         "headers": {
-          "x-trace-id": {
+          "trace-id": {
             "$ref": "#/components/headers/TraceIdHeader"
           },
-          "x-idempotency-key": {
-            "$ref": "#/components/headers/XIdempotencyKeyHeader"
+          "idempotency-key": {
+            "$ref": "#/components/headers/IdempotencyKeyHeader"
           }
         },
         "content": {
@@ -848,11 +842,11 @@
           }
         },
         "headers": {
-          "x-trace-id": {
+          "trace-id": {
             "$ref": "#/components/headers/TraceIdHeader"
           },
-          "x-idempotency-key": {
-            "$ref": "#/components/headers/XIdempotencyKeyHeader"
+          "idempotency-key": {
+            "$ref": "#/components/headers/IdempotencyKeyHeader"
           }
         }
       }
@@ -940,19 +934,16 @@
         "type": "object",
         "description": "The synchronous risk decision for a purchase.",
         "required": [
-          "assessmentId",
+          "id",
           "decision",
           "riskScore",
-          "decisionAt",
-          "decisionScore"
+          "decisionAt"
         ],
         "properties": {
-          "assessmentId": {
+          "id": {
             "type": "string",
-            "description": "Universal decision identifier. For purchases, equals paymentIntentId.",
-            "minLength": 8,
-            "maxLength": 64,
-            "pattern": "^[a-zA-Z0-9\\-_]+$"
+            "description": "Alogram's unique, authoritative evaluation and transaction identifier. Prefixed with 'pi_' for purchases.",
+            "example": "pi_0123456789abcdef"
           },
           "decision": {
             "type": "string",
@@ -961,7 +952,8 @@
               "review",
               "decline",
               "step_up"
-            ]
+            ],
+            "description": "The authoritative, absolute policy command for this transaction. Downstream systems must bind their operational behavior (approve/decline/review) directly to this field."
           },
           "decisionAt": {
             "$ref": "#/components/schemas/Timestamp"
@@ -971,31 +963,7 @@
             "format": "float",
             "minimum": 0,
             "maximum": 1,
-            "description": "DEPRECATED: Use decisionScore instead. Current blended risk score."
-          },
-          "decisionScore": {
-            "type": "number",
-            "format": "float",
-            "minimum": 0,
-            "maximum": 1,
-            "description": "The authoritative blended risk score (0.0 - 1.0) derived from expert fusion."
-          },
-          "fraudScore": {
-            "$ref": "#/components/schemas/FraudScore"
-          },
-          "breakdown": {
-            "$ref": "#/components/schemas/RiskBreakdown"
-          },
-          "reasonCodes": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "description": "Technical reason codes for the decision.",
-            "example": [
-              "HIGH_VALUE",
-              "UNUSUAL_LOCATION"
-            ]
+            "description": "The authoritative, policy-adjusted blended risk score (0.0 - 1.0) derived from expert fusion."
           },
           "reasons": {
             "type": "array",
@@ -1004,49 +972,31 @@
             },
             "description": "Structured reason details for the decision."
           },
-          "actions": {
-            "type": "array",
-            "items": {
-              "type": "string",
-              "enum": [
-                "step_up",
-                "throttle",
-                "lock_account",
-                "decline",
-                "queue_review"
-              ],
-              "description": "Action to be taken based on the decision. 'step_up' for Strong Customer Authentication, 'throttle' for rate limiting, 'lock_account' for account suspension, 'decline' for transaction rejection, 'queue_review' for manual review.\n"
-            },
-            "example": [
-              "queue_review"
-            ]
+          "breakdown": {
+            "$ref": "#/components/schemas/RiskBreakdown"
           },
-          "paymentIntentId": {
-            "$ref": "#/components/schemas/PaymentIntentId"
-          },
-          "policyVersion": {
-            "type": "string",
-            "description": "The version of the policy that generated the decision.",
-            "example": "v1.0.0"
-          },
-          "modelVersion": {
-            "type": "string",
-            "description": "The version of the model that generated the decision.",
-            "example": "v1.0.0"
-          },
-          "ttlSeconds": {
-            "type": "integer",
-            "minimum": 0,
-            "description": "Time to live for the decision in seconds.",
-            "example": 3600
+          "policy": {
+            "type": "object",
+            "description": "Structured policy metadata and context active during transaction evaluation.",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "The unique identifier of the active policy.",
+                "example": "pol_prod_v2"
+              },
+              "ruleSet": {
+                "type": "string",
+                "description": "The name/version of the ruleset configuration.",
+                "example": "standard_ecommerce_v4"
+              }
+            }
           }
         },
         "example": {
-          "assessmentId": "pi_0123456789abcdef0123456789abcdef",
+          "id": "pi_0123456789abcdef",
           "decision": "approve",
           "decisionAt": "2023-12-14T15:45:30.123Z",
-          "riskScore": 0.98,
-          "decisionScore": 0.98
+          "riskScore": 0.98
         }
       },
       "SignalsAccountVariant": {
@@ -1167,12 +1117,11 @@
         "example": {
           "scores": [
             {
-              "assessmentId": "pi_0123456789abcdef0123456789abcdef",
+              "id": "pi_0123456789abcdef0123456789abcdef",
               "decisionAt": "2023-12-14T15:45:30.123Z",
               "decision": "approve",
               "riskScore": 0.98,
-              "decisionScore": 0.98,
-              "entity": {
+              "entities": {
                 "tenantId": "ten_alogram_01",
                 "endCustomerId": "cus_4f9d27e2b8f64b9e9a9cf5e9e4727d0c"
               },
@@ -1186,19 +1135,17 @@
       "ScoreRecord": {
         "type": "object",
         "required": [
-          "assessmentId",
+          "id",
           "decisionAt",
           "decision",
-          "riskScore",
-          "decisionScore"
+          "riskScore"
         ],
         "description": "Fraud score for a specific transaction or entity.",
         "example": {
-          "assessmentId": "pi_0123456789abcdef0123456789abcdef",
+          "id": "pi_0123456789abcdef0123456789abcdef",
           "decisionAt": "2023-12-14T15:45:30.123Z",
           "decision": "approve",
           "riskScore": 0.98,
-          "decisionScore": 0.98,
           "entities": {
             "tenantId": "ten_alogram_01",
             "endCustomerId": "cus_4f9d27e2b8f64b9e9a9cf5e9e4727d0c"
@@ -1207,13 +1154,10 @@
           "currency": "USD"
         },
         "properties": {
-          "assessmentId": {
+          "id": {
             "type": "string",
-            "description": "Universal decision identifier (for purchases, equals paymentIntentId).",
-            "example": "pi_234567890abcdef"
-          },
-          "paymentIntentId": {
-            "$ref": "#/components/schemas/PaymentIntentId"
+            "description": "Universal, authoritative transaction and evaluation identifier. Prefixed with 'pi_' for purchases.",
+            "example": "pi_0123456789abcdef"
           },
           "decisionAt": {
             "$ref": "#/components/schemas/Timestamp"
@@ -1234,19 +1178,8 @@
             "format": "float",
             "minimum": 0,
             "maximum": 1,
-            "description": "DEPRECATED: Use decisionScore instead. Fraud risk score (0.00 - 1.00).",
+            "description": "The authoritative, policy-adjusted blended risk score (0.0 - 1.0) derived from expert fusion.",
             "example": 0.98
-          },
-          "decisionScore": {
-            "type": "number",
-            "format": "float",
-            "minimum": 0,
-            "maximum": 1,
-            "description": "The authoritative blended risk score (0.0 - 1.0) derived from expert fusion.",
-            "example": 0.98
-          },
-          "fraudScore": {
-            "$ref": "#/components/schemas/FraudScore"
           },
           "breakdown": {
             "$ref": "#/components/schemas/RiskBreakdown"
@@ -1392,6 +1325,9 @@
           },
           "operatorId": {
             "$ref": "#/components/schemas/OperatorId"
+          },
+          "operatorType": {
+            "$ref": "#/components/schemas/OperatorType"
           },
           "auth": {
             "$ref": "#/components/schemas/AuthContext"
@@ -2033,6 +1969,11 @@
           "recommendedAction": {
             "type": "string",
             "description": "Suggested action for the merchant to mitigate this specific risk."
+          },
+          "impact": {
+            "type": "string",
+            "description": "The structural or mathematical influence of this specific reason on the final decision (e.g., 'critical_trigger', 'suppression_reduction', 'score_increment').",
+            "example": "critical_trigger"
           }
         }
       },
@@ -2789,11 +2730,22 @@
       "OperatorId": {
         "type": "string",
         "title": "OperatorId",
-        "pattern": "^(mid_[a-z0-9_-]{2,96}|op_[a-f0-9]{32})$",
+        "pattern": "^(mid_[a-z0-9_-]{2,96}|op_([a-f0-9]{32}|system|[a-z0-9_-]{2,64}))$",
         "minLength": 5,
         "maxLength": 100,
         "example": "op_4f9d27e2b8f64b9e9a9cf5e9e4727d0c",
         "description": "Canonical ID for a Tenant Operator (staff/automation) holding membership in the platform.  Opaque, immutable, lowercase. Supports \"mid_\" slugs (Legacy) or \"op_\" hex (Preferred).\n"
+      },
+      "OperatorType": {
+        "type": "string",
+        "title": "OperatorType",
+        "enum": [
+          "human",
+          "system",
+          "autonomous_agent"
+        ],
+        "example": "system",
+        "description": "Semantic classification of the platform operator performing the action. Opaque, immutable, lowercase. Helps downstream ETLs partition telemetry cleanly.\n"
       },
       "AuthPrincipalUid": {
         "type": "string",
@@ -3179,7 +3131,7 @@
     },
     "parameters": {
       "TraceIdHeader": {
-        "name": "x-trace-id",
+        "name": "trace-id",
         "description": "Echoed or generated trace ID for tracking requests.",
         "in": "header",
         "required": false,
@@ -3190,7 +3142,7 @@
         }
       },
       "IdempotencyKeyHeaderRequired": {
-        "name": "x-idempotency-key",
+        "name": "idempotency-key",
         "description": "Unique Idempotency-Key sent in the POST request etc.",
         "in": "header",
         "required": true,
@@ -3199,7 +3151,7 @@
         }
       },
       "AgentManifestHeader": {
-        "name": "x-alogram-agent-manifest",
+        "name": "alogram-agent-manifest",
         "description": "JSON-encoded AgentManifest for autonomous shopping agents.  Required for machine-to-machine trust validation (UCP/MCP).\n",
         "in": "header",
         "required": false,
@@ -3208,7 +3160,7 @@
         }
       },
       "IdempotencyKeyHeaderOptional": {
-        "name": "x-idempotency-key",
+        "name": "idempotency-key",
         "description": "Unique Idempotency-Key sent in the GET request etc.",
         "in": "header",
         "required": false,
@@ -3224,8 +3176,8 @@
           "$ref": "#/components/schemas/TraceId"
         }
       },
-      "XIdempotencyKeyHeader": {
-        "description": "Echo of the request's x-idempotency-key header.",
+      "IdempotencyKeyHeader": {
+        "description": "Echo of the request's idempotency-key header.",
         "schema": {
           "$ref": "#/components/schemas/IdempotencyKey"
         }

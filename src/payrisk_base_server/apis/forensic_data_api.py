@@ -46,7 +46,7 @@ async def get_fraud_scores(
         min_length=6,
         max_length=68,
     ),
-    x_trace_id: Annotated[
+    trace_id: Annotated[
         Optional[Annotated[str, Field(min_length=36, max_length=36)]],
         Field(description="Echoed or generated trace ID for tracking requests."),
     ] = Header(
@@ -56,7 +56,7 @@ async def get_fraud_scores(
         min_length=36,
         max_length=36,
     ),
-    x_idempotency_key: Annotated[
+    idempotency_key: Annotated[
         Optional[Annotated[str, Field(min_length=36, max_length=36)]],
         Field(description="Unique Idempotency-Key sent in the GET request etc."),
     ] = Header(
@@ -86,11 +86,5 @@ async def get_fraud_scores(
     if not BaseForensicDataApi.subclasses:
         raise HTTPException(status_code=500, detail="Not implemented")
     return await BaseForensicDataApi.subclasses[0]().get_fraud_scores(
-        tenantId,
-        x_trace_id,
-        x_idempotency_key,
-        start_time,
-        end_time,
-        page_size,
-        page_token,
+        tenantId, trace_id, idempotency_key, start_time, end_time, page_size, page_token
     )

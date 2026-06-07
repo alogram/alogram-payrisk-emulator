@@ -47,7 +47,7 @@ for _, name, _ in pkgutil.iter_modules(ns_pkg.__path__, ns_pkg.__name__ + "."):
     response_model_by_alias=True,
 )
 async def ingest_payment_event(
-    x_idempotency_key: Annotated[
+    idempotency_key: Annotated[
         str,
         Field(
             min_length=36,
@@ -62,7 +62,7 @@ async def ingest_payment_event(
         max_length=36,
     ),
     payment_event: PaymentEvent = Body(None, description=""),
-    x_trace_id: Annotated[
+    trace_id: Annotated[
         Optional[Annotated[str, Field(min_length=36, max_length=36)]],
         Field(description="Echoed or generated trace ID for tracking requests."),
     ] = Header(
@@ -72,7 +72,7 @@ async def ingest_payment_event(
         min_length=36,
         max_length=36,
     ),
-    x_alogram_agent_manifest: Annotated[
+    alogram_agent_manifest: Annotated[
         Optional[AgentManifest],
         Field(
             description="JSON-encoded AgentManifest for autonomous shopping agents.  Required for machine-to-machine trust validation (UCP/MCP). "
@@ -85,7 +85,7 @@ async def ingest_payment_event(
     if not BaseSignalIntelligenceApi.subclasses:
         raise HTTPException(status_code=500, detail="Not implemented")
     return await BaseSignalIntelligenceApi.subclasses[0]().ingest_payment_event(
-        x_idempotency_key, payment_event, x_trace_id, x_alogram_agent_manifest
+        idempotency_key, payment_event, trace_id, alogram_agent_manifest
     )
 
 
@@ -104,7 +104,7 @@ async def ingest_payment_event(
     response_model_by_alias=True,
 )
 async def ingest_signals(
-    x_idempotency_key: Annotated[
+    idempotency_key: Annotated[
         str,
         Field(
             min_length=36,
@@ -119,7 +119,7 @@ async def ingest_signals(
         max_length=36,
     ),
     signals_request: SignalsRequest = Body(None, description=""),
-    x_trace_id: Annotated[
+    trace_id: Annotated[
         Optional[Annotated[str, Field(min_length=36, max_length=36)]],
         Field(description="Echoed or generated trace ID for tracking requests."),
     ] = Header(
@@ -129,7 +129,7 @@ async def ingest_signals(
         min_length=36,
         max_length=36,
     ),
-    x_alogram_agent_manifest: Annotated[
+    alogram_agent_manifest: Annotated[
         Optional[AgentManifest],
         Field(
             description="JSON-encoded AgentManifest for autonomous shopping agents.  Required for machine-to-machine trust validation (UCP/MCP). "
@@ -142,5 +142,5 @@ async def ingest_signals(
     if not BaseSignalIntelligenceApi.subclasses:
         raise HTTPException(status_code=500, detail="Not implemented")
     return await BaseSignalIntelligenceApi.subclasses[0]().ingest_signals(
-        x_idempotency_key, signals_request, x_trace_id, x_alogram_agent_manifest
+        idempotency_key, signals_request, trace_id, alogram_agent_manifest
     )
