@@ -25,23 +25,19 @@ except ImportError:
     from typing_extensions import Self
 
 
-class CardNetworkEnum(str, Enum):
+class OperatorType(str, Enum):
     """
-    The type of card network.
+    Semantic classification of the platform operator performing the action. Opaque, immutable, lowercase. Helps downstream ETLs partition telemetry cleanly.
     """
 
     """
     allowed enum values
     """
-    VISA = "visa"
-    MASTERCARD = "mastercard"
-    AMEX = "amex"
-    DISCOVER = "discover"
-    JCB = "jcb"
-    UNIONPAY = "unionpay"
-    OTHER = "other"
+    HUMAN = "human"
+    SYSTEM = "system"
+    AUTONOMOUS_AGENT = "autonomous_agent"
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:
-        """Create an instance of CardNetworkEnum from a JSON string"""
+        """Create an instance of OperatorType from a JSON string"""
         return cls(json.loads(json_str))

@@ -46,7 +46,7 @@ for _, name, _ in pkgutil.iter_modules(ns_pkg.__path__, ns_pkg.__name__ + "."):
     response_model_by_alias=True,
 )
 async def account_risk_check(
-    x_idempotency_key: Annotated[
+    idempotency_key: Annotated[
         str,
         Field(
             min_length=36,
@@ -61,7 +61,7 @@ async def account_risk_check(
         max_length=36,
     ),
     account_check_request: AccountCheckRequest = Body(None, description=""),
-    x_trace_id: Annotated[
+    trace_id: Annotated[
         Optional[Annotated[str, Field(min_length=36, max_length=36)]],
         Field(description="Echoed or generated trace ID for tracking requests."),
     ] = Header(
@@ -71,7 +71,7 @@ async def account_risk_check(
         min_length=36,
         max_length=36,
     ),
-    x_alogram_agent_manifest: Annotated[
+    alogram_agent_manifest: Annotated[
         Optional[AgentManifest],
         Field(
             description="JSON-encoded AgentManifest for autonomous shopping agents.  Required for machine-to-machine trust validation (UCP/MCP). "
@@ -85,7 +85,7 @@ async def account_risk_check(
     if not BaseRoadmapPreviewApi.subclasses:
         raise HTTPException(status_code=500, detail="Not implemented")
     return await BaseRoadmapPreviewApi.subclasses[0]().account_risk_check(
-        x_idempotency_key, account_check_request, x_trace_id, x_alogram_agent_manifest
+        idempotency_key, account_check_request, trace_id, alogram_agent_manifest
     )
 
 
@@ -103,7 +103,7 @@ async def account_risk_check(
     response_model_by_alias=True,
 )
 async def kyc_risk_check(
-    x_idempotency_key: Annotated[
+    idempotency_key: Annotated[
         str,
         Field(
             min_length=36,
@@ -118,7 +118,7 @@ async def kyc_risk_check(
         max_length=36,
     ),
     kyc_check_request: KycCheckRequest = Body(None, description=""),
-    x_trace_id: Annotated[
+    trace_id: Annotated[
         Optional[Annotated[str, Field(min_length=36, max_length=36)]],
         Field(description="Echoed or generated trace ID for tracking requests."),
     ] = Header(
@@ -128,7 +128,7 @@ async def kyc_risk_check(
         min_length=36,
         max_length=36,
     ),
-    x_alogram_agent_manifest: Annotated[
+    alogram_agent_manifest: Annotated[
         Optional[AgentManifest],
         Field(
             description="JSON-encoded AgentManifest for autonomous shopping agents.  Required for machine-to-machine trust validation (UCP/MCP). "
@@ -142,7 +142,7 @@ async def kyc_risk_check(
     if not BaseRoadmapPreviewApi.subclasses:
         raise HTTPException(status_code=500, detail="Not implemented")
     return await BaseRoadmapPreviewApi.subclasses[0]().kyc_risk_check(
-        x_idempotency_key, kyc_check_request, x_trace_id, x_alogram_agent_manifest
+        idempotency_key, kyc_check_request, trace_id, alogram_agent_manifest
     )
 
 

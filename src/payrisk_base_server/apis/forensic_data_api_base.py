@@ -20,11 +20,11 @@ class BaseForensicDataApi:
     async def get_fraud_scores(
         self,
         tenantId: Annotated[str, Field(min_length=6, max_length=68)],
-        x_trace_id: Annotated[
+        trace_id: Annotated[
             Optional[Annotated[str, Field(min_length=36, max_length=36)]],
             Field(description="Echoed or generated trace ID for tracking requests."),
         ],
-        x_idempotency_key: Annotated[
+        idempotency_key: Annotated[
             Optional[Annotated[str, Field(min_length=36, max_length=36)]],
             Field(description="Unique Idempotency-Key sent in the GET request etc."),
         ],

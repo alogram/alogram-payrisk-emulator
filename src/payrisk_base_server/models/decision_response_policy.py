@@ -17,9 +17,9 @@ from __future__ import annotations
 import json
 import pprint
 import re  # noqa: F401
-from typing import Any, ClassVar, Dict, List
+from typing import Any, ClassVar, Dict, List, Optional
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
+from pydantic import BaseModel, ConfigDict, Field, StrictStr
 
 try:
     from typing import Self
@@ -27,29 +27,20 @@ except ImportError:
     from typing_extensions import Self
 
 
-class DecisionResolutionRequestAnalyst(BaseModel):
+class DecisionResponsePolicy(BaseModel):
     """
-    DecisionResolutionRequestAnalyst
+    Structured policy metadata and context active during transaction evaluation.
     """  # noqa: E501
 
-    id: StrictStr = Field(
-        description="The unique ID of the operator, SRE, or autonomous agent."
+    id: Optional[StrictStr] = Field(
+        default=None, description="The unique identifier of the active policy."
     )
-    type: StrictStr = Field(description="The system role of the decision maker.")
-    __properties: ClassVar[List[str]] = ["id", "type"]
-
-    @field_validator("type")
-    def type_validate_enum(cls, value):
-        """Validates the enum"""
-        if value not in (
-            "human_merchant",
-            "automated_consensus",
-            "autonomous_agent",
-        ):
-            raise ValueError(
-                "must be one of enum values ('human_merchant', 'automated_consensus', 'autonomous_agent')"
-            )
-        return value
+    rule_set: Optional[StrictStr] = Field(
+        default=None,
+        description="The name/version of the ruleset configuration.",
+        alias="ruleSet",
+    )
+    __properties: ClassVar[List[str]] = ["id", "ruleSet"]
 
     model_config = {
         "populate_by_name": True,
@@ -68,7 +59,7 @@ class DecisionResolutionRequestAnalyst(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:
-        """Create an instance of DecisionResolutionRequestAnalyst from a JSON string"""
+        """Create an instance of DecisionResponsePolicy from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -90,12 +81,12 @@ class DecisionResolutionRequestAnalyst(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Dict) -> Self:
-        """Create an instance of DecisionResolutionRequestAnalyst from a dict"""
+        """Create an instance of DecisionResponsePolicy from a dict"""
         if obj is None:
             return None
 
         if not isinstance(obj, dict):
             return cls.model_validate(obj)
 
-        _obj = cls.model_validate({"id": obj.get("id"), "type": obj.get("type")})
+        _obj = cls.model_validate({"id": obj.get("id"), "ruleSet": obj.get("ruleSet")})
         return _obj

@@ -41,7 +41,7 @@ for _, name, _ in pkgutil.iter_modules(ns_pkg.__path__, ns_pkg.__name__ + "."):
     response_model_by_alias=True,
 )
 async def risk_check(
-    x_idempotency_key: Annotated[
+    idempotency_key: Annotated[
         str,
         Field(
             min_length=36,
@@ -56,7 +56,7 @@ async def risk_check(
         max_length=36,
     ),
     check_request: CheckRequest = Body(None, description=""),
-    x_trace_id: Annotated[
+    trace_id: Annotated[
         Optional[Annotated[str, Field(min_length=36, max_length=36)]],
         Field(description="Echoed or generated trace ID for tracking requests."),
     ] = Header(
@@ -66,7 +66,7 @@ async def risk_check(
         min_length=36,
         max_length=36,
     ),
-    x_alogram_agent_manifest: Annotated[
+    alogram_agent_manifest: Annotated[
         Optional[AgentManifest],
         Field(
             description="JSON-encoded AgentManifest for autonomous shopping agents.  Required for machine-to-machine trust validation (UCP/MCP). "
@@ -79,5 +79,5 @@ async def risk_check(
     if not BaseRiskScoringApi.subclasses:
         raise HTTPException(status_code=500, detail="Not implemented")
     return await BaseRiskScoringApi.subclasses[0]().risk_check(
-        x_idempotency_key, check_request, x_trace_id, x_alogram_agent_manifest
+        idempotency_key, check_request, trace_id, alogram_agent_manifest
     )
