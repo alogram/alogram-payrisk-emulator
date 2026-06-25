@@ -58,7 +58,7 @@ info:
   license:
     name: Apache-2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
-  version: 0.3.0
+  version: 0.3.1
   x-logo:
     url: logo.png
     altText: Alogram PayRisk Logo
@@ -1157,11 +1157,10 @@ components:
     DiscountCode:
       type: object
       title: DiscountCode
-      required:
-        - code
       properties:
         code:
           type: string
+          nullable: true
           description: The discount code string (e.g., 'SUMMER20').
           example: SAVE20
         amount:
