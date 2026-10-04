@@ -25,20 +25,24 @@ except ImportError:
     from typing_extensions import Self
 
 
-class ChannelEnum(str, Enum):
+class ItemCategoryEnum(str, Enum):
     """
-    pos: 'Point of Sale', ecom: 'E-commerce', in_app: 'In-App Purchase', ivr: 'Interactive Voice Response'.
+    Standardized high-level commodity classification for fraud scoring.
     """
 
     """
     allowed enum values
     """
-    POS = "pos"
-    ECOM = "ecom"
-    IN_APP = "in_app"
-    IVR = "ivr"
+    PHYSICAL = "physical"
+    DIGITAL_CONTENT = "digital_content"
+    GIFT_CARD = "gift_card"
+    SUBSCRIPTION = "subscription"
+    SERVICE = "service"
+    TRAVEL = "travel"
+    CRYPTO_VOUCHER = "crypto_voucher"
+    OTHER = "other"
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:
-        """Create an instance of ChannelEnum from a JSON string"""
+        """Create an instance of ItemCategoryEnum from a JSON string"""
         return cls(json.loads(json_str))
