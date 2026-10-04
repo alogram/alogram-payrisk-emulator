@@ -19,11 +19,8 @@ import pprint
 import re  # noqa: F401
 from typing import Any, ClassVar, Dict, List, Optional, Union
 
-from payrisk_base_server.models.fulfillment_speed_enum import \
-    FulfillmentSpeedEnum
-from payrisk_base_server.models.line_item import LineItem
-from pydantic import (BaseModel, ConfigDict, Field, StrictBool, StrictStr,
-                      field_validator)
+from payrisk_base_server.models.item_category_enum import ItemCategoryEnum
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, field_validator
 from typing_extensions import Annotated
 
 try:
@@ -32,83 +29,85 @@ except ImportError:
     from typing_extensions import Self
 
 
-class OrderContext(BaseModel):
+class LineItem(BaseModel):
     """
-    Comprehensive commercial order context for the purchase.
+    Lightweight, fraud-relevant item context representing a single cart entry. Omits heavy marketing assets (images, HTML copy) to prioritize low-latency authorization.
     """  # noqa: E501
 
-    order_id: Optional[Annotated[str, Field(min_length=1, max_length=128)]] = Field(
+    id: Optional[Annotated[str, Field(min_length=1, max_length=128)]] = Field(
         default=None,
-        description="Unique identifier for the order or cart in the source storefront. Supports standard alphanumeric IDs (ORD-...), Fortress identifiers, or storefront GIDs. ",
-        alias="orderId",
+        description="Platform-agnostic line item or cart item identifier. Supports standard alphanumeric IDs, Fortress identifiers (li_...), and GraphQL GIDs (gid://shopify/LineItem/12345). ",
     )
-    order_total: Optional[
+    sku: Optional[Annotated[str, Field(max_length=64)]] = Field(
+        default=None, description="Merchant SKU, barcode, or variant identifier."
+    )
+    title: Annotated[str, Field(min_length=1, max_length=255)] = Field(
+        description="Concise product or item title."
+    )
+    category: Optional[ItemCategoryEnum] = None
+    quantity: Annotated[int, Field(le=10000, ge=1)] = Field(
+        description="Quantity of the item being purchased."
+    )
+    unit_price: Union[
+        Annotated[float, Field(le=1.0e7, ge=0.0)],
+        Annotated[int, Field(le=10000000, ge=0)],
+    ] = Field(description="Price per unit in the order currency.", alias="unitPrice")
+    total_amount: Optional[
         Union[
             Annotated[float, Field(le=1.0e7, ge=0.0)],
             Annotated[int, Field(le=10000000, ge=0)],
         ]
     ] = Field(
         default=None,
-        description="Value of the order total in the specified currency.",
-        alias="orderTotal",
+        description="Optional gross line total (unitPrice * quantity) before item discounts.",
+        alias="totalAmount",
     )
-    currency: Optional[Annotated[str, Field(min_length=3, max_length=3)]] = Field(
+    is_digital: Optional[StrictBool] = Field(
         default=None,
-        description="ISO 4217 three-letter currency code (e.g., 'USD', 'EUR', 'GBP').",
+        description="Indicates whether this item is fulfilled digitally without physical delivery.",
+        alias="isDigital",
     )
-    shipping_method: Optional[StrictStr] = Field(
+    is_gift_card: Optional[StrictBool] = Field(
         default=None,
-        description="Primary shipping fulfillment method.",
-        alias="shippingMethod",
+        description="Indicates whether this item is a cash-equivalent stored value card or code.",
+        alias="isGiftCard",
     )
-    fulfillment_speed: Optional[FulfillmentSpeedEnum] = Field(
-        default=None, alias="fulfillmentSpeed"
-    )
-    line_item_count: Optional[Annotated[int, Field(le=1000, ge=0)]] = Field(
+    requires_shipping: Optional[StrictBool] = Field(
         default=None,
-        description="Total count of individual line items in the cart.",
-        alias="lineItemCount",
+        description="Whether this item requires physical dispatch to a postal address.",
+        alias="requiresShipping",
     )
-    contains_digital_goods: Optional[StrictBool] = Field(
+    brand: Optional[Annotated[str, Field(max_length=128)]] = Field(
         default=None,
-        description="True if any item in the cart is digital / non-physical.",
-        alias="containsDigitalGoods",
+        description="Brand or manufacturer name (used for high-value resale targeting).",
     )
-    contains_gift_cards: Optional[StrictBool] = Field(
+    image_url: Optional[Annotated[str, Field(max_length=2048)]] = Field(
         default=None,
-        description="True if any item is a cash-equivalent gift card or voucher.",
-        alias="containsGiftCards",
+        description="Public HTTP/HTTPS URL of the product image for review consoles.",
+        alias="imageUrl",
     )
-    max_single_item_price: Optional[
-        Union[
-            Annotated[float, Field(le=1.0e7, ge=0.0)],
-            Annotated[int, Field(le=10000000, ge=0)],
-        ]
-    ] = Field(
+    metadata: Optional[Dict[str, Any]] = Field(
         default=None,
-        description="Highest unit price of a single item in the cart.",
-        alias="maxSingleItemPrice",
-    )
-    line_items: Optional[List[LineItem]] = Field(
-        default=None,
-        description="Ordered collection of items in the purchase.",
-        alias="lineItems",
+        description="Flexible container for storefront-specific variant traits (e.g. size, color).",
     )
     __properties: ClassVar[List[str]] = [
-        "orderId",
-        "orderTotal",
-        "currency",
-        "shippingMethod",
-        "fulfillmentSpeed",
-        "lineItemCount",
-        "containsDigitalGoods",
-        "containsGiftCards",
-        "maxSingleItemPrice",
-        "lineItems",
+        "id",
+        "sku",
+        "title",
+        "category",
+        "quantity",
+        "unitPrice",
+        "totalAmount",
+        "isDigital",
+        "isGiftCard",
+        "requiresShipping",
+        "brand",
+        "imageUrl",
+        "metadata",
     ]
 
-    @field_validator("order_id")
-    def order_id_validate_regular_expression(cls, value):
+    @field_validator("id")
+    def id_validate_regular_expression(cls, value):
         """Validates the regular expression"""
         if value is None:
             return value
@@ -119,28 +118,16 @@ class OrderContext(BaseModel):
             )
         return value
 
-    @field_validator("currency")
-    def currency_validate_regular_expression(cls, value):
+    @field_validator("sku")
+    def sku_validate_regular_expression(cls, value):
         """Validates the regular expression"""
         if value is None:
             return value
 
-        if not re.match(r"^[A-Z]{3}$", value):
-            raise ValueError(r"must validate the regular expression /^[A-Z]{3}$/")
-        return value
-
-    @field_validator("shipping_method")
-    def shipping_method_validate_enum(cls, value):
-        """Validates the enum"""
-        if value is None:
-            return value
-
-        if value not in (
-            "digital",
-            "ship",
-            "bopis",
-        ):
-            raise ValueError("must be one of enum values ('digital', 'ship', 'bopis')")
+        if not re.match(r"^[a-zA-Z0-9_\-\.]{1,64}$", value):
+            raise ValueError(
+                r"must validate the regular expression /^[a-zA-Z0-9_\-\.]{1,64}$/"
+            )
         return value
 
     model_config = {
@@ -160,7 +147,7 @@ class OrderContext(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:
-        """Create an instance of OrderContext from a JSON string"""
+        """Create an instance of LineItem from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -178,18 +165,11 @@ class OrderContext(BaseModel):
             exclude={},
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of each item in line_items (list)
-        _items = []
-        if self.line_items:
-            for _item in self.line_items:
-                if _item:
-                    _items.append(_item.to_dict())
-            _dict["lineItems"] = _items
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Dict) -> Self:
-        """Create an instance of OrderContext from a dict"""
+        """Create an instance of LineItem from a dict"""
         if obj is None:
             return None
 
@@ -198,20 +178,19 @@ class OrderContext(BaseModel):
 
         _obj = cls.model_validate(
             {
-                "orderId": obj.get("orderId"),
-                "orderTotal": obj.get("orderTotal"),
-                "currency": obj.get("currency"),
-                "shippingMethod": obj.get("shippingMethod"),
-                "fulfillmentSpeed": obj.get("fulfillmentSpeed"),
-                "lineItemCount": obj.get("lineItemCount"),
-                "containsDigitalGoods": obj.get("containsDigitalGoods"),
-                "containsGiftCards": obj.get("containsGiftCards"),
-                "maxSingleItemPrice": obj.get("maxSingleItemPrice"),
-                "lineItems": (
-                    [LineItem.from_dict(_item) for _item in obj.get("lineItems")]
-                    if obj.get("lineItems") is not None
-                    else None
-                ),
+                "id": obj.get("id"),
+                "sku": obj.get("sku"),
+                "title": obj.get("title"),
+                "category": obj.get("category"),
+                "quantity": obj.get("quantity"),
+                "unitPrice": obj.get("unitPrice"),
+                "totalAmount": obj.get("totalAmount"),
+                "isDigital": obj.get("isDigital"),
+                "isGiftCard": obj.get("isGiftCard"),
+                "requiresShipping": obj.get("requiresShipping"),
+                "brand": obj.get("brand"),
+                "imageUrl": obj.get("imageUrl"),
+                "metadata": obj.get("metadata"),
             }
         )
         return _obj

@@ -58,7 +58,7 @@ info:
   license:
     name: Apache-2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
-  version: 0.3.3
+  version: 0.3.4
   x-logo:
     url: logo.png
     altText: Alogram PayRisk Logo
@@ -1649,35 +1649,181 @@ components:
           description: 'Optional: Client-side assessment of email reputation.'
           example: high
       type: object
+    LineItemId:
+      type: string
+      title: LineItemId
+      minLength: 1
+      maxLength: 128
+      pattern: ^[a-zA-Z0-9_\-\.:/]{1,128}$
+      example: li_4f9d27e2b8f64b9e
+      description: |
+        Platform-agnostic line item or cart item identifier. Supports standard alphanumeric IDs, Fortress identifiers (li_...), and GraphQL GIDs (gid://shopify/LineItem/12345).
+    ItemCategoryEnum:
+      type: string
+      title: ItemCategoryEnum
+      enum:
+        - physical
+        - digital_content
+        - gift_card
+        - subscription
+        - service
+        - travel
+        - crypto_voucher
+        - other
+      description: Standardized high-level commodity classification for fraud scoring.
+      example: physical
+    FulfillmentSpeedEnum:
+      type: string
+      title: FulfillmentSpeedEnum
+      enum:
+        - standard
+        - express
+        - overnight
+        - same_day
+        - instant_digital
+        - bopis
+      description: Expected speed and channel of fulfillment.
+      example: standard
+    LineItem:
+      type: object
+      title: LineItem
+      description: |
+        Lightweight, fraud-relevant item context representing a single cart entry. Omits heavy marketing assets (images, HTML copy) to prioritize low-latency authorization.
+      required:
+        - title
+        - quantity
+        - unitPrice
+      properties:
+        id:
+          $ref: '#/components/schemas/LineItemId'
+        sku:
+          type: string
+          maxLength: 64
+          pattern: ^[a-zA-Z0-9_\-\.]{1,64}$
+          description: Merchant SKU, barcode, or variant identifier.
+          example: IPHONE15-PRO-256
+        title:
+          type: string
+          minLength: 1
+          maxLength: 255
+          description: Concise product or item title.
+          example: Apple iPhone 15 Pro 256GB
+        category:
+          $ref: '#/components/schemas/ItemCategoryEnum'
+        quantity:
+          type: integer
+          minimum: 1
+          maximum: 10000
+          description: Quantity of the item being purchased.
+          example: 1
+        unitPrice:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 10000000
+          description: Price per unit in the order currency.
+          example: 1199
+        totalAmount:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 10000000
+          description: Optional gross line total (unitPrice * quantity) before item discounts.
+          example: 1199
+        isDigital:
+          type: boolean
+          description: Indicates whether this item is fulfilled digitally without physical delivery.
+          example: false
+        isGiftCard:
+          type: boolean
+          description: Indicates whether this item is a cash-equivalent stored value card or code.
+          example: false
+        requiresShipping:
+          type: boolean
+          description: Whether this item requires physical dispatch to a postal address.
+          example: true
+        brand:
+          type: string
+          maxLength: 128
+          description: Brand or manufacturer name (used for high-value resale targeting).
+          example: Apple
+        imageUrl:
+          type: string
+          format: uri
+          maxLength: 2048
+          description: Public HTTP/HTTPS URL of the product image for review consoles.
+          example: https://images.unsplash.com/photo-1695048133142-1a20484d2569
+        metadata:
+          type: object
+          additionalProperties: true
+          description: Flexible container for storefront-specific variant traits (e.g. size, color).
     OrderContext:
       type: object
-      description: Order context for the purchase.
+      title: OrderContext
+      description: Comprehensive commercial order context for the purchase.
       example:
         orderId: ORD-789012
         orderTotal: 123.45
+        currency: USD
         shippingMethod: ship
+        fulfillmentSpeed: standard
         lineItemCount: 2
+        containsDigitalGoods: false
+        containsGiftCards: false
+        maxSingleItemPrice: 89.99
       properties:
         orderId:
-          type: string
-          description: Unique identifier for the order.
-          example: ORD-789012
+          $ref: '#/components/schemas/OrderId'
         orderTotal:
-          $ref: '#/components/schemas/PurchaseAmount'
+          type: number
+          format: float
+          minimum: 0
+          maximum: 10000000
+          description: Value of the order total in the specified currency.
+          example: 123.45
+        currency:
+          type: string
+          minLength: 3
+          maxLength: 3
+          pattern: ^[A-Z]{3}$
+          description: ISO 4217 three-letter currency code (e.g., 'USD', 'EUR', 'GBP').
+          example: USD
         shippingMethod:
           type: string
           enum:
             - digital
             - ship
             - bopis
-          description: Shipping method for the order.
+          description: Primary shipping fulfillment method.
           example: ship
+        fulfillmentSpeed:
+          $ref: '#/components/schemas/FulfillmentSpeedEnum'
         lineItemCount:
           type: integer
           minimum: 0
-          maximum: 100
-          description: Number of items in the order.
+          maximum: 1000
+          description: Total count of individual line items in the cart.
           example: 2
+        containsDigitalGoods:
+          type: boolean
+          description: True if any item in the cart is digital / non-physical.
+          example: false
+        containsGiftCards:
+          type: boolean
+          description: True if any item is a cash-equivalent gift card or voucher.
+          example: false
+        maxSingleItemPrice:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 10000000
+          description: Highest unit price of a single item in the cart.
+          example: 89.99
+        lineItems:
+          type: array
+          items:
+            $ref: '#/components/schemas/LineItem'
+          description: Ordered collection of items in the purchase.
     PurchaseUsageEnum:
       type: string
       enum:
@@ -2277,6 +2423,15 @@ components:
       description: RFC 3339 timestamp with timezone.
       pattern: ^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,9})?(Z|[+-]\d{2}:\d{2})$
       example: '2023-12-14T15:45:30.123456Z'
+    OrderId:
+      type: string
+      title: OrderId
+      minLength: 1
+      maxLength: 128
+      pattern: ^[a-zA-Z0-9_\-\.:/]{1,128}$
+      example: ORD-789012
+      description: |
+        Unique identifier for the order or cart in the source storefront. Supports standard alphanumeric IDs (ORD-...), Fortress identifiers, or storefront GIDs.
     MetaData:
       type: string
       title: MetaData
